@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.mahmoud.daftari",
+      "sha256_cert_fingerprints": [
+        "8B:F0:C7:C7:32:89:06:82:E1:D1:5D:5C:C6:B6:C0:FC:F1:A8:2B:96:22:3A:FD:C2:79:CB:99:94:B2:77:1F:A3"
+      ]
+    }
+  }
+]
