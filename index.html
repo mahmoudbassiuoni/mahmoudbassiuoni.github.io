@@ -226,7 +226,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 
 <script id="app">
 {
-const VER='٢٣ نوفمبر - ١١';
+const VER='٢٣ نوفمبر - ١٢';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -282,7 +282,7 @@ const month=()=>today().slice(0,7);
 const DEFW=[{id:'cash',name:'نقدي',ic:'wallet'},{id:'visa',name:'الفيزا',ic:'card'},{id:'silver',name:'فضية',ic:'coin',parent:'cash'},{id:'frozen',name:'مجمد',ic:'wallet',parent:'cash'}];
 const wn=id=>id==='none'?'مش من محفظتي':((S.wallets||[]).find(w=>w.id===id)||{name:id}).name;
 const ensureW=()=>{if(!Array.isArray(S.wallets)||!S.wallets.length)S.wallets=JSON.parse(JSON.stringify(DEFW));
- if(!Array.isArray(S.rec))S.rec=[];if(!Array.isArray(S.gam))S.gam=[];if(!Array.isArray(S.goals))S.goals=[];if(typeof S.budget!=='number')S.budget=0;
+ if(!Array.isArray(S.rec))S.rec=[];if(!Array.isArray(S.gam))S.gam=[];if(!Array.isArray(S.nDays))S.nDays=[3,2];if(!Array.isArray(S.goals))S.goals=[];if(typeof S.budget!=='number')S.budget=0;
  if(!S.wMig8){S.wMig8=1;S.wallets.forEach(w=>{if(w.id==='frozen'&&w.frozen){delete w.frozen;if(w.ic==='lock')w.ic='wallet';w.parent='cash'}if(w.id==='silver'&&!w.parent)w.parent='cash'})}};
 const kids=id=>S.wallets.filter(w=>w.parent===id);
 const gsaved=id=>S.mv.filter(m=>m.k==='gl'&&m.goal===id).reduce((a,m)=>a+m.amt,0);
@@ -492,29 +492,31 @@ const gMonths=g=>Array.from({length:g.n},(_,i)=>addM(g.start,i));
 const gDate=(g,k)=>k+'-'+String(Math.min(28,g.day)).padStart(2,'0');
 const gNext=g=>gMonths(g).find(k=>!gPaid(g,k));
 const gTurnM=g=>addM(g.start,g.turn-1);
+const lead=()=>Math.max(0,...S.nDays);
+const DAYOPT=[[0,'يوم الميعاد'],[1,'قبلها بيوم'],[2,'بيومين'],[3,'بـ ٣ أيام'],[5,'بـ ٥ أيام'],[7,'بأسبوع']];
 function reminders(){const R=[],T=today();
- for(const g of S.gam){const k=gNext(g);if(k){const d=gDate(g,k),n=daysTo(d);if(n<=(g.rem??2))R.push({n,d,ic:'users',t:`قسط «${gnm(g.name)}»`,s:(n<0?`متأخر ${(-n).toLocaleString('ar-EG')} يوم`:n===0?'النهارده':`بعد ${n.toLocaleString('ar-EG')} يوم`)+' · '+fmt(g.amt),o:'j:'+g.id,u:1})}
-  const tm=gTurnM(g);if(!gGot(g)){const d=gDate(g,tm),n=daysTo(d);if(n<=(g.rem??2)&&n>-31)R.push({n,d,ic:'gift',t:`دورك تقبض «${gnm(g.name)}»`,s:(n<=0?'الشهر ده':`بعد ${n.toLocaleString('ar-EG')} يوم`)+' · '+fmt(g.amt*g.n),o:'j:'+g.id,u:1})}}
- for(const r of S.rec){if(r.last===month())continue;const d=month()+'-'+String(r.day).padStart(2,'0'),n=daysTo(d);if(n>=0&&n<=2)R.push({n,d,ic:'repeat',t:`فاتورة «${r.name}»`,s:(n===0?'النهارده':`بعد ${n.toLocaleString('ar-EG')} يوم`)+' · '+fmt(r.amt),act:'bills',u:1})}
+ for(const g of S.gam){const k=gNext(g);if(k){const d=gDate(g,k),n=daysTo(d);if(n<=lead())R.push({n,d,ic:'users',t:`قسط «${gnm(g.name)}»`,s:(n<0?`متأخر ${(-n).toLocaleString('ar-EG')} يوم`:n===0?'النهارده':`بعد ${n.toLocaleString('ar-EG')} يوم`)+' · '+fmt(g.amt),o:'j:'+g.id,u:1})}
+  const tm=gTurnM(g);if(!gGot(g)){const d=gDate(g,tm),n=daysTo(d);if(n<=lead()&&n>-31)R.push({n,d,ic:'gift',t:`دورك تقبض «${gnm(g.name)}»`,s:(n<=0?'الشهر ده':`بعد ${n.toLocaleString('ar-EG')} يوم`)+' · '+fmt(g.amt*g.n),o:'j:'+g.id,u:1})}}
+ for(const r of S.rec){if(r.last===month())continue;const d=month()+'-'+String(r.day).padStart(2,'0'),n=daysTo(d);if(n>=0&&n<=lead())R.push({n,d,ic:'repeat',t:`فاتورة «${r.name}»`,s:(n===0?'النهارده':`بعد ${n.toLocaleString('ar-EG')} يوم`)+' · '+fmt(r.amt),act:'bills',u:1})}
  for(const p of S.people){const b=bal(p.id);
-  if(b>0){const dues=S.tx.filter(t=>t.pid===p.id&&t.type==='took'&&t.due).map(t=>t.due).sort();const due=dues.find(x=>daysTo(x)<=3);if(due){const n=daysTo(due);R.push({n,d:due,ic:'clock',t:`${p.name} عليه ${fmt(b)}`,s:n<0?`ميعاد السداد عدّى من ${(-n).toLocaleString('ar-EG')} يوم`:n===0?'ميعاد السداد النهارده':`ميعاد السداد بعد ${n.toLocaleString('ar-EG')} يوم`,o:'p:'+p.id,u:1})}}
+  if(b>0){const dues=S.tx.filter(t=>t.pid===p.id&&t.type==='took'&&t.due).map(t=>t.due).sort();const due=dues.find(x=>daysTo(x)<=lead());if(due){const n=daysTo(due);R.push({n,d:due,ic:'clock',t:`${p.name} عليه ${fmt(b)}`,s:n<0?`ميعاد السداد عدّى من ${(-n).toLocaleString('ar-EG')} يوم`:n===0?'ميعاد السداد النهارده':`ميعاد السداد بعد ${n.toLocaleString('ar-EG')} يوم`,o:'p:'+p.id,u:1})}}
   if(b<0&&S.remOwe!==0)R.push({n:99,d:'',ic:'alert',t:`عليك لـ ${p.name} ${fmt(-b)}`,s:'فلوس عليك لسه مارجّعتهاش',o:'p:'+p.id,u:0})}
  return R.sort((a,b)=>a.n-b.n)}
 function icsEsc(t){return String(t).replace(/[\\,;]/g,m=>'\\'+m).replace(/\n/g,'\\n')}
 function icsFile(evs){const st=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
- return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Daftari//AR','CALSCALE:GREGORIAN',...evs.flatMap(e=>['BEGIN:VEVENT','UID:'+e.uid+'@daftari','DTSTAMP:'+st,'DTSTART:'+e.d.replace(/-/g,'')+'T100000','DTEND:'+e.d.replace(/-/g,'')+'T103000','SUMMARY:'+icsEsc(e.t),'DESCRIPTION:'+icsEsc(e.s||''),...(e.rr?['RRULE:'+e.rr]:[]),...[...new Set([e.before||0,0])].flatMap(b=>['BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(e.t),'TRIGGER:'+(b?'-P'+b+'D':'-PT0M'),'END:VALARM']),'END:VEVENT']),'END:VCALENDAR'].join('\r\n')}
+ return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Daftari//AR','CALSCALE:GREGORIAN',...evs.flatMap(e=>['BEGIN:VEVENT','UID:'+e.uid+'@daftari','DTSTAMP:'+st,'DTSTART:'+e.d.replace(/-/g,'')+'T100000','DTEND:'+e.d.replace(/-/g,'')+'T103000','SUMMARY:'+icsEsc(e.t),'DESCRIPTION:'+icsEsc(e.s||''),...(e.rr?['RRULE:'+e.rr]:[]),...[...new Set(S.nDays.length?S.nDays:[0])].flatMap(b=>['BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(e.t),'TRIGGER:'+(b?'-P'+b+'D':'-PT0M'),'END:VALARM']),'END:VEVENT']),'END:VCALENDAR'].join('\r\n')}
 function gamEv(g){const k=gNext(g);if(!k)return[];const left=gMonths(g).filter(x=>!gPaid(g,x)).length;const ev=[{uid:'gam-'+g.id+'-'+k,d:gDate(g,k),t:`دفع قسط ${gnm(g.name)} (${num(g.amt)} ${S.cur})`,s:'من تطبيق دفتري',rr:left>1?'FREQ=MONTHLY;COUNT='+left:'',before:g.rem??2}];
  if(!gGot(g)&&gTurnM(g)>=month())ev.push({uid:'gamturn-'+g.id,d:gDate(g,gTurnM(g)),t:`دورك تقبض ${gnm(g.name)} (${num(g.amt*g.n)} ${S.cur})`,s:'من تطبيق دفتري',before:g.rem??2});return ev}
 function oweEv(p){const b=-bal(p.id);return [{uid:'owe-'+p.id,d:addDays(today(),7),t:`عليك لـ ${p.name} ${num(b)} ${S.cur}`,s:'تذكير من دفتري: رجّع الفلوس',rr:'FREQ=WEEKLY;COUNT=12',before:0}]}
 function recEv(r){const nk=r.last===month()?addM(month(),1):month();return [{uid:'rec-'+r.id,d:nk+'-'+String(r.day).padStart(2,'0'),t:`فاتورة ${r.name} (${num(r.amt)} ${S.cur})`,s:'من دفتري',rr:'FREQ=MONTHLY',before:1}]}
 function toCal(evs,name){if(!evs.length)return toast('مفيش مواعيد جاية');download(name+'.ics',icsFile(evs),'text/calendar');toast('افتح الملف اللي نزل وهيتضاف لتقويم الموبايل')}
 async function remSnap(){try{if(!('caches' in window)||!STORE)return;const items=[];
- for(const g of S.gam){const rm=g.rem??2;gMonths(g).filter(k=>!gPaid(g,k)).slice(0,3).forEach(k=>{const d=gDate(g,k);items.push({from:addDays(d,-rm),d,t:'قسط '+gnm(g.name)+' '+num(g.amt)+' '+S.cur})});
-  if(!gGot(g)){const d=gDate(g,gTurnM(g));items.push({from:addDays(d,-rm),d,t:'دورك تقبض '+gnm(g.name)+' '+num(g.amt*g.n)+' '+S.cur})}}
- for(const r of S.rec){for(let i=0;i<3;i++){const k=addM(month(),i);if(i===0&&r.last===month())continue;const d=k+'-'+String(r.day).padStart(2,'0');items.push({from:addDays(d,-1),d,t:'فاتورة '+r.name+' '+num(r.amt)+' '+S.cur})}}
- for(const p of S.people){const b=bal(p.id);if(b>0)S.tx.filter(t=>t.pid===p.id&&t.type==='took'&&t.due).forEach(t=>items.push({from:addDays(t.due,-1),d:t.due,t:p.name+' عليه '+num(b)+' '+S.cur+' (ميعاد السداد)'}))}
- const owe=S.remOwe===0?[]:S.people.filter(p=>bal(p.id)<0).map(p=>'عليك لـ '+p.name+' '+num(-bal(p.id))+' '+S.cur);
- const c=await caches.open('daftar-data');await c.put('/__daftar_rem',new Response(JSON.stringify({items,owe,ts:Date.now()}),{headers:{'content-type':'application/json'}}))}catch(e){}}
+ for(const g of S.gam){gMonths(g).filter(k=>!gPaid(g,k)).slice(0,3).forEach(k=>items.push({id:'g'+g.id+k,d:gDate(g,k),t:'قسط '+gnm(g.name)+' '+num(g.amt)+' '+S.cur}));
+  if(!gGot(g))items.push({id:'gt'+g.id,d:gDate(g,gTurnM(g)),t:'دورك تقبض '+gnm(g.name)+' '+num(g.amt*g.n)+' '+S.cur})}
+ for(const r of S.rec){for(let i=0;i<3;i++){const k=addM(month(),i);if(i===0&&r.last===month())continue;items.push({id:'r'+r.id+k,d:k+'-'+String(r.day).padStart(2,'0'),t:'فاتورة '+r.name+' '+num(r.amt)+' '+S.cur})}}
+ for(const p of S.people){const b=bal(p.id);if(b>0)S.tx.filter(t=>t.pid===p.id&&t.type==='took'&&t.due).forEach(t=>items.push({id:'t'+t.id,d:t.due,t:p.name+' عليه '+num(b)+' '+S.cur+' (ميعاد السداد)'}))}
+ const owe=S.nOwe?S.people.filter(p=>bal(p.id)<0).map(p=>'عليك لـ '+p.name+' '+num(-bal(p.id))+' '+S.cur):[];
+ const c=await caches.open('daftar-data');await c.put('/__daftar_rem',new Response(JSON.stringify({items,days:S.nDays,owe,ts:Date.now()}),{headers:{'content-type':'application/json'}}))}catch(e){}}
 async function enableDaily(){
  if(!('Notification' in window))return 'nosupport';
  try{const r=await Notification.requestPermission();if(r!=='granted')return 'denied'}catch(e){return 'nosupport'}
@@ -522,9 +524,7 @@ async function enableDaily(){
   if(!('periodicSync' in reg))return 'open';try{const st=await navigator.permissions.query({name:'periodic-background-sync'});if(st.state!=='granted')return 'open'}catch(e){}
   await reg.periodicSync.register('daftar-rem',{minInterval:12*60*60*1000});return 'daily'}catch(e){return 'open'}}
 function remText(){const R=reminders();const hd=HIDE;HIDE=false;const t='🔔 تنبيهات دفتري — '+dstr(today())+'\n\n'+(R.length?R.map(r=>'• '+r.t+' — '+r.s).join('\n'):'مفيش تنبيهات 👌');HIDE=hd;return t}
-async function notifyOpen(){try{if(!('Notification' in window)||Notification.permission!=='granted'||LS.get('daftar_notified')===today())return;try{const c=await caches.open('daftar-data'),r=await c.match('/__daftar_notified');if(r&&(await r.text())===today())return;await c.put('/__daftar_notified',new Response(today()))}catch(x){}const R=reminders().filter(r=>r.u);if(!R.length)return;LS.set('daftar_notified',today());
- const body=R.slice(0,4).map(r=>r.t+' — '+r.s).join('\n'),opt={body,icon:'icons/icon-192.png',tag:'daftar-'+today(),dir:'rtl',lang:'ar'};
- const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg)reg.showNotification('دفتري: عندك '+R.length.toLocaleString('ar-EG')+' تنبيه',opt);else new Notification('دفتري',opt)}catch(e){}}
+async function notifyOpen(){try{if(!STORE||!('Notification' in window)||Notification.permission!=='granted')return;await remSnap();const reg=await navigator.serviceWorker.ready;reg.active&&reg.active.postMessage('daftar-check')}catch(e){}}
 function goBack(){const b=open&&open.back;if(b)show(b);else close()}
 function runRec(){let n=0;const m=month(),dn=new Date().getDate();for(const r of S.rec){if(r.last!==m&&dn>=r.day){const x={id:uid(),fid:r.fid||'',amt:r.amt,date:m+'-'+String(r.day).padStart(2,'0'),note:r.name,rec:r.id};if(r.w)x.w=r.w;S.exp.push(x);r.last=m;n++}}return n}
 function csvAll(){const hd=HIDE;HIDE=false;const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['التاريخ','النوع','المبلغ','المحفظة','الشخص / الباب','ملاحظة']];
@@ -708,9 +708,12 @@ function renderSheet(){
   c.innerHTML=head(ic('bell')+' التنبيهات')+`<div class="box">${R.length?R.map(r=>`<div class="tx" ${r.o?`data-open="${r.o}"`:`data-act="${r.act}"`} style="cursor:pointer"><span class="ti" style="background:${!r.u?'var(--soft)':r.n<0?'var(--minus)':'var(--gold)'};color:${!r.u?'var(--minus)':r.n<0?'#fff':'#3a2a00'}">${ic(r.ic)}</span><span class="t"><b>${esc(r.t)}</b><small>${esc(r.s)}</small></span></div>`).join(''):'<div class="empty">مفيش تنبيهات دلوقتي 👌</div>'}</div>
   <div class="box" style="padding:14px;margin-top:12px"><b>تفكرني وأنا قافل البرنامج</b><p class="muted" style="margin:4px 0 10px">البرنامج مايقدرش يبعت إشعار وهو مقفول. الحل إنك تحط المواعيد في تقويم الموبايل، وهو يفكرك قبلها بالأيام اللي اخترتها.</p>
    <div class="btns"><button class="btn" data-act="calAll">${ic('cal')}ضيف كل المواعيد للتقويم</button></div></div>
-  <div class="box" style="padding:14px;margin-top:12px"><b>رسالة بالتنبيهات</b>
-   <p class="muted" style="margin:4px 0 10px">${LS.get('daftar_daily')==='daily'&&perm==='granted'?'✅ الإشعار اليومي شغال: التطبيق هيبعتلك إشعار مرة في اليوم بالحاجات القريبة حتى لو مقفول (أندرويد بيحدد الساعة بالظبط).':LS.get('daftar_daily')==='open'&&perm==='granted'?'الإشعارات شغالة لما تفتح البرنامج. الإشعار وهو مقفول بيشتغل في تطبيق الموبايل بس.':'شغّل الإشعارات عشان التطبيق يبعتلك رسالة بالتنبيهات كل يوم.'}</p>
-   <div class="btns">${perm==='granted'&&LS.get('daftar_daily')==='daily'?'':`<button class="btn" data-act="daily">${ic('bell')}شغّل الإشعارات اليومية</button>`}<a class="btn wa" href="https://wa.me/?text=${encodeURIComponent(remText())}" target="_blank" rel="noopener">${ic('chat')}ابعت التنبيهات واتساب</a></div>
+  <div class="box" style="padding:14px;margin-top:12px"><b>التنبيه يجيلي امتى؟</b><p class="muted" style="margin:4px 0 10px">اختار يوم أو أكتر. الإشعار هييجي في الأيام دي بس، مرة واحدة لكل ميعاد (قسط جمعية، فاتورة، ميعاد سداد).</p>
+   <div class="chips" style="flex-wrap:wrap">${DAYOPT.map(([v,l])=>`<button type="button" class="chip ${S.nDays.includes(v)?'on':''}" data-nd="${v}">${l}</button>`).join('')}</div>
+   <label style="display:flex;gap:8px;align-items:center;margin-top:6px;cursor:pointer"><input type="checkbox" id="nOwe" ${S.nOwe?'checked':''} style="width:auto;min-height:0"> فكّرني بالفلوس اللي عليا للناس مرة كل أسبوع (يوم السبت)</label></div>
+  <div class="box" style="padding:14px;margin-top:12px"><b>الإشعارات على الموبايل</b>
+   <p class="muted" style="margin:4px 0 10px">${LS.get('daftar_daily')==='daily'&&perm==='granted'?'✅ الإشعارات شغالة: هتجيلك في الأيام اللي اخترتها فوق بس، حتى لو التطبيق مقفول (أندرويد بيحدد الساعة).':LS.get('daftar_daily')==='open'&&perm==='granted'?'الإشعارات شغالة لما تفتح البرنامج. الإشعار وهو مقفول بيشتغل في تطبيق الموبايل بس.':'شغّل الإشعارات عشان التطبيق يبعتلك رسالة في الأيام اللي اخترتها.'}</p>
+   <div class="btns">${perm==='granted'&&LS.get('daftar_daily')==='daily'?'':`<button class="btn" data-act="daily">${ic('bell')}شغّل الإشعارات</button>`}<a class="btn wa" href="https://wa.me/?text=${encodeURIComponent(remText())}" target="_blank" rel="noopener">${ic('chat')}ابعت التنبيهات واتساب</a></div>
    ${perm==='denied'?'<p class="muted" style="margin:10px 0 0">الإشعارات مقفولة للتطبيق. افتحها من إعدادات الموبايل ← التطبيقات ← دفتري ← الإشعارات.</p>':''}</div>
   <div class="box" style="padding:14px;margin-top:12px"><b>الفلوس اللي عليا</b><p class="muted" style="margin:4px 0 10px">${S.remOwe===0?'مش بتظهر في التنبيهات.':'بتظهر في التنبيهات دايماً لحد ما ترجّعها.'}</p><button class="btn ghost sm" data-act="togOwe">${S.remOwe===0?'أظهرها':'خبّيها من التنبيهات'}</button></div>`;return}
  if(k==='gamList'){
@@ -721,15 +724,15 @@ function renderSheet(){
    <label>اسم الجمعية</label><input id="jN" placeholder="مثلاً: جمعية الشغل، جمعية العيلة">
    <div class="g2" style="margin-top:8px"><div><label>القسط كل شهر</label><input id="jA" type="text" inputmode="decimal"></div><div><label>عدد الشهور (الأعضاء)</label><input id="jM" type="text" inputmode="numeric" placeholder="10"></div></div>
    <div class="g2"><div><label>أول شهر</label><input id="jS" type="month" value="${month()}"></div><div><label>يوم الدفع في الشهر</label><input id="jD" type="text" inputmode="numeric" value="1"></div></div>
-   <div class="g2"><div><label>دورك تقبض الشهر رقم كام</label><input id="jT" type="text" inputmode="numeric" placeholder="مثلاً 3"></div><div><label>فكّرني قبلها بكام يوم</label><input id="jR" type="text" inputmode="numeric" value="2"></div></div>
+   <div class="g2"><div><label>دورك تقبض الشهر رقم كام</label><input id="jT" type="text" inputmode="numeric" placeholder="مثلاً 3"></div><div><label>التنبيه</label><p class="muted" style="margin:10px 0 0;font-size:13px">حسب الأيام اللي في 🔔</p></div></div>
    <label>بتدفع من</label>${wsel(lastW)}
    <div class="wsel" data-wsel="old"><button type="button" data-w="y" class="on">الشهور اللي فاتت اتدفعت</button><button type="button" data-w="n">لسه مادفعتهاش</button></div>
    <p class="muted" id="jSum" style="margin:0 0 8px"></p>
    <div class="btns"><button class="btn">${ic('plus')}إضافة الجمعية</button></div></form>`;
   const sum=()=>{const a=pn($('jA').value),n=Math.round(pn($('jM').value));$('jSum').textContent=a>0&&n>0?`هتقبض ${fmt(a*n)} لما ييجي دورك، وهتدفع ${fmt(a)} كل شهر لمدة ${n.toLocaleString('ar-EG')} شهر.`:''};$('jA').oninput=sum;$('jM').oninput=sum;$('jN').focus();
-  $('fJ').onsubmit=e=>{e.preventDefault();const name=$('jN').value.trim(),amt=pn($('jA').value),n=Math.round(pn($('jM').value)),day=Math.min(28,Math.max(1,Math.round(pn($('jD').value)||1))),turn=Math.round(pn($('jT').value)),rem=Math.max(0,Math.round(pn($('jR').value)||0)),start=$('jS').value||month();
+  $('fJ').onsubmit=e=>{e.preventDefault();const name=$('jN').value.trim(),amt=pn($('jA').value),n=Math.round(pn($('jM').value)),day=Math.min(28,Math.max(1,Math.round(pn($('jD').value)||1))),turn=Math.round(pn($('jT').value)),start=$('jS').value||month();
    if(!name)return toast('اكتب اسم الجمعية');if(!(amt>0))return toast('اكتب القسط صح');if(!(n>=2&&n<=60))return toast('عدد الشهور لازم يكون من ٢ لـ ٦٠');if(!(turn>=1&&turn<=n))return toast('دورك لازم يكون رقم من ١ لـ '+n.toLocaleString('ar-EG'));
-   const g={id:uid(),name,amt,n,day,turn,rem,start,w:getW(c),old:[]};
+   const g={id:uid(),name,amt,n,day,turn,start,w:getW(c),old:[]};
    if(getW(c,'old')==='y'){for(const k of gMonths(g)){if(k<month())g.old.push(k)}}
    S.gam.push(g);save();show({kind:'j',id:g.id});toast('اتضافت الجمعية')};return}
  if(k==='j'){
@@ -865,7 +868,7 @@ $('fileC').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(
   if(!L.length){toast('مقدرتش ألاقي أرقام في الملف ده');return}addContacts(L)}catch(err){toast('الملف ده مش مقروء')}};
 $('fileB').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;
  try{const d=JSON.parse(await file.text());if(!d||!Array.isArray(d.people))throw 0;snap();
-  S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(Array.isArray(d.contacts)){C=d.contacts;save('C')}
+  S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],nDays:d.nDays,nOwe:d.nOwe,goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(Array.isArray(d.contacts)){C=d.contacts;save('C')}
   save();close();toast('اترجّعت النسخة',true)}catch(err){toast('الملف ده مش نسخة احتياطية من دفتري')}};
 
 async function download(name,data,mime){
@@ -881,6 +884,8 @@ document.addEventListener('click',async e=>{
  const nv=e.target.closest('nav [data-v]');if(nv){view=nv.dataset.v;render();scrollTo(0,0);return}
  const fl=e.target.closest('[data-f]');if(fl){filter=fl.dataset.f;render();return}
  const col=e.target.closest('[data-col]');if(col){fColor=col.dataset.col;col.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===col));return}
+ const nd=e.target.closest('[data-nd]');if(nd){const v=+nd.dataset.nd,i=S.nDays.indexOf(v);if(i>=0){if(S.nDays.length===1)return toast('لازم تختار يوم واحد على الأقل');S.nDays.splice(i,1)}else S.nDays.push(v);S.nDays.sort((a,b)=>b-a);save();render();return}
+ if(e.target.id==='nOwe'){S.nOwe=e.target.checked?1:0;save();return}
  const ed=e.target.closest('[data-edit]');if(ed&&!e.target.closest('.del')){const[k,id]=ed.dataset.edit.split(':');show({kind:'edit',t:k,id,back:open&&open.kind!=='edit'?{kind:open.kind,id:open.id,w:open.w}:null});return}
  const op=e.target.closest('[data-open]');if(op){const[k,id]=op.dataset.open.split(':');if(k==='g')return show({kind:'g',id});if(k==='j')return show({kind:'j',id});const fromQuick=open?.kind==='quick';show({kind:k,id,focus:fromQuick});return}
  const ac=e.target.closest('[data-addc]');if(ac){const c=C[+ac.dataset.addc];if(!c)return;const p={id:uid(),name:c.n,phone:c.p};S.people.push(p);save();render();toast('اتفتح حساب لـ '+c.n);return}
@@ -904,7 +909,7 @@ document.addEventListener('click',async e=>{
  if(a==='jCal'){const g=S.gam.find(x=>x.id===open.id);return toCal(gamEv(g),'gamya-'+today())}
  if(a==='jDel'){const id=open.id;snap();S.gam=S.gam.filter(g=>g.id!==id);save();show({kind:'gamList'});return toast('اتمسحت الجمعية (الأقساط المدفوعة فضلت في مصاريفك)',true)}
  if(a==='calAll'){const ev=[...S.gam.flatMap(gamEv),...S.rec.flatMap(recEv),...(S.remOwe===0?[]:S.people.filter(p=>bal(p.id)<0).flatMap(oweEv))];return toCal(ev,'daftari-reminders')}
- if(a==='daily'){const r=await enableDaily();LS.set('daftar_daily',r);LS.set('daftar_notified','');notifyOpen();renderSheet();return toast(r==='daily'?'تمام، هيجيلك إشعار كل يوم':r==='open'?'اتفعّلت لما تفتح البرنامج':r==='denied'?'الإشعارات اترفضت':'الجهاز ده مش بيدعم الإشعارات')}
+ if(a==='daily'){const r=await enableDaily();LS.set('daftar_daily',r);LS.set('daftar_notified','');notifyOpen();renderSheet();return toast(r==='daily'?'تمام، الإشعارات هتيجي في الأيام اللي اخترتها':r==='open'?'اتفعّلت لما تفتح البرنامج':r==='denied'?'الإشعارات اترفضت':'الجهاز ده مش بيدعم الإشعارات')}
  if(a==='askNotif'){try{const r=await Notification.requestPermission();if(r==='granted'){LS.set('daftar_notified','');notifyOpen();toast('اتفعّلت')}else toast('الإشعارات اترفضت')}catch(x){toast('الجهاز ده مش بيدعم الإشعارات')}renderSheet();return}
  if(a==='togOwe'){S.remOwe=S.remOwe===0?1:0;save();render();return}
  if(a==='oweCal'){const p=S.people.find(x=>x.id===open.id);return toCal(oweEv(p),'owe-'+today())}
@@ -979,7 +984,7 @@ render();status('على الجهاز','off');
   const rd=r=>r&&(typeof r.data==='function'?r.data():(r.data!==undefined?r.data:r));
   const [a,b]=await Promise.all([ref.get(),refC.get()]);clearTimeout(timer);
   const cl=x=>x==null?x:JSON.parse(JSON.stringify(x));const d=cl(rd(a)),dc=cl(rd(b));
-  if(d&&Array.isArray(d.people)){S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(S.skin&&!LS.get('daftar_skin')){skin=S.skin;applySkin()}}else if(S.people.length||S.funds.length)save();
+  if(d&&Array.isArray(d.people)){S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],nDays:d.nDays,nOwe:d.nOwe,goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(S.skin&&!LS.get('daftar_skin')){skin=S.skin;applySkin()}}else if(S.people.length||S.funds.length)save();
   if(dc&&Array.isArray(dc.list))C=dc.list;else if(C.length)save('C');
   ensureW();if(runRec())save();cloud=true;status('محفوظ');render();notifyOpen();
  }catch(err){clearTimeout(timer);ref=refC=null;status('على الجهاز ده بس','off')}
