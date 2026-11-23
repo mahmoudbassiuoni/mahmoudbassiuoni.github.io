@@ -131,6 +131,16 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 :root[data-skin=dim]{color-scheme:dark;--bg:#2a2f32;--card:#343a3d;--ink:#e8ebec;--mute:#a7afb3;--line:#454c50;--soft:#3c4346}
 :root[data-skin=slate]{color-scheme:light;--bg:#dce1e2;--card:#eef1f1;--ink:#182022;--mute:#5a6669;--line:#c9d1d3;--soft:#e3e8e9}
 :root[data-skin=sand]{color-scheme:light;--bg:#ece3d4;--card:#faf5ec;--ink:#2a231b;--mute:#776b5d;--line:#dccfbc;--soft:#f2e9db}
+:root[data-skin=mint]{color-scheme:light;--bg:#dff1ea;--card:#f7fcfa;--ink:#10241e;--mute:#577069;--line:#c7e2d7;--soft:#e9f6f1}
+:root[data-skin=sky]{color-scheme:light;--bg:#dcebf7;--card:#f6fafe;--ink:#0f1e2c;--mute:#566b7f;--line:#c6d9ea;--soft:#e8f1fa;--hero:#123c5c}
+:root[data-skin=rose]{color-scheme:light;--bg:#f6e3e6;--card:#fffafa;--ink:#2b1619;--mute:#7b5d62;--line:#ecd0d5;--soft:#fbeef0;--hero:#5c1f2c}
+:root[data-skin=lav]{color-scheme:light;--bg:#e8e4f3;--card:#fbfaff;--ink:#1d1830;--mute:#655e7e;--line:#d8d1ec;--soft:#f1eef9;--hero:#2e2457}
+:root[data-skin=peach]{color-scheme:light;--bg:#fbe5d6;--card:#fffaf6;--ink:#2c1c12;--mute:#7d6252;--line:#f0d2bd;--soft:#fdf0e6;--hero:#6b3417}
+:root[data-skin=olive]{color-scheme:dark;--bg:#1d2318;--card:#272f21;--ink:#e6ecdd;--mute:#9fab92;--line:#38432f;--soft:#2e3727;--hero:#3d5a2a}
+:root[data-skin=coffee]{color-scheme:dark;--bg:#241b16;--card:#30251f;--ink:#f0e6dc;--mute:#b09d8c;--line:#45362c;--soft:#382b24;--hero:#5a3a24}
+:root[data-skin=amoled]{color-scheme:dark;--bg:#000;--card:#0d0d0d;--ink:#eaeaea;--mute:#8f8f8f;--line:#222;--soft:#151515}
+:root[data-skin=dots]{color-scheme:light}:root[data-skin=dots] body{background:radial-gradient(circle,rgb(12 59 58/.13) 1.2px,transparent 1.6px) 0 0/18px 18px,var(--bg)}
+:root[data-skin=grid]{color-scheme:light;--bg:#f6f6f1}:root[data-skin=grid] body{background:linear-gradient(rgb(12 59 58/.07) 1px,transparent 1px) 0 0/22px 22px,linear-gradient(90deg,rgb(12 59 58/.07) 1px,transparent 1px) 0 0/22px 22px,var(--bg)}
 :root[data-skin=navy]{color-scheme:dark;--bg:#0b1220;--card:#131c2e;--ink:#e3e9f5;--mute:#93a0b8;--line:#223049;--soft:#1a2539;--hero:#174067}
 .skins{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
 .skins button{font:inherit;font-size:13px;cursor:pointer;border:2px solid var(--line);border-radius:14px;padding:8px;background:var(--card);color:var(--ink);display:flex;flex-direction:column;gap:6px;align-items:stretch}
@@ -208,6 +218,8 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 .cw span{font-size:11px;color:var(--mute);padding-bottom:4px}
 .cg button{font:inherit;font-size:13px;border:0;border-radius:10px;aspect-ratio:1;cursor:pointer;color:var(--ink);background:color-mix(in srgb,#c2334d calc(var(--a)*100%),var(--soft))}
 .cg button.on{outline:2px solid var(--ink)}.cg button.fut{opacity:.35}
+.biob{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;margin:-8px auto 18px;padding:10px 18px;border-radius:24px;background:rgb(255 255 255/.14);font-weight:600}.biob[hidden]{display:none}
+.dots{gap:12px!important}
 .lock{position:fixed;inset:0;z-index:60;background:#0c3b3a;color:#e9f6f2;display:grid;place-items:center;padding:20px}
 .lock[hidden]{display:none}
 .lin{text-align:center;width:min(320px,100%)}.lin b{font:400 28px/1.2 Lalezar,sans-serif;display:block}.lin p{opacity:.8;margin:4px 0 18px}
@@ -229,7 +241,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
     <button class="ib bellb" id="bell" aria-label="التنبيهات"><svg class="i" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 0 0 4 0"/></svg><i id="bellN" hidden></i></button>
     <button class="ib" id="srch" aria-label="بحث"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
     <button class="ib" id="eye" aria-label="إخفاء المبالغ"></button>
-    <button class="ib" id="gear" aria-label="الإعدادات"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button>
+    <button class="ib" id="gear" aria-label="الإعدادات"><svg class="i" viewBox="0 0 24 24"><path d="M10.3 3.6a1.7 1.7 0 0 1 3.4 0l.2.9a1.7 1.7 0 0 0 2.5 1l.8-.5a1.7 1.7 0 0 1 2.4 2.4l-.5.8a1.7 1.7 0 0 0 1 2.5l.9.2a1.7 1.7 0 0 1 0 3.4l-.9.2a1.7 1.7 0 0 0-1 2.5l.5.8a1.7 1.7 0 0 1-2.4 2.4l-.8-.5a1.7 1.7 0 0 0-2.5 1l-.2.9a1.7 1.7 0 0 1-3.4 0l-.2-.9a1.7 1.7 0 0 0-2.5-1l-.8.5a1.7 1.7 0 0 1-2.4-2.4l.5-.8a1.7 1.7 0 0 0-1-2.5l-.9-.2a1.7 1.7 0 0 1 0-3.4l.9-.2a1.7 1.7 0 0 0 1-2.5l-.5-.8a1.7 1.7 0 0 1 2.4-2.4l.8.5a1.7 1.7 0 0 0 2.5-1z"/><circle cx="12" cy="12" r="3"/></svg></button>
   </div>
   <main id="view"></main>
 </div>
@@ -242,7 +254,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 </div></nav>
 <div class="sheet" id="sheet"><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
 <div class="toast" id="toast"></div>
-<div class="lock" id="lock" hidden><div class="lin"><div class="lic"></div><b>دفتري مقفول</b><p>اكتب الرقم السري</p><div class="dots" id="dots"><i></i><i></i><i></i><i></i></div><div class="pad"><button type="button" data-k="1">١</button><button type="button" data-k="2">٢</button><button type="button" data-k="3">٣</button><button type="button" data-k="4">٤</button><button type="button" data-k="5">٥</button><button type="button" data-k="6">٦</button><button type="button" data-k="7">٧</button><button type="button" data-k="8">٨</button><button type="button" data-k="9">٩</button><span></span><button type="button" data-k="0">٠</button><button type="button" data-k="x" aria-label="مسح">⌫</button></div></div></div>
+<div class="lock" id="lock" hidden><div class="lin"><div class="lic"></div><b>دفتري مقفول</b><p>اكتب الرقم السري</p><div class="dots" id="dots"><i></i><i></i><i></i><i></i><i></i><i></i></div><button type="button" class="biob" id="bioBtn" hidden>بصمة الإصبع</button><div class="pad"><button type="button" data-k="1">١</button><button type="button" data-k="2">٢</button><button type="button" data-k="3">٣</button><button type="button" data-k="4">٤</button><button type="button" data-k="5">٥</button><button type="button" data-k="6">٦</button><button type="button" data-k="7">٧</button><button type="button" data-k="8">٨</button><button type="button" data-k="9">٩</button><span></span><button type="button" data-k="0">٠</button><button type="button" data-k="x" aria-label="مسح">⌫</button></div></div></div>
 <input type="file" id="fileC" accept=".vcf,.vcard,.csv,.txt,text/vcard,text/csv" hidden>
 <input type="file" id="fileB" accept=".json,application/json,text/plain,application/octet-stream" hidden>
 </div>
@@ -250,7 +262,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٣ نوفمبر - ١٨';
+const VER='٢٣ نوفمبر - ١٩';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -278,7 +290,7 @@ const IC={
  wallet:'<rect x="3" y="6" width="18" height="14" rx="2.5"/><path d="M3 10h18M16 15h2"/>',
  book:'<rect x="5" y="3" width="15" height="18" rx="2"/><circle cx="12.5" cy="10" r="2.5"/><path d="M9 16.5c.6-1.8 2-2.7 3.5-2.7s2.9.9 3.5 2.7"/>',
  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
- edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',minus:'<path d="M5 12h14"/>',coin:'<ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',eyeoff:'<path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.6 9.6 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',repeat:'<path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/>',split:'<path d="M12 3v7M12 10l-6 6v5M12 10l6 6v5"/>',gauge:'<path d="M4 18a9 9 0 1 1 16 0"/><path d="M12 13l4-4"/>',sheet:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M10 3v18"/>',cloud:'<path d="M7 18a5 5 0 0 1-.5-9.97A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/><path d="M12 11v5M9.5 13.5 12 11l2.5 2.5"/>',google:'<path d="M21 12.2c0-.7-.1-1.3-.2-1.9H12v3.6h5a4.3 4.3 0 0 1-1.9 2.8v2.3h3A9 9 0 0 0 21 12.2z"/><path d="M12 21a8.9 8.9 0 0 0 6.1-2.2l-3-2.3A5.6 5.6 0 0 1 6.8 13.6H3.7V16A9 9 0 0 0 12 21z"/><path d="M6.8 13.6a5.4 5.4 0 0 1 0-3.4V7.9H3.7a9 9 0 0 0 0 8.1z"/><path d="M12 6.6a4.9 4.9 0 0 1 3.4 1.4l2.6-2.6A8.7 8.7 0 0 0 12 3a9 9 0 0 0-8.3 4.9l3.1 2.4A5.4 5.4 0 0 1 12 6.6z"/>',bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 0 0 4 0"/>',gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v9h14v-9M12 8v13M12 8S10 3 7.5 4 9 8 12 8zM12 8s2-5 4.5-4S15 8 12 8"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',alert:'<path d="M12 3l10 18H2zM12 10v5M12 18v.5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',circle:'<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>',card:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 10h18M7 15h4"/>'};
+ edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',minus:'<path d="M5 12h14"/>',coin:'<ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',eyeoff:'<path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.6 9.6 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',repeat:'<path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/>',split:'<path d="M12 3v7M12 10l-6 6v5M12 10l6 6v5"/>',gauge:'<path d="M4 18a9 9 0 1 1 16 0"/><path d="M12 13l4-4"/>',sheet:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M10 3v18"/>',finger:'<path d="M12 11v3a8 8 0 0 1-1.5 4.7M8.5 7.6A5 5 0 0 1 17 11v1.5M7 11a5 5 0 0 0-.2 1.4c0 2-.6 3.8-1.6 5.3M15.5 15.5c-.3 1.8-1 3.4-2 4.7M4 8.5A9 9 0 0 1 20 9.6M12 3a9 9 0 0 1 2 .2"/>',cloud:'<path d="M7 18a5 5 0 0 1-.5-9.97A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/><path d="M12 11v5M9.5 13.5 12 11l2.5 2.5"/>',google:'<path d="M21 12.2c0-.7-.1-1.3-.2-1.9H12v3.6h5a4.3 4.3 0 0 1-1.9 2.8v2.3h3A9 9 0 0 0 21 12.2z"/><path d="M12 21a8.9 8.9 0 0 0 6.1-2.2l-3-2.3A5.6 5.6 0 0 1 6.8 13.6H3.7V16A9 9 0 0 0 12 21z"/><path d="M6.8 13.6a5.4 5.4 0 0 1 0-3.4V7.9H3.7a9 9 0 0 0 0 8.1z"/><path d="M12 6.6a4.9 4.9 0 0 1 3.4 1.4l2.6-2.6A8.7 8.7 0 0 0 12 3a9 9 0 0 0-8.3 4.9l3.1 2.4A5.4 5.4 0 0 1 12 6.6z"/>',bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 0 0 4 0"/>',gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v9h14v-9M12 8v13M12 8S10 3 7.5 4 9 8 12 8zM12 8s2-5 4.5-4S15 8 12 8"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',alert:'<path d="M12 3l10 18H2zM12 10v5M12 18v.5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',circle:'<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>',card:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 10h18M7 15h4"/>'};
 const ic=n=>`<svg class="i" viewBox="0 0 24 24">${IC[n]}</svg>`;
 const PAL=['#0a7a6c','#c2334d','#d0860a','#3756c9','#2f8f3a','#b24f86','#4b6470','#8a5a2b'];
 const colorOf=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))|0;return PAL[Math.abs(h)%PAL.length]};
@@ -326,7 +338,7 @@ const addDays=(d,n)=>{const x=new Date(d+'T12:00');x.setDate(x.getDate()+n);retu
 const dayLabel=d=>d===today()?'النهارده':d===addDays(today(),-1)?'امبارح':new Date(d+'T12:00').toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
 const wsel=(cur,none,name)=>{const ids=S.wallets.map(w=>w.id).concat(none?['none']:[]);const c=ids.includes(cur)?cur:ids[0];return `<div class="wsel" data-wsel="${name||'w'}">${ids.map(w=>`<button type="button" data-w="${w}" class="${c===w?'on':''}">${esc(w==='none'?wn(w):wlabel(S.wallets.find(x=>x.id===w)))}</button>`).join('')}</div>`};
 const getW=(root,name)=>root.querySelector(`[data-wsel="${name||'w'}"] .on`)?.dataset.w||S.wallets[0].id;
-const SKINS=[['auto','تلقائي',['#f1f2ee','#0f1211']],['light','فاتح',['#f1f2ee','#ffffff']],['slate','رمادي فاتح',['#dce1e2','#eef1f1']],['sand','رملي',['#ece3d4','#faf5ec']],['dim','رمادي غامق',['#2a2f32','#343a3d']],['dark','داكن',['#0f1211','#191d1b']],['navy','كحلي',['#0b1220','#131c2e']]];
+const SKINS=[['auto','تلقائي',['#f1f2ee','#0f1211']],['light','فاتح',['#f1f2ee','#ffffff']],['slate','رمادي فاتح',['#dce1e2','#eef1f1']],['sand','رملي',['#ece3d4','#faf5ec']],['dim','رمادي غامق',['#2a2f32','#343a3d']],['dark','داكن',['#0f1211','#191d1b']],['navy','كحلي',['#0b1220','#131c2e']],['mint','نعناعي',['#dff1ea','#f4fbf8']],['sky','سماوي',['#dcebf7','#f3f8fd']],['rose','وردي',['#f6e3e6','#fdf4f5']],['lav','لافندر',['#e8e4f3','#f7f5fc']],['peach','مشمشي',['#fbe5d6','#fff6f0']],['olive','زيتوني غامق',['#1d2318','#272f21']],['coffee','قهوة',['#241b16','#30251f']],['amoled','أسود خالص',['#000000','#0d0d0d']],['dots','نقط',['#f1f2ee','#dfe3dc']],['grid','مربعات',['#f6f6f1','#e3e6df']]];
 function applySkin(){const r=document.documentElement;if(skin==='auto')delete r.dataset.skin;else r.dataset.skin=skin}
 
 function status(t,c){$('st').textContent=t;$('dot').className='dot '+(c||'')}
@@ -733,14 +745,14 @@ function renderSheet(){
    <div class="btns"><button class="btn">حفظ</button><button type="button" class="btn ghost" data-act="wallets">رجوع</button><button type="button" class="btn danger" data-act="wdel" data-wallet="${w.id}">مسح المحفظة</button></div></form>`;
   $('fWE').onsubmit=e=>{e.preventDefault();const n=$('weName').value.trim();if(!n)return toast('اكتب الاسم');w.name=n;if(getW(c,'kind')==='f'){w.frozen=1;if(!w.ic||w.ic==='wallet')w.ic='lock'}else{delete w.frozen;if(w.ic==='lock')w.ic='wallet'}save();show({kind:'wallets'});toast('اتحفظ')};return}
  if(k==='pin'){
-  c.innerHTML=head(LS.get('daftar_pin')?'تغيير الرقم السري':'قفل البرنامج')+`<form class="form" id="fPin"><p class="muted" style="margin:0 0 10px">اختار رقم سري من ٤ أرقام. البرنامج هيطلبه كل ما تفتحه على الجهاز ده.</p>
-   <label>الرقم السري</label><input id="pin1" type="password" inputmode="numeric" maxlength="4" autocomplete="off">
-   <div style="height:10px"></div><label>اكتبه تاني</label><input id="pin2" type="password" inputmode="numeric" maxlength="4" autocomplete="off">
+  c.innerHTML=head(LS.get('daftar_pin')?'تغيير الرقم السري':'قفل البرنامج')+`<form class="form" id="fPin"><p class="muted" style="margin:0 0 10px">اختار رقم سري من ٦ أرقام. البرنامج هيطلبه كل ما تفتحه على الجهاز ده.</p>
+   <label>الرقم السري</label><input id="pin1" type="password" inputmode="numeric" maxlength="6" autocomplete="off">
+   <div style="height:10px"></div><label>اكتبه تاني</label><input id="pin2" type="password" inputmode="numeric" maxlength="6" autocomplete="off">
    <p class="muted" style="margin:10px 0 0">لو نسيت الرقم مش هتقدر تفتح البرنامج غير لو مسحت بياناته من إعدادات الموبايل، وده هيمسح حساباتك. عشان كده خليك عامل «حفظ نسخة» كل فترة.</p>
    <div class="btns" style="margin-top:12px"><button class="btn">${ic('lock')}حفظ</button></div></form>`;
   $('pin1').focus();
-  $('fPin').onsubmit=async e=>{e.preventDefault();const a=String(pn($('pin1').value)),b=String(pn($('pin2').value));if(!/^\d{4}$/.test($('pin1').value.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d))))return toast('الرقم لازم يكون ٤ أرقام');if(a!==b)return toast('الرقمين مش زي بعض');
-   LS.set('daftar_pin',await phash(a.padStart(4,'0')));show({kind:'settings'});toast('اتقفل البرنامج بالرقم السري')};return}
+  $('fPin').onsubmit=async e=>{e.preventDefault();const a=String(pn($('pin1').value)),b=String(pn($('pin2').value));const dg=v=>String(v).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim(),A=dg($('pin1').value),B=dg($('pin2').value);if(!/^\d{6}$/.test(A))return toast('الرقم لازم يكون ٦ أرقام');if(A!==B)return toast('الرقمين مش زي بعض');
+   LS.set('daftar_pin',await phash(A));LS.set('daftar_pinlen',6);show({kind:'settings'});toast(LS.get('daftar_bio')?'اتغيّر الرقم السري':'اتقفل البرنامج بالرقم السري — تقدر كمان تفعّل البصمة')};return}
  if(k==='edit'){
   const L=open.t==='e'?S.exp:open.t==='m'?S.mv:S.tx,o=L.find(x=>x.id===open.id);if(!o){goBack();return}
   const isT=open.t==='t',isE=open.t==='e',isTr=open.t==='m'&&o.k==='tr',isGl=open.t==='m'&&o.k==='gl',isAdj=open.t==='m'&&o.k==='adj';
@@ -925,8 +937,8 @@ function renderSheet(){
  if(k==='settings'){
   c.innerHTML=head('الإعدادات')+`${bkRow().replace('margin-top:12px','')}<div style="height:12px"></div><div class="box" style="padding:14px;margin-bottom:12px"><b>شكل البرنامج</b><p class="muted" style="margin:4px 0 10px">اختار الخلفية اللي تريّح عينك.</p>
   <div class="skins">${SKINS.map(([k,l,cs])=>`<button type="button" data-skin="${k}" class="${skin===k?'on':''}"><i>${k==='auto'?`<b style="background:${cs[0]}"></b><b style="background:${cs[1]}"></b>`:`<b style="background:${cs[0]}"></b><b style="background:${cs[1]};max-width:40%"></b>`}</i>${l}</button>`).join('')}</div></div>
-  <div class="box" style="padding:14px;margin-bottom:12px"><b>الخصوصية</b><p class="muted" style="margin:4px 0 10px">${LS.get('daftar_pin')?'البرنامج مقفول برقم سري على الجهاز ده.':'اقفل البرنامج برقم سري عشان محدش يشوف حساباتك.'}</p>
-   <div class="btns">${LS.get('daftar_pin')?`<button class="btn ghost" data-act="setPin">${ic('lock')}غيّر الرقم</button><button class="btn danger" data-act="noPin">شيل القفل</button>`:`<button class="btn" data-act="setPin">${ic('lock')}حط رقم سري</button>`}<button class="btn ghost" data-act="hideT">${ic(HIDE?'eye':'eyeoff')}${HIDE?'أظهر المبالغ':'خبّي المبالغ'}</button></div></div>
+  <div class="box" style="padding:14px;margin-bottom:12px"><b>الخصوصية</b><p class="muted" style="margin:4px 0 10px">${LS.get('daftar_pin')?'البرنامج مقفول برقم سري على الجهاز ده'+(pinLen()<6?' (٤ أرقام — غيّره لـ ٦ أرقام عشان يبقى أأمن)':'')+(LS.get('daftar_bio')?' وبالبصمة ✅':'')+'.':'اقفل البرنامج برقم سري من ٦ أرقام وبالبصمة عشان محدش يشوف حساباتك.'}</p>
+   <div class="btns">${LS.get('daftar_pin')?`<button class="btn ghost" data-act="setPin">${ic('lock')}غيّر الرقم</button>${LS.get('daftar_bio')?`<button class="btn ghost" data-act="bioOff">${ic('finger')}إلغاء البصمة</button>`:`<button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn danger" data-act="noPin">شيل القفل</button>`:`<button class="btn" data-act="setPin">${ic('lock')}حط رقم سري</button>`}<button class="btn ghost" data-act="hideT">${ic(HIDE?'eye':'eyeoff')}${HIDE?'أظهر المبالغ':'خبّي المبالغ'}</button></div></div>
   <div class="box" style="padding:14px;margin-bottom:12px"><b>المحافظ</b><p class="muted" style="margin:4px 0 10px">${S.wallets.map(w=>esc(w.name)).join('، ')}</p><button class="btn ghost" data-act="wallets">${ic('wallet')}إدارة المحافظ</button></div>
   <p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
   ${STORE?'':`<div class="box" style="padding:14px;margin-bottom:12px"><b>نزّل البرنامج على جهازك</b><p class="muted" style="margin:4px 0 10px">ملف واحد بيفتح في أي متصفح من غير نت. بياناته بتتحفظ على الجهاز نفسه، ولنقل البيانات بين النسختين استخدم النسخة الاحتياطية.</p>
@@ -1104,7 +1116,9 @@ document.addEventListener('click',async e=>{
   if(used)return toast('المحفظة دي عليها حركات، مقدرش أمسحها. ممكن تغيّر اسمها');
   S.mv=S.mv.filter(m=>m.w!==id);S.wallets=S.wallets.filter(w=>w.id!==id);save();show({kind:'wallets'});return toast('اتمسحت')}
  if(a==='setPin')return show({kind:'pin'});
- if(a==='noPin'){try{localStorage.removeItem('daftar_pin')}catch(x){}renderSheet();return toast('اتشال القفل')}
+ if(a==='bioOn'){if(!(await bioAvail()))return toast('البصمة بتشتغل في تطبيق الموبايل بس، ولازم تكون متسجّلة على الموبايل');const ok=await bioEnable();renderSheet();return toast(ok?'تمام، تقدر تفتح البرنامج بالبصمة':'البصمة ماتفعّلتش')}
+ if(a==='bioOff'){LS.set('daftar_bio',null);renderSheet();return toast('اتشال الفتح بالبصمة')}
+ if(a==='noPin'){try{localStorage.removeItem('daftar_pin');localStorage.removeItem('daftar_bio');localStorage.removeItem('daftar_pinlen')}catch(x){}renderSheet();return toast('اتشال القفل')}
  if(a==='hideT'){HIDE=!HIDE;LS.set('daftar_hide',HIDE);render();return}
  if(a==='spend'||a==='income'||a==='transfer')return show({kind:a});
  if(a==='adjust')return show({kind:'adjust',w:e.target.closest('[data-wallet]').dataset.wallet});
@@ -1182,11 +1196,21 @@ window.addEventListener('storage',e=>{if(e.key==='daftar_gtok'&&gtok()){gNeed=fa
 /* ---------- lock ---------- */
 async function phash(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('daftar:'+s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){let h=7;for(const c of 'daftar:'+s)h=(h*131+c.charCodeAt(0))%2147483647;return 'x'+h}}
 let pinBuf='';
-const lockOn=()=>{if(!LS.get('daftar_pin'))return;pinBuf='';drawDots();$('lock').hidden=false};
+const pinLen=()=>+(LS.get('daftar_pinlen')||4);
+/* fingerprint (WebAuthn platform authenticator, local unlock only) */
+const b64=u=>btoa(String.fromCharCode(...new Uint8Array(u))),ub64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function bioAvail(){try{return location.protocol==='https:'&&!inArtifact&&!!window.PublicKeyCredential&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()}catch(e){return false}}
+async function bioEnable(){try{const cred=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:'دفتري',id:location.hostname},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:'daftari',displayName:'دفتري'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000,attestation:'none'}});
+ if(!cred)return false;LS.set('daftar_bio',b64(cred.rawId));return true}catch(e){return false}}
+async function bioUnlock(){const id=LS.get('daftar_bio');if(!id)return false;try{const a=await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rpId:location.hostname,allowCredentials:[{type:'public-key',id:ub64(id)}],userVerification:'required',timeout:60000}});
+ if(a&&a.response&&new Uint8Array(a.response.authenticatorData)[32]&4){$('lock').hidden=true;pinBuf='';return true}}catch(e){}return false}
+const lockOn=()=>{if(!LS.get('daftar_pin'))return;pinBuf='';const n=pinLen();$('dots').querySelectorAll('i').forEach((d,i)=>d.style.display=i<n?'':'none');drawDots();$('lock').hidden=false;
+ const bb=$('bioBtn');bb.hidden=!LS.get('daftar_bio');if(LS.get('daftar_bio'))setTimeout(bioUnlock,350)};
 const drawDots=()=>$('dots').querySelectorAll('i').forEach((d,i)=>d.classList.toggle('on',i<pinBuf.length));
-$('lock').addEventListener('click',async e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k;
- if(k==='x')pinBuf=pinBuf.slice(0,-1);else if(pinBuf.length<4)pinBuf+=k;drawDots();
- if(pinBuf.length===4){const ok=(await phash(pinBuf))===LS.get('daftar_pin');if(ok){$('lock').hidden=true;pinBuf=''}else{const d=$('dots');d.classList.add('bad');setTimeout(()=>{d.classList.remove('bad');pinBuf='';drawDots()},400)}}});
+$('bioBtn').addEventListener('click',()=>bioUnlock());
+$('lock').addEventListener('click',async e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k,n=pinLen();
+ if(k==='x')pinBuf=pinBuf.slice(0,-1);else if(pinBuf.length<n)pinBuf+=k;drawDots();
+ if(pinBuf.length===n){const ok=(await phash(pinBuf))===LS.get('daftar_pin');if(ok){$('lock').hidden=true;pinBuf=''}else{const d=$('dots');d.classList.add('bad');setTimeout(()=>{d.classList.remove('bad');pinBuf='';drawDots()},400)}}});
 let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else{if(hiddenAt&&Date.now()-hiddenAt>60000)lockOn();ensureW();if(runRec()){save();render()}}});
 lockOn();
 /* ---------- load ---------- */
