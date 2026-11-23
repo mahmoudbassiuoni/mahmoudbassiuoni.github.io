@@ -191,6 +191,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 .wtot small{display:block;color:var(--mute);font-size:12px}.wtot b{font:400 18px/1.3 Lalezar,sans-serif;white-space:nowrap;display:block;overflow:hidden;text-overflow:ellipsis}
 .av .i{width:20px;height:20px}
 @media(max-width:560px){#st{display:none}.top{gap:2px}.top .ib{width:40px}}
+.bkb{position:relative}.bkb i{position:absolute;top:8px;inset-inline-end:6px;width:9px;height:9px;border-radius:50%;background:#8a958f;box-shadow:0 0 0 2px var(--bg)}.bkb i.g{background:#2ea46b}.bkb i.r{background:#e0a100}.bkb i.b{background:#4aa3df;animation:bkp 1s infinite alternate}@keyframes bkp{to{opacity:.3}}
 .bellb{position:relative}.bellb i{position:absolute;top:6px;inset-inline-end:4px;min-width:18px;height:18px;border-radius:9px;background:#c2334d;color:#fff;font:700 11px/18px system-ui;font-style:normal;text-align:center;padding:0 4px}.bellb i[hidden]{display:none}
 .alerts{margin-top:12px;border:2px solid var(--gold)}.alerts .ti .i{width:18px;height:18px}
 .more{all:unset;display:block;text-align:center;padding:10px;color:var(--plus);font-weight:600;cursor:pointer;width:100%;box-sizing:border-box}
@@ -249,6 +250,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
   <div class="top">
     <h1>دفتري</h1>
     <span class="sync"><span class="dot off" id="dot"></span><span id="st">…</span></span>
+    <button class="ib bkb" id="bkBtn" aria-label="النسخ الاحتياطي"><svg class="i" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-9 6 6 0 0 1 11.5 1.5A3.8 3.8 0 0 1 17.5 18z"/><path d="M12 15v-5M9.8 12.2 12 10l2.2 2.2"/></svg><i id="bkDot"></i></button>
     <button class="ib bellb" id="bell" aria-label="التنبيهات"><svg class="i" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 0 0 4 0"/></svg><i id="bellN" hidden></i></button>
     <button class="ib" id="eye" aria-label="إخفاء المبالغ"></button>
     <button class="ib" id="gear" aria-label="الإعدادات"><svg class="i" viewBox="0 0 24 24"><path d="M10.3 3.6a1.7 1.7 0 0 1 3.4 0l.2.9a1.7 1.7 0 0 0 2.5 1l.8-.5a1.7 1.7 0 0 1 2.4 2.4l-.5.8a1.7 1.7 0 0 0 1 2.5l.9.2a1.7 1.7 0 0 1 0 3.4l-.9.2a1.7 1.7 0 0 0-1 2.5l.5.8a1.7 1.7 0 0 1-2.4 2.4l-.8-.5a1.7 1.7 0 0 0-2.5 1l-.2.9a1.7 1.7 0 0 1-3.4 0l-.2-.9a1.7 1.7 0 0 0-2.5-1l-.8.5a1.7 1.7 0 0 1-2.4-2.4l.5-.8a1.7 1.7 0 0 0-1-2.5l-.9-.2a1.7 1.7 0 0 1 0-3.4l.9-.2a1.7 1.7 0 0 0 1-2.5l-.5-.8a1.7 1.7 0 0 1 2.4-2.4l.8.5a1.7 1.7 0 0 0 2.5-1z"/><circle cx="12" cy="12" r="3"/></svg></button>
@@ -274,7 +276,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٣ نوفمبر - ٣٣';
+const VER='٢٣ نوفمبر - ٣٤';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -397,7 +399,7 @@ const snap=()=>{undoState=JSON.parse(JSON.stringify(S))};
 
 const timers={};
 function save(which='L'){
- if(which==='L'){clearTimeout(timers.snap);timers.snap=setTimeout(remSnap,800);gSchedule()}
+ if(which==='L'){clearTimeout(timers.snap);timers.snap=setTimeout(remSnap,800);try{if(gAuto())LS.set('daftar_gdirty',1)}catch(e){}gSchedule()}
  if(which==='L'){try{normCur()}catch(e){}LS.set('daftar',S)}else LS.set('daftar_contacts',C);
  const r=which==='L'?ref:refC;
  if(!r){status(inArtifact?'على الجهاز ده بس':'محفوظ على الجهاز','off');return}
@@ -479,6 +481,7 @@ function render(){
  if(view==='people'){const i=$('qP');i.oninput=()=>{qP=i.value;$('plist').innerHTML=peopleRows()}}
  if(view==='contacts'&&$('qC')){const i=$('qC');i.oninput=()=>{qC=i.value;const pos=i.selectionStart;render();const j=$('qC');j.focus();try{j.setSelectionRange(pos,pos)}catch(e){}}}
  if($('hq')&&$('hq').value.trim())runSearch();
+ try{bkIcon()}catch(e){}
  if(open)renderSheet();
 }
 function totals(){let plus=0,minus=0;S.people.forEach(p=>{const b=bal(p.id);b>0?plus+=b:minus-=b});return{plus,minus,net:plus-minus,month:S.exp.filter(e=>e.date.startsWith(month())).reduce((a,e)=>a+e.amt,0)}}
@@ -663,7 +666,6 @@ function reminders(){const R=[],T=today();
  for(const p of S.people){const b=bal(p.id);
   if(b>0){const dues=S.tx.filter(t=>t.pid===p.id&&t.type==='took'&&t.due).map(t=>t.due).sort();const due=dues.find(x=>daysTo(x)<=lead());if(due){const n=daysTo(due);R.push({n,d:due,ic:'clock',t:`${p.name} عليه ${fmt(b)}`,s:n<0?`ميعاد السداد عدّى من ${(-n).toLocaleString('ar-EG')} يوم`:n===0?'ميعاد السداد النهارده':`ميعاد السداد بعد ${n.toLocaleString('ar-EG')} يوم`,o:'p:'+p.id,u:1})}}
   if(b<0&&S.remOwe!==0)R.push({n:99,d:'',ic:'alert',t:`عليك لـ ${p.name} ${fmt(-b)}`,s:'فلوس عليك لسه مارجّعتهاش',o:'p:'+p.id,u:0})}
- if(gAuto()&&(gNeed||!gtok())&&(S.people.length||S.exp.length))R.push({n:-1,d:'',ic:'up',t:'النسخ التلقائي على Drive واقف',s:'دوس هنا عشان تجدّد الربط بحساب جوجل (ثانية واحدة)',act:'gRelink',u:1});
  {const a=bkAge();if((S.people.length||S.exp.length||S.mv.length)&&(a===null||a>=7))R.push({n:98,d:'',ic:'up',t:a===null?'اعمل أول نسخة احتياطية لحساباتك':'آخر نسخة احتياطية من '+a.toLocaleString('ar-EG')+' يوم',s:'احفظها على Google Drive عشان ماتضيعش',act:'bkNow',u:1})}
  return R.sort((a,b)=>a.n-b.n)}
 function icsEsc(t){return String(t).replace(/[\\,;]/g,m=>'\\'+m).replace(/\n/g,'\\n')}
@@ -771,7 +773,7 @@ async function shareBackup(){const data=JSON.stringify({...S,contacts:C,v:2},nul
  await download(name,data,'application/json');bkMark();render()}
 function bkStatus(){const on=gAuto(),lb=LS.get('daftar_gbk'),a=bkAge();
  const ago=t=>{const m=Math.round((Date.now()-t)/6e4);return m<1?'من ثواني':m<60?'من '+m.toLocaleString('ar-EG')+' دقيقة':m<1440?'من '+Math.round(m/60).toLocaleString('ar-EG')+' ساعة':'من '+Math.round(m/1440).toLocaleString('ar-EG')+' يوم'};
- if(on&&lb)return{ok:!gNeed&&!!gtok(),t:'تلقائي على Google Drive',s:'آخر نسخة '+ago(lb)};
+ if(on&&lb)return{ok:!LS.get('daftar_gdirty')||(!gNeed&&!!gtok()),t:'تلقائي على Google Drive',s:'آخر نسخة '+ago(lb)};
  if(on)return{ok:false,t:'تلقائي على Google Drive',s:'لسه ماتحفظش ولا نسخة'};
  return{ok:a!==null&&a<7,t:'النسخ التلقائي مقفول',s:a===null?'لسه ماعملتش نسخة احتياطية':a===0?'آخر نسخة النهارده':'آخر نسخة من '+a.toLocaleString('ar-EG')+' يوم'}}
 function bkRow(){const st=bkStatus();return `<button class="bkrow" data-act="bkSheet"><span class="bkic">${ic('cloud')}</span><span class="nm"><b>النسخ الاحتياطي</b><small><i class="dotst ${st.ok?'g':'r'}"></i>${st.t} · ${st.s}</small></span><span class="chev">‹</span></button>`}
@@ -1350,6 +1352,7 @@ document.addEventListener('click',async e=>{
  if(e.target.closest('#fab')){show({kind:'quick'});return}
  if(e.target.closest('#gear')){show({kind:'settings'});return}
  if(e.target.closest('#bell')){show({kind:'rems'});return}
+ if(e.target.closest('#bkBtn')){show({kind:'bkSheet'});return}
  if(e.target.closest('#srch')){show({kind:'search'});return}
  if(e.target.closest('#eye')){HIDE=!HIDE;LS.set('daftar_hide',HIDE);render();toast(HIDE?'المبالغ متخبية':'المبالغ ظاهرة');return}
  const a=e.target.closest('[data-act]')?.dataset.act;if(!a)return;
@@ -1417,7 +1420,7 @@ document.addEventListener('click',async e=>{
  if(a==='clearC'){const old=C;C=[];save('C');render();const el=$('toast');el.innerHTML='اتمسحت الأرقام<button id="undoC">تراجع</button>';el.classList.add('on');$('undoC').onclick=()=>{C=old;save('C');render();el.classList.remove('on')};clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),5000);return}
  if(a==='driveB')return shareBackup();
  if(a==='bkNow'||a==='bkSheet')return show({kind:'bkSheet'});
- if(a==='gRelink')return gAuth(true);
+ if(a==='gRelink')return gAuth(true,true);
  if(a==='gConnect')return gAuth(false);
  if(a==='gNow')return driveBackup(true);
  if(a==='gAutoOn'){LS.set('daftar_gauto',true);renderSheet();toast('النسخ التلقائي شغال');if(gtok())driveBackup(false);return}
@@ -1450,7 +1453,7 @@ const gcid=()=>LS.get('daftar_gcid')||GCID_DEF;
 const gtok=()=>{const t=LS.get('daftar_gtok');return t&&t.exp>Date.now()+60000?t.at:null};
 const gOK=()=>location.protocol==='https:'&&!inArtifact;
 let gNeed=false,gBusy=false;
-function gAuth(silent){const st=uid();LS.set('daftar_gstate',{st,silent:!!silent});
+function gAuth(silent,man){const st=uid();LS.set('daftar_gstate',{st,silent:!!silent,man:!!man});
  location.href='https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:gcid(),redirect_uri:location.origin+location.pathname,response_type:'token',scope:GSC,include_granted_scopes:'true',state:st,prompt:silent?'none':'consent'})}
 async function gfetch(u,o={}){const t=gtok();if(!t){gNeed=true;throw new Error('auth')}
  const r=await fetch(u,{...o,headers:{...(o.headers||{}),Authorization:'Bearer '+t}});if(r.status===401||r.status===403&&!o.noAuthReset){if(r.status===401){LS.set('daftar_gtok',null);gNeed=true;throw new Error('auth')}}if(!r.ok)throw new Error('http '+r.status);return r}
@@ -1459,22 +1462,26 @@ async function gPut(name,data,id){if(id)return gfetch(GAPI+'/upload/drive/v3/fil
  const b='dftr'+uid(),body='--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify({name,parents:['appDataFolder']})+'\r\n--'+b+'\r\nContent-Type: application/json\r\n\r\n'+data+'\r\n--'+b+'--';
  return gfetch(GAPI+'/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body})}
 async function driveBackup(manual){if(!gOK()||!gcid())return;if(!gtok()){gNeed=true;if(manual)gAuth(false);else render();return}
- if(gBusy)return;gBusy=true;if(manual)toast('بيحفظ على Drive…');
+ if(gBusy)return;gBusy=true;bkIcon();if(manual)toast('بيحفظ على Drive…');
  try{const data=JSON.stringify({...S,contacts:C,v:2}),files=await gList(),dn='daftar-'+today()+'.json';
   await gPut('daftar-backup.json',data,(files.find(f=>f.name==='daftar-backup.json')||{}).id);
   await gPut(dn,data,(files.find(f=>f.name===dn)||{}).id);
   const old=files.filter(f=>/^daftar-\d{4}-\d\d-\d\d\.json$/.test(f.name)&&f.name!==dn).sort((a,b)=>b.name.localeCompare(a.name)).slice(6);
   for(const f of old){try{await gfetch(GAPI+'/drive/v3/files/'+f.id,{method:'DELETE'})}catch(e){}}
-  LS.set('daftar_gbk',Date.now());bkMark();gNeed=false;if(manual)toast('اتحفظت على Google Drive ✅');if(open&&(open.kind==='settings'||open.kind==='bkSheet'))renderSheet()}
+  LS.set('daftar_gbk',Date.now());LS.set('daftar_gdirty',0);bkMark();gNeed=false;if(manual)toast('اتحفظت على Google Drive ✅');if(open&&(open.kind==='settings'||open.kind==='bkSheet'))renderSheet()}
  catch(e){if(e.message==='auth'){gNeed=true;if(manual)gAuth(false)}else if(manual)toast('مقدرتش أوصل لـ Drive، اتأكد من النت')}
  finally{gBusy=false;render()}}
 const gAuto=()=>gOK()&&!!gcid()&&!!LS.get('daftar_gauto');
+function bkIcon(){const d=$('bkDot');if(!d)return;const st=bkStatus();d.className=gBusy?'b':st.ok?'g':gAuto()||LS.get('daftar_lastbk')?'r':'';$('bkBtn').title=st.t+' · '+st.s}
+function gAutoRenew(){try{if(navigator.onLine===false||!gAuto()||gtok()||!LS.get('daftar_gdirty')||/access_token=|error=/.test(location.hash))return false;
+ const now=Date.now(),f=+LS.get('daftar_gsilfail')||0,t=+LS.get('daftar_gsil')||0;if(now-f<6*36e5||now-t<10*6e4)return false;LS.set('daftar_gsil',now);gAuth(true);return true}catch(e){return false}}
 function gSchedule(){if(!gAuto())return;clearTimeout(timers.g);timers.g=setTimeout(()=>driveBackup(false),4000)}
 (function gReturn(){const h=location.hash;if(!/access_token=|error=/.test(h))return;const q=new URLSearchParams(h.slice(1)),st=LS.get('daftar_gstate')||{};
  try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
  if(!st.st||q.get('state')!==st.st)return;LS.set('daftar_gstate',null);
  if(q.get('access_token')){LS.set('daftar_gtok',{at:q.get('access_token'),exp:Date.now()+(+q.get('expires_in')||3600)*1000});LS.set('daftar_gauto',true);setTimeout(()=>{toast('اتربط Google Drive ✅');driveBackup(false)},1200)}
- else if(st.silent&&/interaction_required|login_required|consent_required/.test(q.get('error')||''))setTimeout(()=>gAuth(false),300);
+ else if(st.silent&&st.man&&/interaction_required|login_required|consent_required/.test(q.get('error')||''))setTimeout(()=>gAuth(false),300);
+ else if(st.silent){LS.set('daftar_gsilfail',Date.now());gNeed=true;setTimeout(bkIcon,300)}
  else setTimeout(()=>toast('الربط مع جوجل اتلغى'),1200)})();
 window.addEventListener('storage',e=>{if(e.key==='daftar_gtok'&&gtok()){gNeed=false;render();gSchedule()}});
 /* ---------- lock ---------- */
@@ -1497,7 +1504,7 @@ $('lock').addEventListener('click',async e=>{const b=e.target.closest('[data-k]'
  if(k==='x')pinBuf=pinBuf.slice(0,-1);else if(pinBuf.length<n)pinBuf+=k;drawDots();
  if(pinBuf.length===n){const ok=(await phash(pinBuf))===LS.get('daftar_pin');if(ok){$('lock').hidden=true;pinBuf=''}else{const d=$('dots');d.classList.add('bad');setTimeout(()=>{d.classList.remove('bad');pinBuf='';drawDots()},400)}}});
 let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else{if(hiddenAt&&Date.now()-hiddenAt>60000)lockOn();ensureW();if(runRec()){save();render()}}});
-lockOn();
+if(!gAutoRenew())lockOn();
 setTimeout(()=>fetchRate(),2500);setInterval(()=>fetchRate(),30*6e4);document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchRate();else{vcShown=null}});
 $('hq').addEventListener('input',runSearch);$('hqx').addEventListener('click',e=>{e.preventDefault();clearSearch();$('hq').focus()});$('hq').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur()});
 /* ---------- load ---------- */
