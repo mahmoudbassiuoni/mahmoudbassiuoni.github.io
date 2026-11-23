@@ -184,6 +184,12 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 .wsel{flex-wrap:wrap}.wsel button{flex:1 1 28%}
 .wallets{grid-template-columns:repeat(2,minmax(0,1fr))}
 .wcard.frz{background:repeating-linear-gradient(135deg,var(--card) 0 10px,var(--soft) 10px 20px)}
+#view.swr{animation:swr .22s ease-out}#view.swl{animation:swl .22s ease-out}@keyframes swr{from{opacity:.3;transform:translateX(-40px)}}@keyframes swl{from{opacity:.3;transform:translateX(40px)}}
+.wblk{display:flex;flex-direction:column;min-width:0}.wblk>.wcard{width:100%;flex:1}.wblk.full,.wblk.ex{grid-column:1/-1}.wchev{margin-inline-start:auto;color:var(--mute);font-size:12px}.wcard small{display:flex;align-items:center;gap:6px}
+.wblk.ex>.wcard{border-radius:18px 18px 0 0;box-shadow:none}.wpanel{background:var(--card);border-radius:0 0 18px 18px;box-shadow:var(--sh);padding:4px 12px 12px;border-top:1px dashed var(--line);animation:wpd .18s ease-out}@keyframes wpd{from{opacity:0;transform:translateY(-6px)}}
+.wkid{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);cursor:pointer}.wkid .av{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;flex:none;font-size:13px}.wkid .nm{flex:1;display:flex;flex-direction:column;min-width:0}.wkid .nm small{color:var(--mute);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wkid .amt{display:flex;flex-direction:column;align-items:flex-end;font-weight:700}.wkid .amt small{font-weight:400;color:var(--mute);font-size:11px}
+.wpadd{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;padding:10px;border-radius:12px;border:1.5px dashed var(--line);color:var(--mute);font-size:14px}.wpinfo{font-size:13px;color:var(--mute);padding:10px 2px}.wpanel .vcard{margin:4px 0 10px}
+.wpbt{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.wpbt button{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px;border-radius:12px;background:var(--soft);font-size:12px;text-align:center}.wpbt .i{width:18px;height:18px}
 .wpar{grid-column:1/-1;border-inline-start:5px solid var(--gold)}.wbr{display:block;font-size:12px;color:var(--mute);margin-top:4px}
 .wadd{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--mute);border:2px dashed var(--line);box-shadow:none;background:transparent;min-height:84px}
 .wtot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
@@ -281,7 +287,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٣ نوفمبر - ٣٥';
+const VER='٢٣ نوفمبر - ٣٦';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -417,6 +423,13 @@ function save(which='L'){
 }
 
 /* ---------- views ---------- */
+let wExp=new Set();
+function wPanel(w){const K=kids(w.id),own=wbal(w.id);
+ const kr=k=>`<div class="wkid" data-act="wone" data-wallet="${k.id}"><span class="av" style="background:${k.frozen?'#4b6470':'var(--hero)'};overflow:hidden">${wbadge(k)||ic(k.ic||'wallet')}</span><span class="nm"><b>${esc(k.name)}</b><small>${esc([wmeta(k),k.frozen?'تحويش':''].filter(Boolean).join(' · ')||'دوس عشان تزوّد أو تعدّل')}</small></span><span class="amt">${wfmt(k.id)}${isUSD(k.id)?`<small>≈ ${sfmt(wbalE(k.id))}</small>`:''}</span></div>`;
+ const acts=id=>`<div class="wpbt"><button data-act="wone" data-wallet="${id}">${ic('plus')}زوّد</button><button data-act="wspend" data-wallet="${id}">${ic('minus')}صرفت</button><button data-act="transfer">⇄ حوّل</button><button data-act="wone" data-wallet="${id}">التفاصيل ‹</button></div>`;
+ if(isGrp(w)||K.length){const addL=w.id==='visa'?'ضيف فيزا / كارت':w.id==='mob'?'ضيف محفظة موبايل':'ضيف جزء (ورق، فضة، دولار…)';
+  return `<div class="wpanel">${K.map(kr).join('')}${Math.abs(own)>=0.005||!K.length?`<div class="wkid" data-act="wone" data-wallet="${w.id}"><span class="av" style="background:var(--soft);color:var(--mute)">${ic(w.ic||'wallet')}</span><span class="nm"><b>${K.length?(w.id==='cash'?'كاش مش مقسّم':'مش متحدد على كارت'):esc(w.name)}</b><small>دوس عشان تزوّد أو تعدّل</small></span><span class="amt">${wfmt(w.id)}</span></div>`:''}<button class="wpadd" data-act="wnew" data-wallet="${w.id}">${ic('plus')}${addL}</button></div>`}
+ return `<div class="wpanel">${isApp(w)?`<div class="wpinfo">سعر الدولار <b>${urate().toLocaleString('ar-EG')} ج</b> · ${usrc()==='manual'?'بإيدك':'من '+(RSRC.find(r=>r[0]===usrc())||RSRC[0])[1]}${S.usdAt?' · '+ago(S.usdAt):''}</div>${w.vc?vcardHTML(w):''}`:''}${acts(w.id)}</div>`}
 function wForm(w){const v=w||{},t=v.t||(w&&w.id==='visa'?'bank':w&&(w.id==='cash'||w.parent)?'cash':w?'cash':'bank');
  const opt=(L,cur,other)=>L.map(x=>`<option ${x===cur?'selected':''}>${esc(x)}</option>`).join('')+`<option value="__o" ${cur&&!L.includes(cur)?'selected':''}>${other}</option>`;
  return `<label>النوع</label><div class="wsel" data-wsel="wt"><button type="button" data-w="bank" class="${t==='bank'?'on':''}">${ic('bank')}بنك / فيزا</button><button type="button" data-w="ew" class="${t==='ew'?'on':''}">${ic('mobile')}محفظة موبايل</button><button type="button" data-w="cash" class="${t==='cash'?'on':''}">${ic('wallet')}كاش / تانية</button><button type="button" data-w="app" class="${t==='app'?'on':''}">${ic('coin')}باي بيت (Bybit)</button></div>
@@ -564,11 +577,11 @@ function vDaily(){
  const byW=S.wallets.map(w=>({n:w.name,v:ex.filter(e=>e.w===w.id).reduce((a,e)=>a+e.amt,0)})).filter(x=>x.v>0),other=out-byW.reduce((a,x)=>a+x.v,0);
  const days=[];for(let i=6;i>=0;i--){const k=addDays(today(),-i);days.push({k,v:spentOn(k),l:i===0?'النهارده':new Date(k+'T12:00').toLocaleDateString('ar-EG',{weekday:'short'})})}
  const mx=Math.max(1,...days.map(x=>x.v));
- return `<div class="wallets">${S.wallets.filter(w=>!w.parent).map(w=>{const b=wbalE(w.id);const K=kids(w.id);const tot=b+K.reduce((a,k)=>a+wbalE(k.id),0);
-  return `<button class="wcard ${w.frozen?'frz':''} ${K.length?'wpar':''}" data-act="${isGrp(w)||K.length?'wgrp':'wone'}" data-wallet="${w.id}"><small>${wbadge(w)||ic(w.ic||(w.frozen?'lock':'wallet'))}${esc(wlabel(w))}${w.frozen?'<span class="tag">مجمد</span>':''}</small><span class="v ${tot<0?'neg':''}">${!K.length&&isUSD(w.id)?wfmt(w.id):sfmt(tot)}</span>${!K.length&&isUSD(w.id)?`<span class="wbr">≈ ${sfmt(tot)} · الدولار ${urate().toLocaleString('ar-EG')} ج${w.t==='app'?' · منفصل عن الإجمالي':''}</span>`:''}${!K.length&&wmeta(w)&&!isApp(w)?`<span class="wbr">${esc(wmeta(w))}</span>`:''}${K.length?`<span class="wbr">${K.length.toLocaleString('ar-EG')} ${w.id==='visa'?(K.length>2&&K.length<11?'كروت':'كارت'):w.id==='mob'?(K.length>2&&K.length<11?'محافظ':'محفظة'):'أجزاء'} جوّه · دوس عشان تشوفهم</span>`:isGrp(w)?`<span class="wbr">دوس عشان تضيف ${w.id==='visa'?'كروتك':w.id==='mob'?'محافظك':'أجزاء'}</span>`:''}</button>`}).join('')}
+ return `<div class="wallets">${S.wallets.filter(w=>!w.parent).map(w=>{const b=wbalE(w.id);const K=kids(w.id);const tot=b+K.reduce((a,k)=>a+wbalE(k.id),0),ex=wExp.has(w.id),grp=isGrp(w)||K.length;
+  return `<div class="wblk ${ex?'ex':''} ${grp||isApp(w)?'full':''}"><button class="wcard ${w.frozen?'frz':''} ${grp?'wpar':''} ${isApp(w)?'wapp':''}" data-act="wtog" data-wallet="${w.id}"><small>${wbadge(w)||ic(w.ic||(w.frozen?'lock':'wallet'))}${esc(wlabel(w))}${w.frozen?'<span class="tag">مجمد</span>':''}<span class="wchev">${ex?'▴':'▾'}</span></small><span class="v ${tot<0?'neg':''}">${!K.length&&isUSD(w.id)?wfmt(w.id):sfmt(tot)}</span>${!K.length&&isUSD(w.id)?`<span class="wbr">≈ ${sfmt(tot)} · الدولار ${urate().toLocaleString('ar-EG')} ج${w.t==='app'?' · منفصل عن الإجمالي':''}</span>`:''}${!K.length&&wmeta(w)&&!isApp(w)?`<span class="wbr">${esc(wmeta(w))}</span>`:''}${!ex&&K.length?`<span class="wbr">${K.length.toLocaleString('ar-EG')} ${w.id==='visa'?(K.length>2&&K.length<11?'كروت':'كارت'):w.id==='mob'?(K.length>2&&K.length<11?'محافظ':'محفظة'):'أجزاء'} جوّه · دوس عشان تشوفهم</span>`:''}</button>${ex?wPanel(w):''}</div>`}).join('')}
   <button class="wcard wadd" data-act="wallets">${ic('plus')}<span>إدارة المحافظ</span></button></div>
  <div class="wtot"><div><small>متاح</small><b>${sfmt(avl)}</b></div>${hasFz()?`<div><small>متحوّش</small><b>${sfmt(fz)}</b></div>`:`<div><small>كاش (ورق + فضة)</small><b>${sfmt(cashT())}</b></div>`}<div><small>الإجمالي</small><b>${sfmt(avl+fz)}</b></div></div>
- <p class="muted" style="margin:6px 2px 0">دوس على أي محفظة لو عايز تعدّل رصيدها.</p>
+ <p class="muted" style="margin:6px 2px 0">دوس على أي محفظة عشان تفتح اللي جواها.</p>
  <div class="acts"><button data-act="spend" style="background:#c2334d">${ic('minus')}صرفت</button><button data-act="income" style="background:#0a7a6c">${ic('plus')}دخل فلوس</button><button data-act="transfer" style="background:var(--hero)">⇄ تحويل</button></div>
  <div class="daynav"><button class="ib" data-day="-1" aria-label="اليوم اللي قبله">›</button><b>${dayLabel(d)}</b><button class="ib" data-day="1" aria-label="اليوم اللي بعده" ${d>=today()?'disabled style="opacity:.3"':''}>‹</button></div>
  <div class="dsum"><div><small>صرفت</small><b class="mi">${fmt(out)}</b><small>${out?byW.map(x=>esc(x.n)+' '+fmt(x.v)).concat(other>0?['غيره '+fmt(other)]:[]).join(' · '):'ولا مليم'}</small></div><div><small>دخل</small><b class="pl">${fmt(inc)}</b><small>${mv.filter(m=>m.k==='in'&&!m.start).length+tw.filter(t=>TXW[t.type]>0).length} حركة</small></div></div>
@@ -1482,6 +1495,7 @@ document.addEventListener('click',async e=>{
  if(a==='noPin'){try{localStorage.removeItem('daftar_pin');localStorage.removeItem('daftar_bio');localStorage.removeItem('daftar_pinlen')}catch(x){}renderSheet();return toast('اتشال القفل')}
  if(a==='hideT'){HIDE=!HIDE;LS.set('daftar_hide',HIDE);render();return}
  if(a==='spend'||a==='income'||a==='transfer')return show({kind:a});
+ if(a==='wtog'){const id=e.target.closest('[data-wallet]').dataset.wallet;wExp.has(id)?wExp.delete(id):wExp.add(id);return render()}
  if(a==='vcEdit')return show({kind:'vcEdit',w:e.target.closest('[data-wallet]').dataset.wallet});
  if(a==='vcDel'){const w=S.wallets.find(x=>x.id===e.target.closest('[data-wallet]').dataset.wallet);if(w){delete w.vc;vcShown=null;save()}return show({kind:'wone',w:w.id})}
  if(a==='vcShow')return show({kind:'vcPin',w:e.target.closest('[data-wallet]').dataset.wallet});
@@ -1590,6 +1604,12 @@ $('lock').addEventListener('click',async e=>{const b=e.target.closest('[data-k]'
  if(k==='x')pinBuf=pinBuf.slice(0,-1);else if(pinBuf.length<n)pinBuf+=k;drawDots();
  if(pinBuf.length===n){const ok=(await phash(pinBuf))===LS.get('daftar_pin');if(ok){$('lock').hidden=true;pinBuf=''}else{const d=$('dots');d.classList.add('bad');setTimeout(()=>{d.classList.remove('bad');pinBuf='';drawDots()},400)}}});
 let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else{if(hiddenAt&&Date.now()-hiddenAt>60000)lockOn();ensureW();if(runRec()){save();render()}}});
+(()=>{let sx=0,sy=0,st=0,ok=false;const navOrder=()=>[...document.querySelectorAll('nav [data-v]')].map(b=>b.dataset.v);
+ const blocked=el=>!!el.closest('input,textarea,select,.chips,.skins,.wsel,.hsplit,[data-noswipe],.sheet,#card,.lock');
+ document.addEventListener('touchstart',e=>{if(e.touches.length!==1||open||!$('lock').hidden||blocked(e.target)){ok=false;return}const t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();ok=true},{passive:true});
+ document.addEventListener('touchend',e=>{if(!ok)return;ok=false;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*2||Date.now()-st>700)return;
+  const O=navOrder(),i=O.indexOf(view);if(i<0)return;const ni=i+(dx>0?1:-1);if(ni<0||ni>=O.length)return;clearSearch();view=O[ni];render();scrollTo(0,0);
+  const v=$('view');v.classList.remove('swl','swr');void v.offsetWidth;v.classList.add(dx>0?'swr':'swl')},{passive:true})})();
 if(!gAutoRenew())lockOn();
 setTimeout(()=>{if(!logPrev)logPrev=JSON.parse(JSON.stringify(logIndex()))},50);
 setTimeout(()=>fetchRate(),2500);setInterval(()=>fetchRate(),30*6e4);document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchRate();else{vcShown=null}});
