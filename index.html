@@ -61,7 +61,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans
 .bars .br{padding:10px 14px;border-bottom:1px solid var(--line)}.bars .br:last-child{border:0}
 .br .t{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;gap:8px}.br .t b{white-space:nowrap}
 .track{height:8px;border-radius:6px;background:var(--soft);overflow:hidden}.track i{display:block;height:100%;border-radius:6px}
-.hsearch{margin:2px 0 14px;min-height:48px;cursor:text}.hsearch input{font-size:16px}.hsearch input::-webkit-search-cancel-button{display:none}.hqx{all:unset;cursor:pointer;padding:6px 4px;color:var(--mute);font-size:15px}.hqx[hidden]{display:none}#sres{margin-bottom:90px}
+.wsel button .i{width:16px;height:16px;vertical-align:-3px;margin-inline-end:4px}
+.hsearch[hidden]{display:none}.hsearch{margin:2px 0 14px;min-height:48px;cursor:text}.hsearch input{font-size:16px}.hsearch input::-webkit-search-cancel-button{display:none}.hqx{all:unset;cursor:pointer;padding:6px 4px;color:var(--mute);font-size:15px}.hqx[hidden]{display:none}#sres{margin-bottom:90px}
 .search{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:14px;padding:0 12px;box-shadow:var(--sh);margin-bottom:10px}
 .search input{border:0;background:transparent;padding:12px 0;min-height:46px;box-shadow:none}
 .search input:focus{outline:none}
@@ -267,7 +268,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٣ نوفمبر - ٢٣';
+const VER='٢٣ نوفمبر - ٢٥';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -286,6 +287,8 @@ const num=n=>(Math.round(Math.abs(n)*100)/100).toLocaleString('ar-EG');
 let HIDE=false;const fmt=n=>HIDE?'•••• '+S.cur:num(n)+' '+S.cur;
 const dstr=d=>{try{return new Date(d+'T00:00').toLocaleDateString('ar-EG',{day:'numeric',month:'short',year:'numeric'})}catch(e){return d}};
 const IC={
+ bank:'<path d="M3 10h18L12 4zM5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>',
+ mobile:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 17h2"/>',
  chat:'<path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"/>',
  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>',
  trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
@@ -330,6 +333,12 @@ const gsaved=id=>S.mv.filter(m=>m.k==='gl'&&m.goal===id).reduce((a,m)=>a+m.amt,0
 const r2=n=>Math.round(n*100)/100;
 const cashT=()=>wbal('cash')+kids('cash').reduce((a,k)=>a+wbal(k.id),0);
 const hasFz=()=>S.wallets.some(w=>w.frozen);
+const BANKS=['البنك الأهلي المصري','بنك مصر','بنك القاهرة','البنك التجاري الدولي CIB','بنك QNB مصر','بنك الإسكندرية','بنك قناة السويس','البنك الزراعي المصري','بنك التعمير والإسكان','البنك العربي الأفريقي الدولي','بنك الكويت الوطني NBK','بنك الإمارات دبي الوطني','بنك أبوظبي الأول FAB','بنك أبوظبي التجاري ADCB','مصرف أبوظبي الإسلامي ADIB','بنك فيصل الإسلامي','بنك البركة','HSBC مصر','كريدي أجريكول مصر','البنك المصري الخليجي EG Bank','بنك المشرق','البنك العربي','بنك ABC','البنك الأهلي الكويتي ABK','بنك الاستثمار العربي aiBANK','البنك الأهلي المتحد AUB','المصرف المتحد','بنك الشركة المصرفية العربية الدولية SAIB','البنك المصري لتنمية الصادرات','البنك العقاري المصري العربي','ميد بنك','بنك نكست','بنك سيتي','بنك البريد المصري'];
+const EWS=['فودافون كاش','اتصالات كاش (e& cash)','أورانج كاش','وي باي (WE Pay)','إنستاباي (InstaPay)','ماي فوري (myfawry)','ميزة ديجيتال','الأهلي فون كاش','محفظة بنك مصر (BM Wallet)','محفظة CIB','محفظة QNB','محفظة بنك القاهرة','محفظة البريد المصري'];
+const NETS=[['visa','فيزا'],['mc','ماستركارد'],['meeza','ميزة'],['none','من غير كارت']];
+const CKS=[['debit','خصم مباشر (ديبت)'],['credit','ائتمان (كريديت)'],['prepaid','مسبقة الدفع']];
+const ACCS=['حساب جاري','حساب توفير','حساب مرتبات','حساب جاري مدين','وديعة','شهادة ادخار','حساب بالدولار','حساب بعملة أجنبية','حساب للكارت بس'];
+const wmeta=w=>w.t==='bank'?[w.bank,(NETS.find(x=>x[0]===w.net)||[])[1]&&w.net!=='none'?(NETS.find(x=>x[0]===w.net)||[])[1]+(w.net==='meeza'?(w.mz==='salary'?' مرتبات':' عادية'):'')+(w.ck&&w.net!=='none'?' '+({debit:'ديبت',credit:'كريديت',prepaid:'مسبقة الدفع'}[w.ck]||''):''):'',w.acc,w.l4?'••'+w.l4:''].filter(Boolean).join(' · '):w.t==='ew'?[w.prov,w.ph?'•••'+String(w.ph).slice(-3):''].filter(Boolean).join(' · '):'';
 const wlabel=w=>w.id==='frozen'&&w.name==='مجمد'?'مجمد (ورق)':w.id==='silver'&&w.name==='فضية'?'فضية (معدن)':w.name;
 const wsum=f=>S.wallets.filter(f).reduce((a,w)=>a+wbal(w.id),0);
 const sfmt=n=>(n<0?'− ':'')+fmt(n);
@@ -363,6 +372,28 @@ function save(which='L'){
 }
 
 /* ---------- views ---------- */
+function wForm(w){const v=w||{},t=v.t||(w&&w.id==='visa'?'bank':w&&(w.id==='cash'||w.parent)?'cash':w?'cash':'bank');
+ const opt=(L,cur,other)=>L.map(x=>`<option ${x===cur?'selected':''}>${esc(x)}</option>`).join('')+`<option value="__o" ${cur&&!L.includes(cur)?'selected':''}>${other}</option>`;
+ return `<label>النوع</label><div class="wsel" data-wsel="wt"><button type="button" data-w="bank" class="${t==='bank'?'on':''}">${ic('bank')}بنك / فيزا</button><button type="button" data-w="ew" class="${t==='ew'?'on':''}">${ic('mobile')}محفظة موبايل</button><button type="button" data-w="cash" class="${t==='cash'?'on':''}">${ic('wallet')}كاش / تانية</button></div>
+ <div id="wfBank"><label>البنك</label><select id="wfBk">${opt(BANKS,v.bank,'بنك تاني…')}</select><input id="wfBkO" placeholder="اكتب اسم البنك" style="margin-top:6px" value="${v.bank&&!BANKS.includes(v.bank)?esc(v.bank):''}">
+  <label style="margin-top:8px">الكارت</label><div class="wsel" data-wsel="net">${NETS.map(([k,l])=>`<button type="button" data-w="${k}" class="${(v.net||'visa')===k?'on':''}">${l}</button>`).join('')}</div>
+  <div id="wfMz"><label>نوع الميزة</label><div class="wsel" data-wsel="mz"><button type="button" data-w="normal" class="${v.mz==='salary'?'':'on'}">عادية</button><button type="button" data-w="salary" class="${v.mz==='salary'?'on':''}">مرتبات</button></div></div>
+  <div id="wfCk"><label>نوع الكارت</label><div class="wsel" data-wsel="ck">${CKS.map(([k,l])=>`<button type="button" data-w="${k}" class="${(v.ck||'debit')===k?'on':''}">${l}</button>`).join('')}</div></div>
+  <div class="g2"><div><label>نوع الحساب</label><select id="wfAcc">${ACCS.map(x=>`<option ${x===(v.acc||'حساب توفير')?'selected':''}>${x}</option>`).join('')}</select></div><div><label>آخر ٤ أرقام (اختياري)</label><input id="wfL4" inputmode="numeric" maxlength="4" value="${esc(v.l4||'')}" placeholder="1234"></div></div></div>
+ <div id="wfEw"><label>المحفظة</label><select id="wfPr">${opt(EWS,v.prov,'محفظة تانية…')}</select><input id="wfPrO" placeholder="اكتب اسم المحفظة" style="margin-top:6px" value="${v.prov&&!EWS.includes(v.prov)?esc(v.prov):''}">
+  <label style="margin-top:8px">رقم المحفظة (اختياري)</label><input id="wfPh" inputmode="tel" value="${esc(v.ph||'')}" placeholder="010…"></div>
+ <label style="margin-top:8px">الاسم اللي هيظهر</label><input id="wfName" value="${esc(v.name||'')}" placeholder="مثلاً: دهب، حصالة…">
+ <label style="margin-top:10px">الاستخدام</label><div class="wsel" data-wsel="kind"><button type="button" data-w="n" class="${v.frozen?'':'on'}">متاحة للصرف</button><button type="button" data-w="f" class="${v.frozen?'on':''}">تحويش (مش للصرف)</button></div>`}
+function wFormBind(c,w){let touched=!!w;const nm=$('wfName');nm.addEventListener('input',()=>touched=true);
+ const auto=()=>{const t=getW(c,'wt');if(t==='bank'){const bk=$('wfBk').value==='__o'?$('wfBkO').value.trim():$('wfBk').value,net=getW(c,'net');const nl=(NETS.find(x=>x[0]===net)||['',''])[1];return (net==='none'?'حساب':nl+(net==='meeza'&&getW(c,'mz')==='salary'?' مرتبات':''))+' '+(bk||'البنك').replace(/ (CIB|NBK|FAB|ADCB|ADIB|EG Bank|ABK|aiBANK|AUB|SAIB)$/,'')}if(t==='ew'){const p=$('wfPr').value==='__o'?$('wfPrO').value.trim():$('wfPr').value;return p.replace(/\s*\(.*\)/,'')}return ''};
+ const sync=()=>{const t=getW(c,'wt');$('wfBank').style.display=t==='bank'?'':'none';$('wfEw').style.display=t==='ew'?'':'none';$('wfBkO').style.display=$('wfBk').value==='__o'?'':'none';$('wfPrO').style.display=$('wfPr').value==='__o'?'':'none';$('wfCk').style.display=getW(c,'net')==='none'?'none':'';$('wfMz').style.display=getW(c,'net')==='meeza'?'':'none';
+  if(!touched){const a=auto();if(a)nm.value=a;else if(!w)nm.value=''}};
+ c.querySelectorAll('[data-wsel=wt],[data-wsel=net],[data-wsel=mz]').forEach(x=>x.addEventListener('click',()=>setTimeout(sync)));['wfBk','wfPr'].forEach(i=>$(i).addEventListener('change',sync));['wfBkO','wfPrO'].forEach(i=>$(i).addEventListener('input',sync));sync()}
+function wFormRead(c,w){const t=getW(c,'wt'),name=$('wfName').value.trim();if(!name){toast('اكتب اسم المحفظة');return null}
+ const o={name,t,ic:t==='bank'?'card':t==='ew'?'mobile':'wallet'};if(w&&w.parent)o.ic=w.ic;if(getW(c,'kind')==='f'){o.frozen=1;if(t==='cash'&&!(w&&w.parent))o.ic='lock'}
+ if(t==='bank'){o.bank=$('wfBk').value==='__o'?$('wfBkO').value.trim():$('wfBk').value;if(!o.bank){toast('اكتب اسم البنك');return null}o.net=getW(c,'net');if(o.net==='meeza')o.mz=getW(c,'mz');if(o.net!=='none')o.ck=getW(c,'ck');o.acc=$('wfAcc').value;const l4=String(pn($('wfL4').value)||'').replace(/\D/g,'');if($('wfL4').value.trim())o.l4=$('wfL4').value.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g,'').slice(-4)}
+ if(t==='ew'){o.prov=$('wfPr').value==='__o'?$('wfPrO').value.trim():$('wfPr').value;if(!o.prov){toast('اكتب اسم المحفظة');return null}const ph=$('wfPh').value.trim();if(ph)o.ph=ph}
+ return o}
 function searchHTML(q){const qn=pn(q);
    const P=S.people.filter(p=>p.name.includes(q)||(p.phone&&normP(p.phone).includes(normP(q)||'~'))).slice(0,8).map(personRow);
    const F=S.funds.filter(f=>f.name.includes(q)).map(f=>`<div class="row" data-open="f:${f.id}">${av(f.name,f.color)}<span class="nm"><b>${esc(f.name)}</b><small>باب مصاريف</small></span><span class="amt">${fmt(ftot(f.id))}</span></div>`);
@@ -377,7 +408,7 @@ function clearSearch(){const i=$('hq');if(i&&i.value){i.value='';runSearch()}}
 function render(){
  ensureW();{const n=reminders().filter(r=>r.u).length,bn=$('bellN');if(bn){bn.hidden=!n;bn.textContent=n.toLocaleString('ar-EG')}}const eb=$('eye');if(eb)eb.innerHTML=ic(HIDE?'eyeoff':'eye');
  document.querySelectorAll('nav [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
- const v=$('view');
+ const v=$('view');{const hs=$('hs');if(hs){hs.hidden=view!=='home';if(view!=='home')clearSearch()}}
  v.innerHTML=view==='home'?vHome():view==='daily'?vDaily():view==='people'?vPeople():view==='funds'?vFunds():vContacts();
  if(view==='people'){const i=$('qP');i.oninput=()=>{qP=i.value;$('plist').innerHTML=peopleRows()}}
  if(view==='contacts'&&$('qC')){const i=$('qC');i.oninput=()=>{qC=i.value;const pos=i.selectionStart;render();const j=$('qC');j.focus();try{j.setSelectionRange(pos,pos)}catch(e){}}}
@@ -457,7 +488,7 @@ function vDaily(){
  const days=[];for(let i=6;i>=0;i--){const k=addDays(today(),-i);days.push({k,v:spentOn(k),l:i===0?'النهارده':new Date(k+'T12:00').toLocaleDateString('ar-EG',{weekday:'short'})})}
  const mx=Math.max(1,...days.map(x=>x.v));
  return `<div class="wallets">${S.wallets.map(w=>{const b=wbal(w.id);const K=kids(w.id),P=S.wallets.find(x=>x.id===w.parent);const tot=b+K.reduce((a,k)=>a+wbal(k.id),0);
-  return `<button class="wcard ${w.frozen?'frz':''} ${K.length?'wpar':''}" data-act="adjust" data-wallet="${w.id}"><small>${ic(w.ic||(w.frozen?'lock':'wallet'))}${esc(wlabel(w))}${w.frozen?'<span class="tag">مجمد</span>':''}</small><span class="v ${tot<0?'neg':''}">${sfmt(tot)}</span>${K.length?`<span class="wbr">${K.map(k=>esc(wlabel(k))+' '+fmt(wbal(k.id))).concat(b?['غير مقسّم '+sfmt(b)]:[]).join(' · ')}</span>`:''}</button>`}).join('')}
+  return `<button class="wcard ${w.frozen?'frz':''} ${K.length?'wpar':''}" data-act="adjust" data-wallet="${w.id}"><small>${ic(w.ic||(w.frozen?'lock':'wallet'))}${esc(wlabel(w))}${w.frozen?'<span class="tag">مجمد</span>':''}</small><span class="v ${tot<0?'neg':''}">${sfmt(tot)}</span>${!K.length&&wmeta(w)?`<span class="wbr">${esc(wmeta(w))}</span>`:''}${K.length?`<span class="wbr">${K.map(k=>esc(wlabel(k))+' '+fmt(wbal(k.id))).concat(b?['غير مقسّم '+sfmt(b)]:[]).join(' · ')}</span>`:''}</button>`}).join('')}
   <button class="wcard wadd" data-act="wallets">${ic('plus')}<span>إدارة المحافظ</span></button></div>
  <div class="wtot"><div><small>متاح</small><b>${sfmt(avl)}</b></div>${hasFz()?`<div><small>متحوّش</small><b>${sfmt(fz)}</b></div>`:`<div><small>كاش (ورق + فضة)</small><b>${sfmt(cashT())}</b></div>`}<div><small>الإجمالي</small><b>${sfmt(avl+fz)}</b></div></div>
  <p class="muted" style="margin:6px 2px 0">دوس على أي محفظة لو عايز تعدّل رصيدها.</p>
@@ -757,21 +788,20 @@ function renderSheet(){
    <div class="btns" style="margin-top:12px"><button class="btn">حفظ</button><button type="button" class="btn ghost" data-act="wedit" data-wallet="${w}">${ic('edit')}الاسم والنوع</button></div></form>`;
   $('fA').onsubmit=e=>{e.preventDefault();const n=pn($('aAmt').value);if(isNaN(n))return toast('اكتب الرقم صح');const diff=Math.round((n-wbal(w))*100)/100;if(diff)S.mv.push({id:uid(),k:'adj',w,amt:diff,date:today(),note:''});save();close();toast('اتعدّل الرصيد')};return}
  if(k==='wallets'){
-  c.innerHTML=head('المحافظ')+`<div class="box">${S.wallets.map(w=>{const b=wbal(w.id);return `<div class="row" data-act="wedit" data-wallet="${w.id}"><span class="av" style="background:${w.frozen?'#4b6470':'var(--hero)'}">${ic(w.ic||(w.frozen?'lock':'wallet'))}</span><span class="nm"><b>${esc(w.name)}</b><small>${w.frozen?'مجمد، مش بيتحسب في المتاح':'متاح للصرف'}</small></span><span class="amt">${sfmt(b)}</span></div>`}).join('')}</div>
-  <form class="form" id="fWN" style="margin-top:14px"><b>محفظة جديدة</b><div style="height:8px"></div>
-   <label>الاسم</label><input id="wnName" placeholder="مثلاً: دهب، فودافون كاش، حصالة…">
-   <label style="margin-top:10px">النوع</label><div class="wsel" data-wsel="kind"><button type="button" data-w="n" class="on">متاحة للصرف</button><button type="button" data-w="f">تحويش (مش للصرف)</button></div>
+  c.innerHTML=head('المحافظ')+`<div class="box">${S.wallets.map(w=>{const b=wbal(w.id);return `<div class="row" data-act="wedit" data-wallet="${w.id}"><span class="av" style="background:${w.frozen?'#4b6470':'var(--hero)'}">${ic(w.ic||(w.frozen?'lock':'wallet'))}</span><span class="nm"><b>${esc(w.name)}</b><small>${wmeta(w)?esc(wmeta(w))+' · ':''}${w.frozen?'تحويش، مش بيتحسب في المتاح':'متاح للصرف'}</small></span><span class="amt">${sfmt(b)}</span></div>`}).join('')}</div>
+  <form class="form" id="fWN" style="margin-top:14px"><b>محفظة جديدة</b><div style="height:8px"></div>${wForm(null)}
    <label>معاك فيها كام دلوقتي</label><input id="wnAmt" type="text" autocomplete="off" inputmode="decimal" placeholder="0">
    <div class="btns" style="margin-top:12px"><button class="btn">${ic('plus')}إضافة المحفظة</button></div></form>`;
-  $('fWN').onsubmit=e=>{e.preventDefault();const n=$('wnName').value.trim();if(!n)return toast('اكتب اسم المحفظة');const fr=getW(c,'kind')==='f';const id='w'+uid();
-   S.wallets.push({id,name:n,ic:fr?'lock':'wallet',...(fr?{frozen:1}:{})});const a=pn($('wnAmt').value)||0;if(walletsSet()||a)S.mv.push({id:uid(),k:'in',w:id,amt:a,date:today(),note:'رصيد البداية',start:1});
-   save();renderSheet();toast('اتضافت محفظة '+n)};return}
+  wFormBind(c,null);
+  $('fWN').onsubmit=e=>{e.preventDefault();const o=wFormRead(c);if(!o)return;const id='w'+uid();
+   S.wallets.push({id,...o});const a=pn($('wnAmt').value)||0;if(walletsSet()||a)S.mv.push({id:uid(),k:'in',w:id,amt:a,date:today(),note:'رصيد البداية',start:1});
+   save();renderSheet();toast('اتضافت '+o.name)};return}
  if(k==='wedit'){
   const w=S.wallets.find(x=>x.id===open.w);if(!w){show({kind:'wallets'});return}
-  c.innerHTML=head('تعديل '+esc(w.name))+`<form class="form" id="fWE"><label>الاسم</label><input id="weName" value="${esc(w.name)}">
-   <label style="margin-top:10px">النوع</label><div class="wsel" data-wsel="kind"><button type="button" data-w="n" class="${w.frozen?'':'on'}">متاحة للصرف</button><button type="button" data-w="f" class="${w.frozen?'on':''}">تحويش (مش للصرف)</button></div>
+  c.innerHTML=head('تعديل '+esc(w.name))+`<form class="form" id="fWE">${wForm(w)}
    <div class="btns"><button class="btn">حفظ</button><button type="button" class="btn ghost" data-act="wallets">رجوع</button><button type="button" class="btn danger" data-act="wdel" data-wallet="${w.id}">مسح المحفظة</button></div></form>`;
-  $('fWE').onsubmit=e=>{e.preventDefault();const n=$('weName').value.trim();if(!n)return toast('اكتب الاسم');w.name=n;if(getW(c,'kind')==='f'){w.frozen=1;if(!w.ic||w.ic==='wallet')w.ic='lock'}else{delete w.frozen;if(w.ic==='lock')w.ic='wallet'}save();show({kind:'wallets'});toast('اتحفظ')};return}
+  wFormBind(c,w);
+  $('fWE').onsubmit=e=>{e.preventDefault();const o=wFormRead(c,w);if(!o)return;for(const k of ['t','bank','net','mz','ck','acc','l4','prov','ph','frozen'])delete w[k];Object.assign(w,o);save();show({kind:'wallets'});toast('اتحفظ')};return}
  if(k==='pin'){
   c.innerHTML=head(LS.get('daftar_pin')?'تغيير الرقم السري':'قفل البرنامج')+`<form class="form" id="fPin"><p class="muted" style="margin:0 0 10px">اختار رقم سري من ٦ أرقام. البرنامج هيطلبه كل ما تفتحه على الجهاز ده.</p>
    <label>الرقم السري</label><input id="pin1" type="password" inputmode="numeric" maxlength="6" autocomplete="off">
