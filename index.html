@@ -178,6 +178,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 .more{all:unset;display:block;text-align:center;padding:10px;color:var(--plus);font-weight:600;cursor:pointer;width:100%;box-sizing:border-box}
 .jm .i{width:16px;height:16px;color:var(--mute);flex:none}
 .jm.turn{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.gbox{background:var(--soft);border-radius:14px;padding:12px;margin-top:12px}.gbox p{margin:4px 0 8px;font-size:13px}.gbox .wsel button{min-height:38px}
 .tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 0}
 .tools button{font:inherit;font-size:13px;cursor:pointer;border:0;background:var(--card);color:var(--ink);border-radius:16px;padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:var(--sh);min-height:74px;text-align:center}
 .tools .i{color:var(--gold);width:24px;height:24px}
@@ -222,13 +223,13 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <div class="toast" id="toast"></div>
 <div class="lock" id="lock" hidden><div class="lin"><div class="lic"></div><b>دفتري مقفول</b><p>اكتب الرقم السري</p><div class="dots" id="dots"><i></i><i></i><i></i><i></i></div><div class="pad"><button type="button" data-k="1">١</button><button type="button" data-k="2">٢</button><button type="button" data-k="3">٣</button><button type="button" data-k="4">٤</button><button type="button" data-k="5">٥</button><button type="button" data-k="6">٦</button><button type="button" data-k="7">٧</button><button type="button" data-k="8">٨</button><button type="button" data-k="9">٩</button><span></span><button type="button" data-k="0">٠</button><button type="button" data-k="x" aria-label="مسح">⌫</button></div></div></div>
 <input type="file" id="fileC" accept=".vcf,.vcard,.csv,.txt,text/vcard,text/csv" hidden>
-<input type="file" id="fileB" accept=".json,application/json" hidden>
+<input type="file" id="fileB" accept=".json,application/json,text/plain,application/octet-stream" hidden>
 </div>
 
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٣ نوفمبر - ١٤';
+const VER='٢٣ نوفمبر - ١٧';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -315,7 +316,7 @@ const snap=()=>{undoState=JSON.parse(JSON.stringify(S))};
 
 const timers={};
 function save(which='L'){
- if(which==='L'){clearTimeout(timers.snap);timers.snap=setTimeout(remSnap,800)}
+ if(which==='L'){clearTimeout(timers.snap);timers.snap=setTimeout(remSnap,800);gSchedule()}
  if(which==='L')LS.set('daftar',S);else LS.set('daftar_contacts',C);
  const r=which==='L'?ref:refC;
  if(!r){status(inArtifact?'على الجهاز ده بس':'محفوظ على الجهاز','off');return}
@@ -503,6 +504,8 @@ function reminders(){const R=[],T=today();
  for(const p of S.people){const b=bal(p.id);
   if(b>0){const dues=S.tx.filter(t=>t.pid===p.id&&t.type==='took'&&t.due).map(t=>t.due).sort();const due=dues.find(x=>daysTo(x)<=lead());if(due){const n=daysTo(due);R.push({n,d:due,ic:'clock',t:`${p.name} عليه ${fmt(b)}`,s:n<0?`ميعاد السداد عدّى من ${(-n).toLocaleString('ar-EG')} يوم`:n===0?'ميعاد السداد النهارده':`ميعاد السداد بعد ${n.toLocaleString('ar-EG')} يوم`,o:'p:'+p.id,u:1})}}
   if(b<0&&S.remOwe!==0)R.push({n:99,d:'',ic:'alert',t:`عليك لـ ${p.name} ${fmt(-b)}`,s:'فلوس عليك لسه مارجّعتهاش',o:'p:'+p.id,u:0})}
+ if(gAuto()&&(gNeed||!gtok())&&(S.people.length||S.exp.length))R.push({n:-1,d:'',ic:'up',t:'النسخ التلقائي على Drive واقف',s:'دوس هنا عشان تجدّد الربط بحساب جوجل (ثانية واحدة)',act:'gRelink',u:1});
+ {const a=bkAge();if((S.people.length||S.exp.length||S.mv.length)&&(a===null||a>=7))R.push({n:98,d:'',ic:'up',t:a===null?'اعمل أول نسخة احتياطية لحساباتك':'آخر نسخة احتياطية من '+a.toLocaleString('ar-EG')+' يوم',s:'احفظها على Google Drive عشان ماتضيعش',act:'bkNow',u:1})}
  return R.sort((a,b)=>a.n-b.n)}
 function icsEsc(t){return String(t).replace(/[\\,;]/g,m=>'\\'+m).replace(/\n/g,'\\n')}
 function icsFile(evs){const st=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
@@ -600,9 +603,20 @@ function csvAll(R){const hd=HIDE;HIDE=false;const q=v=>'"'+String(v??'').replace
  S.tx.forEach(t=>{if(!inR(t.date,R))return;const p=S.people.find(x=>x.id===t.pid);rows.push([t.date,TYPES[t.type].l,TYPES[t.type].s*t.amt,t.w?wn(t.w):'',p?p.name:'',t.note])});
  S.mv.forEach(m=>{if(!inR(m.date,R))return;const g=m.k==='gl'?S.goals.find(x=>x.id===m.goal):null;rows.push([m.date,m.k==='in'?(m.start?'رصيد البداية':'فلوس دخلت'):m.k==='adj'?'تعديل رصيد':m.k==='gl'?'هدف تحويش':'تحويل',m.k==='gl'?-m.amt:m.amt,m.k==='tr'?wn(m.w)+' ← '+wn(m.to):wn(m.w),g?g.name:'',m.note])});
  rows.sort((a,b)=>a[0]===b[0]?0:a[0]==='التاريخ'?-1:b[0]==='التاريخ'?1:String(a[0]).localeCompare(String(b[0])));HIDE=hd;return '\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')}
+const bkMark=()=>{LS.set('daftar_lastbk',today())};
+const bkAge=()=>{const l=LS.get('daftar_lastbk');return l?-daysTo(l):null};
 async function shareBackup(){const data=JSON.stringify({...S,contacts:C,v:2},null,1),name='daftar-backup-'+today()+'.json';
- try{const f=new File([data],name,{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'نسخة دفتري'});return}}catch(e){if(e&&e.name==='AbortError')return}
- download(name,data,'application/json')}
+ try{const f=new File([data],name,{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'نسخة دفتري'});bkMark();render();toast('تمام، اتحفظت النسخة');return}}catch(e){if(e&&e.name==='AbortError')return}
+ await download(name,data,'application/json');bkMark();render()}
+function gDriveBox(){
+ if(!gOK())return `<div class="gbox"><b>${ic('repeat')} النسخ التلقائي على Google Drive</b><p class="muted">بيشتغل في تطبيق الموبايل أو من الموقع mahmoudbassiuoni.github.io. هنا استخدم الزرار الأزرق.</p></div>`;
+ if(!gcid())return `<div class="gbox"><b>${ic('repeat')} النسخ التلقائي على Google Drive</b><p class="muted">إعداد لمرة واحدة: حط الـ Client ID اللي عملته من Google Cloud.</p>
+  <input id="gcidIn" dir="ltr" placeholder="xxxxx.apps.googleusercontent.com" autocomplete="off"><div class="btns" style="margin-top:8px"><button class="btn sm" data-act="gSaveId">حفظ</button></div></div>`;
+ const on=!!LS.get('daftar_gauto'),tk=!!gtok(),lb=LS.get('daftar_gbk');
+ return `<div class="gbox"><b>${ic('repeat')} النسخ التلقائي على Google Drive</b>
+  <div class="wsel" style="margin:8px 0"><button type="button" data-act="gAutoOn" class="${on?'on':''}">شغال</button><button type="button" data-act="gAutoOff" class="${on?'':'on'}">مقفول</button></div>
+  <p class="muted">${on?'بعد أي حاجة تضيفها أو تعدّلها بثواني، البرنامج بيحفظ نسخة على Drive لوحده، وكمان نسخة لكل يوم (آخر ٧ أيام).':'مقفول: مش هيتحفظ حاجة لوحده.'}<br>${lb?'آخر نسخة على Drive: '+new Date(lb).toLocaleString('ar-EG',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'لسه مااتحفظش حاجة على Drive'}${tk?' · متوصّل ✅':''}</p>
+  <div class="btns">${tk?`<button class="btn sm" data-act="gNow">${ic('up')}احفظ دلوقتي</button>`:`<button class="btn sm" data-act="gConnect" style="background:#1a73e8">اربط بحساب جوجل</button>`}<button class="btn sm ghost" data-act="gRestore">${ic('down')}استرجاع من Drive</button><button class="btn sm ghost" data-act="gEditId">تغيير الـ Client ID</button></div></div>`}
 function show(o){open=o;$('sheet').classList.add('on');renderSheet()}
 function close(){open=null;$('sheet').classList.remove('on');render()}
 const head=t=>`<div class="hd"><h2>${t}</h2><button class="ib" data-act="close" aria-label="إغلاق" style="font-size:26px">×</button></div>`;
@@ -849,6 +863,10 @@ function renderSheet(){
   c.innerHTML=head(ic('cal')+' ضيف للتقويم')+`<p class="muted" style="margin:0 0 10px">دوس «ضيف» جنب أي ميعاد: هيفتح Google Calendar والميعاد مكتوب جاهز، تدوس <b>حفظ</b> بس. الأقساط والفواتير بتتكرر كل شهر لوحدها.</p>
   <div class="box">${ev.length?ev.map(e=>`<div class="tx"><span class="ti" style="background:var(--soft);color:var(--plus)">${ic('cal')}</span><span class="t"><b>${esc(e.t)}</b><small>${dstr(e.d)}${e.rr?(e.rr.includes('WEEKLY')?' · كل أسبوع':' · كل شهر'):''}</small></span><a class="btn sm" href="${gcal(e)}" target="_blank" rel="noopener">ضيف</a></div>`).join(''):'<div class="empty">مفيش مواعيد جاية تتضاف.</div>'}</div>
   ${ev.length&&STORE?`<div class="box" style="padding:14px;margin-top:12px"><b>كلهم مرة واحدة</b><p class="muted" style="margin:4px 0 10px">بينزّل ملف واحد فيه كل المواعيد مع تنبيه قبلها بالأيام اللي اخترتها. افتحه من الإشعارات والتقويم هيسألك تضيفهم.</p><button class="btn ghost" data-act="calAll">${ic('down')}نزّل ملف التقويم</button></div>`:''}`;return}
+ if(k==='gRestore'){
+  c.innerHTML=head('استرجاع من Google Drive')+`<div class="box" id="gl"><div class="empty">بيجيب النسخ…</div></div><p class="muted" style="margin:10px 0 0">النسخة اللي هتختارها هتحل مكان البيانات اللي على الجهاز ده، ولو غلطت هيظهرلك «تراجع».</p>`;
+  (async()=>{try{const L=(await gList()).filter(f=>/^daftar-/.test(f.name));$('gl').innerHTML=L.length?L.map(f=>`<div class="tx"><span class="ti" style="background:var(--soft);color:#1a73e8">${ic('down')}</span><span class="t"><b>${f.name==='daftar-backup.json'?'آخر نسخة':'نسخة يوم '+dstr(f.name.slice(7,17))}</b><small>${new Date(f.modifiedTime).toLocaleString('ar-EG',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}</small></span><button class="btn sm" data-act="gPick" data-gid="${f.id}">استرجع</button></div>`).join(''):'<div class="empty">مفيش نسخ على Drive لسه.</div>'}
+   catch(e){$('gl').innerHTML=`<div class="empty">${e.message==='auth'?'محتاج تربط حساب جوجل الأول.':'مقدرتش أوصل لـ Drive.'}</div>`}})();return}
  if(k==='noPick'){
   c.innerHTML=head('إضافة من جهات الاتصال')+`<div class="box" style="padding:16px"><p style="margin:0 0 8px">الجهاز أو المتصفح ده مش بيسمح للبرنامج يفتح جهات الاتصال.</p>
   <p class="muted" style="margin:0 0 14px">الاختيار من جهات الاتصال بيشتغل في تطبيق الموبايل (أندرويد) أو Chrome على أندرويد. هنا تقدر تكتب العميل بإيدك أو تستورد ملف أرقام.</p>
@@ -866,8 +884,11 @@ function renderSheet(){
   <p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
   ${STORE?'':`<div class="box" style="padding:14px;margin-bottom:12px"><b>نزّل البرنامج على جهازك</b><p class="muted" style="margin:4px 0 10px">ملف واحد بيفتح في أي متصفح من غير نت. بياناته بتتحفظ على الجهاز نفسه، ولنقل البيانات بين النسختين استخدم النسخة الاحتياطية.</p>
   <button class="btn" data-act="dlApp">${ic('down')}تنزيل البرنامج</button></div>`}
-  <div class="box" style="padding:14px"><b>نسخة احتياطية</b><p class="muted" style="margin:4px 0 10px">${S.people.length} حساب · ${S.tx.length} حركة · ${S.funds.length} باب · ${S.exp.length} مصروف · ${S.mv.length} حركة محفظة</p>
-  <div class="btns"><button class="btn ghost" data-act="backup">${ic('down')}حفظ نسخة</button><button class="btn ghost" data-act="restore">${ic('up')}استرجاع نسخة</button><button class="btn ghost" data-act="shareB">${ic('share')}ابعت نسخة (واتساب/درايف)</button><button class="btn ghost" data-act="export">${ic('sheet')}تصدير PDF / Excel</button></div></div>`;
+  <div class="box" style="padding:14px"><b>النسخ الاحتياطي</b><p class="muted" style="margin:4px 0 10px">${S.people.length} حساب · ${S.tx.length} حركة · ${S.exp.length} مصروف · ${S.gam.length} جمعية<br>${(a=>a===null?'لسه ماعملتش نسخة احتياطية':a===0?'آخر نسخة: النهارده ✅':'آخر نسخة من '+a.toLocaleString('ar-EG')+' يوم')(bkAge())}</p>
+  <div class="btns"><button class="btn" data-act="driveB" style="background:#1a73e8">${ic('up')}احفظ نسخة على Google Drive</button><button class="btn ghost" data-act="restore">${ic('down')}استرجاع نسخة</button></div>
+  ${gDriveBox()}
+  <details style="margin:10px 0 0;box-shadow:none;background:var(--soft)"><summary>إزاي بتتحفظ على Drive؟</summary><ol><li>دوس «احفظ نسخة على Google Drive».</li><li>من القايمة اللي هتظهر اختار <b>Drive</b>، ودوس <b>حفظ</b>.</li><li>للاسترجاع: دوس «استرجاع نسخة» واختار <b>Drive</b> من الجنب، وبعدين ملف <b>daftar-backup</b> الأحدث.</li></ol></details>
+  <div class="btns" style="margin-top:10px"><button class="btn ghost sm" data-act="backup">${ic('down')}حفظ على الجهاز</button><button class="btn ghost sm" data-act="shareB">${ic('share')}ابعت (واتساب…)</button><button class="btn ghost sm" data-act="export">${ic('sheet')}تصدير PDF / Excel</button></div></div>`;
   $('cur').onchange=e=>{S.cur=e.target.value.trim()||'ج.م';save();render()};return}
  if(k==='p'){
   const p=S.people.find(x=>x.id===open.id);if(!p){close();return}
@@ -972,10 +993,11 @@ let lastImport=[];
 $('fileC').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;
  try{const txt=await file.text();const L=/BEGIN:VCARD/i.test(txt)?parseVCF(txt):parseCSV(txt);
   if(!L.length){toast('مقدرتش ألاقي أرقام في الملف ده');return}addContacts(L)}catch(err){toast('الملف ده مش مقروء')}};
-$('fileB').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;
- try{const d=JSON.parse(await file.text());if(!d||!Array.isArray(d.people))throw 0;snap();
+function applyBackup(d){if(!d||!Array.isArray(d.people))throw 0;snap();
   S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],nDays:d.nDays,nOwe:d.nOwe,goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(Array.isArray(d.contacts)){C=d.contacts;save('C')}
-  save();close();toast('اترجّعت النسخة',true)}catch(err){toast('الملف ده مش نسخة احتياطية من دفتري')}};
+  ensureW();save();close();toast('اترجّعت النسخة',true)}
+$('fileB').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;
+ try{applyBackup(JSON.parse(await file.text()))}catch(err){toast('الملف ده مش نسخة احتياطية من دفتري')}};
 
 async function download(name,data,mime){
  if(DL){try{await DL.save({filename:name,data});toast('اتنزّل')}catch(e){toast('التنزيل اتلغى')}return}
@@ -1052,7 +1074,18 @@ document.addEventListener('click',async e=>{
  if(a==='pickC')return pickClients();
  if(a==='pick'){try{const r=await navigator.contacts.select(['name','tel'],{multiple:true});addContacts(r.map(x=>({n:(x.name||[])[0]||(x.tel||[])[0]||'',p:(x.tel||[])[0]||''})))}catch(err){toast('مقدرتش أفتح جهات الاتصال')}return}
  if(a==='clearC'){const old=C;C=[];save('C');render();const el=$('toast');el.innerHTML='اتمسحت الأرقام<button id="undoC">تراجع</button>';el.classList.add('on');$('undoC').onclick=()=>{C=old;save('C');render();el.classList.remove('on')};clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),5000);return}
- if(a==='backup')return download('daftar-backup-'+today()+'.json',JSON.stringify({...S,contacts:C,v:2},null,1),'application/json');
+ if(a==='driveB')return shareBackup();
+ if(a==='bkNow')return show({kind:'settings'});
+ if(a==='gRelink')return gAuth(true);
+ if(a==='gConnect')return gAuth(false);
+ if(a==='gNow')return driveBackup(true);
+ if(a==='gAutoOn'){LS.set('daftar_gauto',true);renderSheet();toast('النسخ التلقائي شغال');return gSchedule()}
+ if(a==='gAutoOff'){LS.set('daftar_gauto',false);renderSheet();return toast('النسخ التلقائي اتقفل')}
+ if(a==='gSaveId'){const v=($('gcidIn').value||'').trim();if(!/\.apps\.googleusercontent\.com$/.test(v))return toast('الـ Client ID لازم يخلص بـ .apps.googleusercontent.com');LS.set('daftar_gcid',v);renderSheet();return toast('اتحفظ، دوس «اربط بحساب جوجل»')}
+ if(a==='gEditId'){LS.set('daftar_gcid','');return renderSheet()}
+ if(a==='gRestore')return show({kind:'gRestore'});
+ if(a==='gPick'){const id=e.target.closest('[data-gid]').dataset.gid;toast('بيجيب النسخة…');try{const r=await gfetch(GAPI+'/drive/v3/files/'+id+'?alt=media');applyBackup(await r.json())}catch(x){toast(x.message==='auth'?'محتاج تربط حساب جوجل تاني':'مقدرتش أجيب النسخة')}return}
+ if(a==='backup'){bkMark();setTimeout(render,300);return download('daftar-backup-'+today()+'.json',JSON.stringify({...S,contacts:C,v:2},null,1),'application/json')}
  if(a==='dlApp')return download('daftar.html',appSource(),'text/html');
  const isP=open?.kind==='p',o=open&&(isP?S.people:S.funds).find(x=>x.id===open.id);if(!o)return;
  if(a==='editP'||a==='editF')return show({kind:a,id:o.id});
@@ -1069,6 +1102,40 @@ document.addEventListener('submit',e=>{if(e.target.id!=='fSetW')return;e.prevent
  dayV=today();save();render();toast('تمام، محفظتك جاهزة')});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&open)close();if(e.key==='Enter'&&e.target.matches?.('[data-open][tabindex]'))e.target.click()});
 
+/* ---------- Google Drive auto backup ---------- */
+const GSC='https://www.googleapis.com/auth/drive.appdata',GAPI='https://www.googleapis.com';
+const GCID_DEF='539562884900-qaoe259426nuptoo34dfd17db8a9ebrl.apps.googleusercontent.com';
+const gcid=()=>LS.get('daftar_gcid')||GCID_DEF;
+const gtok=()=>{const t=LS.get('daftar_gtok');return t&&t.exp>Date.now()+60000?t.at:null};
+const gOK=()=>location.protocol==='https:'&&!inArtifact;
+let gNeed=false,gBusy=false;
+function gAuth(silent){const st=uid();LS.set('daftar_gstate',{st,silent:!!silent});
+ location.href='https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:gcid(),redirect_uri:location.origin+location.pathname,response_type:'token',scope:GSC,include_granted_scopes:'true',state:st,prompt:silent?'none':'consent'})}
+async function gfetch(u,o={}){const t=gtok();if(!t){gNeed=true;throw new Error('auth')}
+ const r=await fetch(u,{...o,headers:{...(o.headers||{}),Authorization:'Bearer '+t}});if(r.status===401||r.status===403&&!o.noAuthReset){if(r.status===401){LS.set('daftar_gtok',null);gNeed=true;throw new Error('auth')}}if(!r.ok)throw new Error('http '+r.status);return r}
+async function gList(){const r=await gfetch(GAPI+'/drive/v3/files?spaces=appDataFolder&pageSize=60&orderBy=modifiedTime%20desc&fields=files(id,name,modifiedTime,size)');return (await r.json()).files||[]}
+async function gPut(name,data,id){if(id)return gfetch(GAPI+'/upload/drive/v3/files/'+id+'?uploadType=media',{method:'PATCH',headers:{'Content-Type':'application/json'},body:data});
+ const b='dftr'+uid(),body='--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify({name,parents:['appDataFolder']})+'\r\n--'+b+'\r\nContent-Type: application/json\r\n\r\n'+data+'\r\n--'+b+'--';
+ return gfetch(GAPI+'/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body})}
+async function driveBackup(manual){if(!gOK()||!gcid())return;if(!gtok()){gNeed=true;if(manual)gAuth(false);else render();return}
+ if(gBusy)return;gBusy=true;if(manual)toast('بيحفظ على Drive…');
+ try{const data=JSON.stringify({...S,contacts:C,v:2}),files=await gList(),dn='daftar-'+today()+'.json';
+  await gPut('daftar-backup.json',data,(files.find(f=>f.name==='daftar-backup.json')||{}).id);
+  await gPut(dn,data,(files.find(f=>f.name===dn)||{}).id);
+  const old=files.filter(f=>/^daftar-\d{4}-\d\d-\d\d\.json$/.test(f.name)&&f.name!==dn).sort((a,b)=>b.name.localeCompare(a.name)).slice(6);
+  for(const f of old){try{await gfetch(GAPI+'/drive/v3/files/'+f.id,{method:'DELETE'})}catch(e){}}
+  LS.set('daftar_gbk',Date.now());bkMark();gNeed=false;if(manual)toast('اتحفظت على Google Drive ✅');if(open&&open.kind==='settings')renderSheet()}
+ catch(e){if(e.message==='auth'){gNeed=true;if(manual)gAuth(false)}else if(manual)toast('مقدرتش أوصل لـ Drive، اتأكد من النت')}
+ finally{gBusy=false;render()}}
+const gAuto=()=>gOK()&&!!gcid()&&!!LS.get('daftar_gauto');
+function gSchedule(){if(!gAuto())return;clearTimeout(timers.g);timers.g=setTimeout(()=>driveBackup(false),4000)}
+(function gReturn(){const h=location.hash;if(!/access_token=|error=/.test(h))return;const q=new URLSearchParams(h.slice(1)),st=LS.get('daftar_gstate')||{};
+ try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+ if(!st.st||q.get('state')!==st.st)return;LS.set('daftar_gstate',null);
+ if(q.get('access_token')){LS.set('daftar_gtok',{at:q.get('access_token'),exp:Date.now()+(+q.get('expires_in')||3600)*1000});LS.set('daftar_gauto',true);setTimeout(()=>{toast('اتربط Google Drive ✅');driveBackup(false)},1200)}
+ else if(st.silent&&/interaction_required|login_required|consent_required/.test(q.get('error')||''))setTimeout(()=>gAuth(false),300);
+ else setTimeout(()=>toast('الربط مع جوجل اتلغى'),1200)})();
+window.addEventListener('storage',e=>{if(e.key==='daftar_gtok'&&gtok()){gNeed=false;render();gSchedule()}});
 /* ---------- lock ---------- */
 async function phash(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('daftar:'+s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){let h=7;for(const c of 'daftar:'+s)h=(h*131+c.charCodeAt(0))%2147483647;return 'x'+h}}
 let pinBuf='';
@@ -1083,7 +1150,7 @@ lockOn();
 const STORE=!!document.querySelector('link[rel=manifest]');
 if(STORE&&'serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 const l=LS.get('daftar');if(l&&Array.isArray(l.people)){S=Object.assign(S,l);if(!Array.isArray(S.mv))S.mv=[]}
-skin=LS.get('daftar_skin')||S.skin||'auto';applySkin();HIDE=!!LS.get('daftar_hide');ensureW();if(runRec())save();setTimeout(notifyOpen,1500);setTimeout(remSnap,2000);
+skin=LS.get('daftar_skin')||S.skin||'auto';applySkin();HIDE=!!LS.get('daftar_hide');ensureW();if(runRec())save();setTimeout(notifyOpen,1500);setTimeout(remSnap,2000);setTimeout(()=>{if(gAuto()&&new Date(LS.get('daftar_gbk')||0).toDateString()!==new Date().toDateString())driveBackup(false)},5000);
 const lc=LS.get('daftar_contacts');if(Array.isArray(lc))C=lc;
 render();status('على الجهاز','off');
 (async()=>{

@@ -1,9 +1,13 @@
-const C='daftar-v15';
+const C='daftar-v16';
 const FILES=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/maskable-512.png'];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()))});
+self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>Promise.all(FILES.map(f=>fetch(f,{cache:'no-store'}).then(r=>r.ok&&c.put(f,r)).catch(()=>{})))).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C&&k!=='daftar-data').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;
- e.respondWith(caches.match(e.request,{ignoreSearch:true}).then(hit=>{const net=fetch(e.request).then(r=>{if(r&&r.ok&&new URL(e.request.url).origin===location.origin){const cp=r.clone();caches.open(C).then(c=>c.put(e.request,cp))}return r}).catch(()=>hit);return hit||net}))});
+const timeout=(p,ms)=>new Promise((ok,no)=>{const t=setTimeout(()=>no(new Error('timeout')),ms);p.then(v=>{clearTimeout(t);ok(v)},er=>{clearTimeout(t);no(er)})});
+self.addEventListener('fetch',e=>{const req=e.request;if(req.method!=='GET')return;
+ const url=new URL(req.url);if(url.origin!==location.origin)return; /* never touch fonts/cdn: the browser handles them */
+ if(req.mode==='navigate'){ /* page: network first (max 4s), else the saved copy */
+  e.respondWith(timeout(fetch(req),4000).then(r=>{if(r&&r.ok){const cp=r.clone();caches.open(C).then(c=>c.put('index.html',cp))}return r}).catch(()=>caches.match('index.html').then(h=>h||caches.match('./')).then(h=>h||fetch(req))));return}
+ e.respondWith(caches.match(req,{ignoreSearch:true}).then(hit=>{const net=fetch(req).then(r=>{if(r&&r.ok){const cp=r.clone();caches.open(C).then(c=>c.put(req,cp))}return r});return hit?(net.catch(()=>{}),hit):net}))});
 /* reminders: notify only on the days the user chose before each date (once per item per chosen day) */
 const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const minus=(s,n)=>{const d=new Date(s+'T12:00');d.setDate(d.getDate()-n);return ymd(d)};
