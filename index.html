@@ -176,6 +176,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 .bellb{position:relative}.bellb i{position:absolute;top:6px;inset-inline-end:4px;min-width:18px;height:18px;border-radius:9px;background:#c2334d;color:#fff;font:700 11px/18px system-ui;font-style:normal;text-align:center;padding:0 4px}.bellb i[hidden]{display:none}
 .alerts{margin-top:12px;border:2px solid var(--gold)}.alerts .ti .i{width:18px;height:18px}
 .more{all:unset;display:block;text-align:center;padding:10px;color:var(--plus);font-weight:600;cursor:pointer;width:100%;box-sizing:border-box}
+.jm .i{width:16px;height:16px;color:var(--mute);flex:none}
 .jm.turn{background:color-mix(in srgb,var(--gold) 14%,transparent)}
 .tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 0}
 .tools button{font:inherit;font-size:13px;cursor:pointer;border:0;background:var(--card);color:var(--ink);border-radius:16px;padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:var(--sh);min-height:74px;text-align:center}
@@ -226,7 +227,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 
 <script id="app">
 {
-const VER='٢٣ نوفمبر - ١٢';
+const VER='٢٣ نوفمبر - ١٣';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -738,11 +739,37 @@ function renderSheet(){
  if(k==='j'){
   const g=S.gam.find(x=>x.id===open.id);if(!g){show({kind:'gamList'});return}
   const M=gMonths(g),pd=M.filter(x=>gPaid(g,x)).length,nx=gNext(g),tm=gTurnM(g),got=gGot(g);
-  c.innerHTML=head(ic('circle')+' '+esc(g.name))+`<div class="pbal" style="background:#8a6a12"><small>${nx?'القسط الجاي '+dstr(gDate(g,nx)):'خلصت الأقساط كلها 🎉'}</small><div class="big">${fmt(g.amt)}</div><small>دفعت ${pd.toLocaleString('ar-EG')} من ${g.n.toLocaleString('ar-EG')} قسط · دفعت ${fmt(pd*g.amt)} · فاضل ${fmt((g.n-pd)*g.amt)}</small><div class="track" style="margin-top:8px;background:rgb(255 255 255/.25)"><i style="width:${pd/g.n*100}%;background:#fff"></i></div></div>
-  <div class="box" style="padding:12px 14px;margin-bottom:12px;border-inline-start:5px solid var(--gold)"><b>دورك: ${mLabel(tm)}</b><small class="muted" style="display:block">${got?'قبضتها خلاص ✅':'هتقبض '+fmt(g.amt*g.n)}</small>${got?'':`<button class="btn sm" data-act="jGot" style="margin-top:8px">${ic('gift')}قبضت الجمعية</button>`}</div>
-  <div class="btns" style="margin-bottom:12px">${nx?`<button class="btn" data-act="jPay" data-m="${nx}" style="background:#c2334d">${ic('minus')}دفعت قسط ${mLabel(nx)}</button>`:''}<button class="btn ghost" data-act="jCal">${ic('cal')}ضيف التذكير للتقويم</button></div>
-  <div class="box">${M.map((k,i)=>{const p=gPaid(g,k),isT=k===tm,od=!p&&daysTo(gDate(g,k))<0;return `<div class="tx jm ${isT?'turn':''}"><span class="ti" style="background:${p?'var(--plus)':od?'var(--minus)':'var(--soft)'};color:${p||od?'#fff':'var(--mute)'}">${(i+1).toLocaleString('ar-EG')}</span><span class="t"><b>${mLabel(k)}${isT?' <span class="tag" style="background:var(--gold);color:#3a2a00">دورك</span>':''}</b><small>${p?((g.old||[]).includes(k)?'اتدفع قبل البرنامج':'اتدفع'):od?'متأخر':'يوم '+g.day.toLocaleString('ar-EG')}</small></span>${p?'<span class="pl">✓</span>':`<button class="btn sm ghost" data-act="jPay" data-m="${k}">دفعت</button>`}</div>`}).join('')}</div>
-  <div class="btns" style="margin-top:14px"><button class="btn ghost sm" data-act="gamList">كل الجمعيات</button><button class="btn danger sm" data-act="jDel">مسح الجمعية</button></div>`;return}
+  c.innerHTML=head(ic('circle')+' '+esc(g.name))+`<div class="pbal" style="background:#8a6a12"><small>${nx?'القسط الجاي '+dstr(gDate(g,nx)):'خلصت الأقساط كلها 🎉'}</small><div class="big">${fmt(g.amt)}</div><small>دفعت ${pd.toLocaleString('ar-EG')} من ${g.n.toLocaleString('ar-EG')} قسط · دفعت ${fmt(S.exp.filter(e=>e.gam===g.id).reduce((x,e)=>x+e.amt,0)+(g.old||[]).length*g.amt)} · فاضل ${fmt((g.n-pd)*g.amt)}</small><div class="track" style="margin-top:8px;background:rgb(255 255 255/.25)"><i style="width:${pd/g.n*100}%;background:#fff"></i></div></div>
+  <div class="box" style="padding:12px 14px;margin-bottom:12px;border-inline-start:5px solid var(--gold)"><b>دورك: ${mLabel(tm)}</b><small class="muted" style="display:block">${got?'قبضتها خلاص ✅':'هتقبض '+fmt(g.amt*g.n)}</small>${got?`<button class="btn sm ghost" data-act="jUngot" style="margin-top:8px">إلغاء القبض</button>`:`<button class="btn sm" data-act="jGot" style="margin-top:8px">${ic('gift')}قبضت الجمعية</button>`}</div>
+  <div class="btns" style="margin-bottom:12px">${nx?`<button class="btn" data-act="jMonth" data-m="${nx}" style="background:#c2334d">${ic('minus')}دفعت قسط ${mLabel(nx)}</button>`:''}<button class="btn ghost" data-act="jCal">${ic('cal')}ضيف التذكير للتقويم</button></div>
+  <div class="box">${M.map((k,i)=>{const p=gPaid(g,k),isT=k===tm,od=!p&&daysTo(gDate(g,k))<0;return `<div class="tx jm ${isT?'turn':''}" data-act="jMonth" data-m="${k}" style="cursor:pointer"><span class="ti" style="background:${p?'var(--plus)':od?'var(--minus)':'var(--soft)'};color:${p||od?'#fff':'var(--mute)'}">${(i+1).toLocaleString('ar-EG')}</span><span class="t"><b>${mLabel(k)}${isT?' <span class="tag" style="background:var(--gold);color:#3a2a00">دورك</span>':''}</b><small>${p?((g.old||[]).includes(k)?'اتدفع (من غير خصم)':(()=>{const x=S.exp.find(e=>e.gam===g.id&&e.gm===k);return 'اتدفع'+(x&&x.w?' من '+esc(wn(x.w)):'')+(x&&x.amt!==g.amt?' · '+fmt(x.amt):'')})()):od?'متأخر':'يوم '+g.day.toLocaleString('ar-EG')}</small></span>${p?'<span class="pl">✓</span>':'<span class="btn sm ghost">دفعت</span>'}${ic('edit')}</div>`}).join('')}</div>
+  <div class="btns" style="margin-top:14px"><button class="btn ghost sm" data-act="gamList">كل الجمعيات</button><button class="btn ghost sm" data-act="jEdit">${ic('edit')}تعديل الجمعية</button><button class="btn danger sm" data-act="jDel">مسح الجمعية</button></div>`;return}
+ if(k==='jm'){
+  const g=S.gam.find(x=>x.id===open.id);if(!g){show({kind:'gamList'});return}const m=open.m,x=S.exp.find(e=>e.gam===g.id&&e.gm===m),old=(g.old||[]).includes(m);
+  const back=`<button type="button" class="btn ghost" data-open="j:${g.id}">رجوع</button>`;
+  if(x||old){c.innerHTML=head('قسط '+mLabel(m))+`<div class="box" style="padding:14px"><b>${old?'متعلّم إنه اتدفع من غير ما يتخصم من فلوسك':'اتدفع '+fmt(x.amt)+(x.w?' واتخصم من '+esc(wn(x.w)):' (مش من محفظة)')+' يوم '+dstr(x.date)}</b>
+   <div class="btns" style="margin-top:12px">${x?`<button class="btn" data-edit="e:${x.id}">${ic('edit')}تعديل الدفعة</button><button class="btn ghost" data-act="jNoDeduct">مااتخصمش من فلوسي</button>`:`<button class="btn ghost" data-act="jDeduct">لأ، اتخصم من محفظة</button>`}<button class="btn danger" data-act="jUnpay">إلغاء الدفع</button>${back}</div></div>`;return}
+  c.innerHTML=head('قسط '+mLabel(m))+`<form class="form" id="fJm"><p class="muted" style="margin:0 0 10px">القسط ${fmt(g.amt)}. اختار هتسجّله إزاي:</p>
+   <div class="wsel" data-wsel="how"><button type="button" data-w="d" class="on">دفعته واخصمه من فلوسي</button><button type="button" data-w="n">اتدفع من غير خصم</button></div>
+   <div id="jmW"><label>من محفظة</label>${wsel(g.w&&S.wallets.some(w=>w.id===g.w)?g.w:lastW)}
+   <div class="g2"><div><label>المبلغ</label><input id="jmA" type="text" inputmode="decimal" value="${g.amt}"></div><div><label>التاريخ</label><input id="jmD" type="date" value="${m<=month()?today():gDate(g,m)}"></div></div></div>
+   <div class="btns" style="margin-top:6px"><button class="btn">تسجيل</button>${back}</div></form>`;
+  const sync=()=>{$('jmW').style.display=getW(c,'how')==='d'?'':'none'};c.querySelector('[data-wsel=how]').addEventListener('click',()=>setTimeout(sync));
+  $('fJm').onsubmit=e=>{e.preventDefault();snap();if(getW(c,'how')==='n'){g.old=[...(g.old||[]),m];save();show({kind:'j',id:g.id});return toast('اتعلّم إنه اتدفع من غير خصم',true)}
+   const a=pn($('jmA').value);if(!(a>0))return toast('اكتب المبلغ صح');const w=getW(c);lastW=w;S.exp.push({id:uid(),fid:'',amt:a,date:$('jmD').value||today(),note:'قسط '+gnm(g.name),gam:g.id,gm:m,w});save();show({kind:'j',id:g.id});toast('اتسجّل واتخصم '+fmt(a)+' من '+wn(w),true)};return}
+ if(k==='jEdit'){
+  const g=S.gam.find(x=>x.id===open.id);if(!g){show({kind:'gamList'});return}
+  c.innerHTML=head('تعديل '+esc(g.name))+`<form class="form" id="fJe">
+   <label>الاسم</label><input id="jeN" value="${esc(g.name)}">
+   <div class="g2" style="margin-top:8px"><div><label>القسط كل شهر</label><input id="jeA" type="text" inputmode="decimal" value="${g.amt}"></div><div><label>عدد الشهور</label><input id="jeM" type="text" inputmode="numeric" value="${g.n}"></div></div>
+   <div class="g2"><div><label>أول شهر</label><input id="jeS" type="month" value="${g.start}"></div><div><label>يوم الدفع</label><input id="jeD" type="text" inputmode="numeric" value="${g.day}"></div></div>
+   <div class="g2"><div><label>دورك الشهر رقم</label><input id="jeT" type="text" inputmode="numeric" value="${g.turn}"></div><div></div></div>
+   <label>بتدفع عادةً من</label>${wsel(g.w||lastW)}
+   <p class="muted" style="margin:0 0 8px">الأقساط اللي اتسجلت قبل كده مش هتتغير. لو عايز تعدّل قسط معيّن دوس عليه في القايمة.</p>
+   <div class="btns"><button class="btn">حفظ</button><button type="button" class="btn ghost" data-open="j:${g.id}">رجوع</button></div></form>`;
+  $('fJe').onsubmit=e=>{e.preventDefault();const name=$('jeN').value.trim(),amt=pn($('jeA').value),n=Math.round(pn($('jeM').value)),day=Math.min(28,Math.max(1,Math.round(pn($('jeD').value)||1))),turn=Math.round(pn($('jeT').value));
+   if(!name)return toast('اكتب الاسم');if(!(amt>0))return toast('اكتب القسط صح');if(!(n>=2&&n<=60))return toast('عدد الشهور من ٢ لـ ٦٠');if(!(turn>=1&&turn<=n))return toast('دورك لازم يكون من ١ لـ '+n.toLocaleString('ar-EG'));
+   Object.assign(g,{name,amt,n,day,turn,start:$('jeS').value||g.start,w:getW(c)});save();show({kind:'j',id:g.id});toast('اتعدّلت الجمعية')};return}
  if(k==='noPick'){
   c.innerHTML=head('إضافة من جهات الاتصال')+`<div class="box" style="padding:16px"><p style="margin:0 0 8px">الجهاز أو المتصفح ده مش بيسمح للبرنامج يفتح جهات الاتصال.</p>
   <p class="muted" style="margin:0 0 14px">الاختيار من جهات الاتصال بيشتغل في تطبيق الموبايل (أندرويد) أو Chrome على أندرويد. هنا تقدر تكتب العميل بإيدك أو تستورد ملف أرقام.</p>
@@ -886,7 +913,7 @@ document.addEventListener('click',async e=>{
  const col=e.target.closest('[data-col]');if(col){fColor=col.dataset.col;col.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===col));return}
  const nd=e.target.closest('[data-nd]');if(nd){const v=+nd.dataset.nd,i=S.nDays.indexOf(v);if(i>=0){if(S.nDays.length===1)return toast('لازم تختار يوم واحد على الأقل');S.nDays.splice(i,1)}else S.nDays.push(v);S.nDays.sort((a,b)=>b-a);save();render();return}
  if(e.target.id==='nOwe'){S.nOwe=e.target.checked?1:0;save();return}
- const ed=e.target.closest('[data-edit]');if(ed&&!e.target.closest('.del')){const[k,id]=ed.dataset.edit.split(':');show({kind:'edit',t:k,id,back:open&&open.kind!=='edit'?{kind:open.kind,id:open.id,w:open.w}:null});return}
+ const ed=e.target.closest('[data-edit]');if(ed&&!e.target.closest('.del')){const[k,id]=ed.dataset.edit.split(':');show({kind:'edit',t:k,id,back:open&&open.kind!=='edit'?(open.kind==='jm'?{kind:'j',id:open.id}:{kind:open.kind,id:open.id,w:open.w}):null});return}
  const op=e.target.closest('[data-open]');if(op){const[k,id]=op.dataset.open.split(':');if(k==='g')return show({kind:'g',id});if(k==='j')return show({kind:'j',id});const fromQuick=open?.kind==='quick';show({kind:k,id,focus:fromQuick});return}
  const ac=e.target.closest('[data-addc]');if(ac){const c=C[+ac.dataset.addc];if(!c)return;const p={id:uid(),name:c.n,phone:c.p};S.people.push(p);save();render();toast('اتفتح حساب لـ '+c.n);return}
  const wb=e.target.closest('[data-wsel] button');if(wb){wb.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===wb));return}
@@ -904,6 +931,12 @@ document.addEventListener('click',async e=>{
  if(a==='close')return close();
  if(a==='quick')return show({kind:'quick'});
  if(['goals','bills','split','budget','search','rems','gamList','newJ'].includes(a))return show({kind:a});
+ if(a==='jMonth')return show({kind:'jm',id:open.id,m:e.target.closest('[data-m]').dataset.m});
+ if(a==='jEdit')return show({kind:'jEdit',id:open.id});
+ if(a==='jUnpay'||a==='jNoDeduct'||a==='jDeduct'){const g=S.gam.find(x=>x.id===open.id),m=open.m;if(!g)return;snap();const x=S.exp.find(e=>e.gam===g.id&&e.gm===m);
+  if(a==='jDeduct'){g.old=(g.old||[]).filter(k=>k!==m);show({kind:'jm',id:g.id,m});return}
+  if(x)S.exp=S.exp.filter(e=>e!==x);g.old=(g.old||[]).filter(k=>k!==m);if(a==='jNoDeduct')g.old.push(m);save();show({kind:'j',id:g.id});return toast(a==='jUnpay'?'اتلغى الدفع'+(x&&x.w?' ورجعت الفلوس لـ '+wn(x.w):''):'اتعدّل: مدفوع من غير خصم'+(x&&x.w?'، ورجعت الفلوس لـ '+wn(x.w):''),true)}
+ if(a==='jUngot'){const g=S.gam.find(x=>x.id===open.id);snap();S.mv=S.mv.filter(m=>m.gam!==g.id);save();renderSheet();return toast('اتلغى القبض',true)}
  if(a==='jPay'){const g=S.gam.find(x=>x.id===open.id),k=e.target.closest('[data-m]').dataset.m;if(!g||gPaid(g,k))return;const x={id:uid(),fid:'',amt:g.amt,date:k===month()||k<month()?today():gDate(g,k),note:'قسط '+gnm(g.name),gam:g.id,gm:k};if(g.w&&S.wallets.some(w=>w.id===g.w))x.w=g.w;snap();S.exp.push(x);save();renderSheet();return toast('اتسجّل قسط '+mLabel(k)+(x.w?' واتخصم من '+wn(x.w):''),true)}
  if(a==='jGot'){const g=S.gam.find(x=>x.id===open.id);if(!g)return;snap();S.mv.push({id:uid(),k:'in',w:g.w&&S.wallets.some(w=>w.id===g.w)?g.w:S.wallets[0].id,amt:g.amt*g.n,date:today(),note:'قبضت '+gnm(g.name),gam:g.id});save();renderSheet();return toast('مبروك! اتضاف '+fmt(g.amt*g.n),true)}
  if(a==='jCal'){const g=S.gam.find(x=>x.id===open.id);return toCal(gamEv(g),'gamya-'+today())}
