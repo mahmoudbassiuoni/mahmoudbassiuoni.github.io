@@ -262,7 +262,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٣ نوفمبر - ١٩';
+const VER='٢٣ نوفمبر - ٢٠';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -752,7 +752,7 @@ function renderSheet(){
    <div class="btns" style="margin-top:12px"><button class="btn">${ic('lock')}حفظ</button></div></form>`;
   $('pin1').focus();
   $('fPin').onsubmit=async e=>{e.preventDefault();const a=String(pn($('pin1').value)),b=String(pn($('pin2').value));const dg=v=>String(v).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim(),A=dg($('pin1').value),B=dg($('pin2').value);if(!/^\d{6}$/.test(A))return toast('الرقم لازم يكون ٦ أرقام');if(A!==B)return toast('الرقمين مش زي بعض');
-   LS.set('daftar_pin',await phash(A));LS.set('daftar_pinlen',6);show({kind:'settings'});toast(LS.get('daftar_bio')?'اتغيّر الرقم السري':'اتقفل البرنامج بالرقم السري — تقدر كمان تفعّل البصمة')};return}
+   LS.set('daftar_pin',await phash(A));LS.set('daftar_pinlen',6);const wantBio=open&&open.bio;show({kind:'settings'});if(wantBio){if(await bioAvail()){const ok=await bioEnable();renderSheet();return toast(ok?'تمام، اتقفل بالرقم والبصمة':'اتقفل بالرقم، بس البصمة ماتفعّلتش')}return toast('اتقفل بالرقم السري — البصمة بتشتغل في تطبيق الموبايل بس')}toast(LS.get('daftar_bio')?'اتغيّر الرقم السري':'اتقفل البرنامج بالرقم السري — تقدر كمان تفعّل البصمة')};return}
  if(k==='edit'){
   const L=open.t==='e'?S.exp:open.t==='m'?S.mv:S.tx,o=L.find(x=>x.id===open.id);if(!o){goBack();return}
   const isT=open.t==='t',isE=open.t==='e',isTr=open.t==='m'&&o.k==='tr',isGl=open.t==='m'&&o.k==='gl',isAdj=open.t==='m'&&o.k==='adj';
@@ -938,7 +938,7 @@ function renderSheet(){
   c.innerHTML=head('الإعدادات')+`${bkRow().replace('margin-top:12px','')}<div style="height:12px"></div><div class="box" style="padding:14px;margin-bottom:12px"><b>شكل البرنامج</b><p class="muted" style="margin:4px 0 10px">اختار الخلفية اللي تريّح عينك.</p>
   <div class="skins">${SKINS.map(([k,l,cs])=>`<button type="button" data-skin="${k}" class="${skin===k?'on':''}"><i>${k==='auto'?`<b style="background:${cs[0]}"></b><b style="background:${cs[1]}"></b>`:`<b style="background:${cs[0]}"></b><b style="background:${cs[1]};max-width:40%"></b>`}</i>${l}</button>`).join('')}</div></div>
   <div class="box" style="padding:14px;margin-bottom:12px"><b>الخصوصية</b><p class="muted" style="margin:4px 0 10px">${LS.get('daftar_pin')?'البرنامج مقفول برقم سري على الجهاز ده'+(pinLen()<6?' (٤ أرقام — غيّره لـ ٦ أرقام عشان يبقى أأمن)':'')+(LS.get('daftar_bio')?' وبالبصمة ✅':'')+'.':'اقفل البرنامج برقم سري من ٦ أرقام وبالبصمة عشان محدش يشوف حساباتك.'}</p>
-   <div class="btns">${LS.get('daftar_pin')?`<button class="btn ghost" data-act="setPin">${ic('lock')}غيّر الرقم</button>${LS.get('daftar_bio')?`<button class="btn ghost" data-act="bioOff">${ic('finger')}إلغاء البصمة</button>`:`<button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn danger" data-act="noPin">شيل القفل</button>`:`<button class="btn" data-act="setPin">${ic('lock')}حط رقم سري</button>`}<button class="btn ghost" data-act="hideT">${ic(HIDE?'eye':'eyeoff')}${HIDE?'أظهر المبالغ':'خبّي المبالغ'}</button></div></div>
+   <div class="btns">${LS.get('daftar_pin')?`<button class="btn ghost" data-act="setPin">${ic('lock')}غيّر الرقم</button>${LS.get('daftar_bio')?`<button class="btn ghost" data-act="bioOff">${ic('finger')}إلغاء البصمة</button>`:`<button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn danger" data-act="noPin">شيل القفل</button>`:`<button class="btn" data-act="setPin">${ic('lock')}حط رقم سري</button><button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn ghost" data-act="hideT">${ic(HIDE?'eye':'eyeoff')}${HIDE?'أظهر المبالغ':'خبّي المبالغ'}</button></div></div>
   <div class="box" style="padding:14px;margin-bottom:12px"><b>المحافظ</b><p class="muted" style="margin:4px 0 10px">${S.wallets.map(w=>esc(w.name)).join('، ')}</p><button class="btn ghost" data-act="wallets">${ic('wallet')}إدارة المحافظ</button></div>
   <p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
   ${STORE?'':`<div class="box" style="padding:14px;margin-bottom:12px"><b>نزّل البرنامج على جهازك</b><p class="muted" style="margin:4px 0 10px">ملف واحد بيفتح في أي متصفح من غير نت. بياناته بتتحفظ على الجهاز نفسه، ولنقل البيانات بين النسختين استخدم النسخة الاحتياطية.</p>
@@ -1116,7 +1116,7 @@ document.addEventListener('click',async e=>{
   if(used)return toast('المحفظة دي عليها حركات، مقدرش أمسحها. ممكن تغيّر اسمها');
   S.mv=S.mv.filter(m=>m.w!==id);S.wallets=S.wallets.filter(w=>w.id!==id);save();show({kind:'wallets'});return toast('اتمسحت')}
  if(a==='setPin')return show({kind:'pin'});
- if(a==='bioOn'){if(!(await bioAvail()))return toast('البصمة بتشتغل في تطبيق الموبايل بس، ولازم تكون متسجّلة على الموبايل');const ok=await bioEnable();renderSheet();return toast(ok?'تمام، تقدر تفتح البرنامج بالبصمة':'البصمة ماتفعّلتش')}
+ if(a==='bioOn'){if(!LS.get('daftar_pin')){toast('حط رقم سري الأول، وبعده هنفعّل البصمة على طول');return show({kind:'pin',bio:1})}if(!(await bioAvail()))return toast('البصمة بتشتغل في تطبيق الموبايل بس، ولازم تكون متسجّلة على الموبايل');const ok=await bioEnable();renderSheet();return toast(ok?'تمام، تقدر تفتح البرنامج بالبصمة':'البصمة ماتفعّلتش')}
  if(a==='bioOff'){LS.set('daftar_bio',null);renderSheet();return toast('اتشال الفتح بالبصمة')}
  if(a==='noPin'){try{localStorage.removeItem('daftar_pin');localStorage.removeItem('daftar_bio');localStorage.removeItem('daftar_pinlen')}catch(x){}renderSheet();return toast('اتشال القفل')}
  if(a==='hideT'){HIDE=!HIDE;LS.set('daftar_hide',HIDE);render();return}
