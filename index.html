@@ -178,6 +178,27 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 .more{all:unset;display:block;text-align:center;padding:10px;color:var(--plus);font-weight:600;cursor:pointer;width:100%;box-sizing:border-box}
 .jm .i{width:16px;height:16px;color:var(--mute);flex:none}
 .jm.turn{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.bkrow{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;background:var(--card);border-radius:18px;padding:14px;box-shadow:var(--sh)}
+.bkrow .nm b{font-size:16px}.bkrow small{display:flex;align-items:center;gap:6px;white-space:normal}.chev{font-size:26px;color:var(--mute);line-height:1}
+.bkic{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#1a73e8;color:#fff}.bkic .i{width:24px;height:24px}
+.dotst{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}.dotst.g{background:#1f9d55}.dotst.r{background:#d0860a}
+.bkhero{display:flex;gap:14px;align-items:center;background:linear-gradient(135deg,#1a73e8,#0b4fb3);color:#fff;border-radius:20px;padding:18px;margin-bottom:12px}
+.bkhero.warn{background:linear-gradient(135deg,#b86a00,#8a4f00)}
+.bkhero b{display:block;font:400 22px/1.2 Lalezar,"IBM Plex Sans Arabic",sans-serif}.bkhero small{opacity:.9;font-size:13px}
+.bkbig{flex:none;width:58px;height:58px;border-radius:18px;background:rgb(255 255 255/.18);display:grid;place-items:center}.bkbig .i{width:32px;height:32px}
+.bkcard{background:var(--card);border-radius:18px;padding:14px;box-shadow:var(--sh);margin-bottom:12px}
+.swrow{display:flex;align-items:center;gap:12px}.swrow>div{flex:1}.swrow b{display:block}.swrow small{color:var(--mute);font-size:13px}
+.sw{all:unset;cursor:pointer;flex:none;width:52px;height:30px;border-radius:15px;background:var(--line);position:relative;transition:background .2s}
+.sw i{position:absolute;top:3px;inset-inline-start:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgb(0 0 0/.3);transition:inset-inline-start .2s}
+.sw.on{background:#1f9d55}.sw.on i{inset-inline-start:25px}.sw:focus-visible{outline:2px solid var(--plus);outline-offset:2px}
+.gbtn{width:100%;margin-top:12px;background:#fff;color:#1f1f1f;border:1px solid #dadce0}.gbtn .i{stroke:none;fill:#4285f4}
+.bkok{margin:10px 0 0;font-size:14px;color:var(--plus)}
+.bkgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.bkgrid button{font:inherit;cursor:pointer;border:0;background:var(--card);color:var(--ink);border-radius:16px;padding:14px 10px;box-shadow:var(--sh);display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.bkgrid .i{color:#1a73e8;width:26px;height:26px;margin-bottom:2px}.bkgrid b{font-size:14px}.bkgrid small{color:var(--mute);font-size:12px}
+.bkinfo{background:var(--soft);border-radius:16px;padding:14px;font-size:14px}.bkinfo ul{margin:6px 0 0;padding-inline-start:18px;color:var(--mute)}.bkinfo li{margin-bottom:4px}
+.lnk{all:unset;cursor:pointer;color:#1a73e8;font-weight:600;margin-top:8px;display:inline-block}
+@media(prefers-reduced-motion:reduce){.sw,.sw i{transition:none}}
 .gbox{background:var(--soft);border-radius:14px;padding:12px;margin-top:12px}.gbox p{margin:4px 0 8px;font-size:13px}.gbox .wsel button{min-height:38px}
 .tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 0}
 .tools button{font:inherit;font-size:13px;cursor:pointer;border:0;background:var(--card);color:var(--ink);border-radius:16px;padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:var(--sh);min-height:74px;text-align:center}
@@ -229,7 +250,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٣ نوفمبر - ١٧';
+const VER='٢٣ نوفمبر - ١٨';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -257,7 +278,7 @@ const IC={
  wallet:'<rect x="3" y="6" width="18" height="14" rx="2.5"/><path d="M3 10h18M16 15h2"/>',
  book:'<rect x="5" y="3" width="15" height="18" rx="2"/><circle cx="12.5" cy="10" r="2.5"/><path d="M9 16.5c.6-1.8 2-2.7 3.5-2.7s2.9.9 3.5 2.7"/>',
  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
- edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',minus:'<path d="M5 12h14"/>',coin:'<ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',eyeoff:'<path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.6 9.6 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',repeat:'<path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/>',split:'<path d="M12 3v7M12 10l-6 6v5M12 10l6 6v5"/>',gauge:'<path d="M4 18a9 9 0 1 1 16 0"/><path d="M12 13l4-4"/>',sheet:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M10 3v18"/>',bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 0 0 4 0"/>',gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v9h14v-9M12 8v13M12 8S10 3 7.5 4 9 8 12 8zM12 8s2-5 4.5-4S15 8 12 8"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',alert:'<path d="M12 3l10 18H2zM12 10v5M12 18v.5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',circle:'<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>',card:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 10h18M7 15h4"/>'};
+ edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',minus:'<path d="M5 12h14"/>',coin:'<ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',eyeoff:'<path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.6 9.6 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',repeat:'<path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/>',split:'<path d="M12 3v7M12 10l-6 6v5M12 10l6 6v5"/>',gauge:'<path d="M4 18a9 9 0 1 1 16 0"/><path d="M12 13l4-4"/>',sheet:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M10 3v18"/>',cloud:'<path d="M7 18a5 5 0 0 1-.5-9.97A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/><path d="M12 11v5M9.5 13.5 12 11l2.5 2.5"/>',google:'<path d="M21 12.2c0-.7-.1-1.3-.2-1.9H12v3.6h5a4.3 4.3 0 0 1-1.9 2.8v2.3h3A9 9 0 0 0 21 12.2z"/><path d="M12 21a8.9 8.9 0 0 0 6.1-2.2l-3-2.3A5.6 5.6 0 0 1 6.8 13.6H3.7V16A9 9 0 0 0 12 21z"/><path d="M6.8 13.6a5.4 5.4 0 0 1 0-3.4V7.9H3.7a9 9 0 0 0 0 8.1z"/><path d="M12 6.6a4.9 4.9 0 0 1 3.4 1.4l2.6-2.6A8.7 8.7 0 0 0 12 3a9 9 0 0 0-8.3 4.9l3.1 2.4A5.4 5.4 0 0 1 12 6.6z"/>',bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 0 0 4 0"/>',gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v9h14v-9M12 8v13M12 8S10 3 7.5 4 9 8 12 8zM12 8s2-5 4.5-4S15 8 12 8"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',alert:'<path d="M12 3l10 18H2zM12 10v5M12 18v.5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',circle:'<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>',card:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 10h18M7 15h4"/>'};
 const ic=n=>`<svg class="i" viewBox="0 0 24 24">${IC[n]}</svg>`;
 const PAL=['#0a7a6c','#c2334d','#d0860a','#3756c9','#2f8f3a','#b24f86','#4b6470','#8a5a2b'];
 const colorOf=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))|0;return PAL[Math.abs(h)%PAL.length]};
@@ -608,6 +629,31 @@ const bkAge=()=>{const l=LS.get('daftar_lastbk');return l?-daysTo(l):null};
 async function shareBackup(){const data=JSON.stringify({...S,contacts:C,v:2},null,1),name='daftar-backup-'+today()+'.json';
  try{const f=new File([data],name,{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'نسخة دفتري'});bkMark();render();toast('تمام، اتحفظت النسخة');return}}catch(e){if(e&&e.name==='AbortError')return}
  await download(name,data,'application/json');bkMark();render()}
+function bkStatus(){const on=gAuto(),lb=LS.get('daftar_gbk'),a=bkAge();
+ const ago=t=>{const m=Math.round((Date.now()-t)/6e4);return m<1?'من ثواني':m<60?'من '+m.toLocaleString('ar-EG')+' دقيقة':m<1440?'من '+Math.round(m/60).toLocaleString('ar-EG')+' ساعة':'من '+Math.round(m/1440).toLocaleString('ar-EG')+' يوم'};
+ if(on&&lb)return{ok:!gNeed&&!!gtok(),t:'تلقائي على Google Drive',s:'آخر نسخة '+ago(lb)};
+ if(on)return{ok:false,t:'تلقائي على Google Drive',s:'لسه ماتحفظش ولا نسخة'};
+ return{ok:a!==null&&a<7,t:'النسخ التلقائي مقفول',s:a===null?'لسه ماعملتش نسخة احتياطية':a===0?'آخر نسخة النهارده':'آخر نسخة من '+a.toLocaleString('ar-EG')+' يوم'}}
+function bkRow(){const st=bkStatus();return `<button class="bkrow" data-act="bkSheet"><span class="bkic">${ic('cloud')}</span><span class="nm"><b>النسخ الاحتياطي</b><small><i class="dotst ${st.ok?'g':'r'}"></i>${st.t} · ${st.s}</small></span><span class="chev">‹</span></button>`}
+function bkSheet(c){const on=gAuto(),tk=!!gtok(),st=bkStatus(),can=gOK()&&!!gcid();
+ c.innerHTML=head('النسخ الاحتياطي')+`
+ <div class="bkhero ${st.ok?'':'warn'}"><span class="bkbig">${ic('cloud')}</span><div><b>${st.ok?'بياناتك في أمان':'محتاج نسخة احتياطية'}</b><small>${st.t} · ${st.s}</small></div></div>
+ ${can?`<div class="bkcard">
+   <div class="swrow"><div><b>النسخ التلقائي على Drive</b><small>${on?'بيحفظ لوحده بعد أي تعديل بثواني':'مقفول — مش هيتحفظ حاجة لوحده'}</small></div>
+    <button class="sw ${on?'on':''}" data-act="${on?'gAutoOff':'gAutoOn'}" role="switch" aria-checked="${on}" aria-label="النسخ التلقائي"><i></i></button></div>
+   ${on&&!tk?`<button class="btn gbtn" data-act="${LS.get('daftar_gbk')?'gRelink':'gConnect'}">${ic('google')}${LS.get('daftar_gbk')?'جدّد الربط بحساب جوجل':'اربط بحساب جوجل'}</button>`:''}
+   ${on&&tk?'<p class="bkok">✅ متوصّل بحساب جوجل</p>':''}
+ </div>`:''}
+ <div class="bkgrid">
+  ${can&&tk?`<button data-act="gNow">${ic('up')}<b>احفظ دلوقتي</b><small>على Drive</small></button>`:`<button data-act="driveB">${ic('up')}<b>احفظ على Drive</b><small>من قايمة المشاركة</small></button>`}
+  ${can?`<button data-act="gRestore">${ic('down')}<b>استرجاع من Drive</b><small>آخر ٧ أيام</small></button>`:`<button data-act="restore">${ic('down')}<b>استرجاع نسخة</b><small>من Drive أو الجهاز</small></button>`}
+  <button data-act="backup">${ic('down')}<b>حفظ على الجهاز</b><small>ملف واحد</small></button>
+  <button data-act="shareB">${ic('share')}<b>ابعت النسخة</b><small>واتساب أو غيره</small></button>
+ </div>
+ <div class="bkinfo"><b>بيتحفظ إيه وفين؟</b><ul>
+  <li>كل حساباتك ومصاريفك وجمعياتك وإعداداتك في ملف واحد.</li>
+  ${can?'<li>على Drive بتاعك انت، في فولدر مخفي خاص بدفتري — محدش يشوفه غيرك.</li><li>نسخة أخيرة + نسخة لكل يوم (آخر ٧ أيام).</li>':'<li>النسخ التلقائي بيشتغل في تطبيق الموبايل. هنا استخدم «احفظ على Drive».</li>'}
+ </ul>${can?`<button class="lnk" data-act="restore">استرجاع من ملف على الجهاز</button>`:''}</div>`}
 function gDriveBox(){
  if(!gOK())return `<div class="gbox"><b>${ic('repeat')} النسخ التلقائي على Google Drive</b><p class="muted">بيشتغل في تطبيق الموبايل أو من الموقع mahmoudbassiuoni.github.io. هنا استخدم الزرار الأزرق.</p></div>`;
  if(!gcid())return `<div class="gbox"><b>${ic('repeat')} النسخ التلقائي على Google Drive</b><p class="muted">إعداد لمرة واحدة: حط الـ Client ID اللي عملته من Google Cloud.</p>
@@ -863,6 +909,7 @@ function renderSheet(){
   c.innerHTML=head(ic('cal')+' ضيف للتقويم')+`<p class="muted" style="margin:0 0 10px">دوس «ضيف» جنب أي ميعاد: هيفتح Google Calendar والميعاد مكتوب جاهز، تدوس <b>حفظ</b> بس. الأقساط والفواتير بتتكرر كل شهر لوحدها.</p>
   <div class="box">${ev.length?ev.map(e=>`<div class="tx"><span class="ti" style="background:var(--soft);color:var(--plus)">${ic('cal')}</span><span class="t"><b>${esc(e.t)}</b><small>${dstr(e.d)}${e.rr?(e.rr.includes('WEEKLY')?' · كل أسبوع':' · كل شهر'):''}</small></span><a class="btn sm" href="${gcal(e)}" target="_blank" rel="noopener">ضيف</a></div>`).join(''):'<div class="empty">مفيش مواعيد جاية تتضاف.</div>'}</div>
   ${ev.length&&STORE?`<div class="box" style="padding:14px;margin-top:12px"><b>كلهم مرة واحدة</b><p class="muted" style="margin:4px 0 10px">بينزّل ملف واحد فيه كل المواعيد مع تنبيه قبلها بالأيام اللي اخترتها. افتحه من الإشعارات والتقويم هيسألك تضيفهم.</p><button class="btn ghost" data-act="calAll">${ic('down')}نزّل ملف التقويم</button></div>`:''}`;return}
+ if(k==='bkSheet'){bkSheet(c);return}
  if(k==='gRestore'){
   c.innerHTML=head('استرجاع من Google Drive')+`<div class="box" id="gl"><div class="empty">بيجيب النسخ…</div></div><p class="muted" style="margin:10px 0 0">النسخة اللي هتختارها هتحل مكان البيانات اللي على الجهاز ده، ولو غلطت هيظهرلك «تراجع».</p>`;
   (async()=>{try{const L=(await gList()).filter(f=>/^daftar-/.test(f.name));$('gl').innerHTML=L.length?L.map(f=>`<div class="tx"><span class="ti" style="background:var(--soft);color:#1a73e8">${ic('down')}</span><span class="t"><b>${f.name==='daftar-backup.json'?'آخر نسخة':'نسخة يوم '+dstr(f.name.slice(7,17))}</b><small>${new Date(f.modifiedTime).toLocaleString('ar-EG',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}</small></span><button class="btn sm" data-act="gPick" data-gid="${f.id}">استرجع</button></div>`).join(''):'<div class="empty">مفيش نسخ على Drive لسه.</div>'}
@@ -876,7 +923,7 @@ function renderSheet(){
   c.innerHTML=head('تسجّل إيه؟')+`<div class="acts" style="margin-top:0"><button data-act="spend" style="background:#c2334d">${ic('minus')}صرفت</button><button data-act="income" style="background:#0a7a6c">${ic('plus')}دخل فلوس</button><button data-act="transfer" style="background:var(--hero)">⇄ تحويل</button></div><div class="sec" style="margin-top:4px"><h3>حساب شخص</h3><div class="chips" style="flex-wrap:wrap">${P.map(p=>`<button class="chip" data-open="p:${p.id}">${esc(p.name)}</button>`).join('')}<button class="chip" data-act="pickC">+ من جهات الاتصال</button><button class="chip" data-act="newP">+ شخص جديد</button></div></div>
   <div class="sec"><h3>مصروف على باب</h3><div class="chips" style="flex-wrap:wrap">${S.funds.map(f=>`<button class="chip" data-open="f:${f.id}" style="border-color:${f.color||colorOf(f.name)}">${esc(f.name)}</button>`).join('')}<button class="chip" data-act="newF">+ باب جديد</button></div></div>`;return}
  if(k==='settings'){
-  c.innerHTML=head('الإعدادات')+`<div class="box" style="padding:14px;margin-bottom:12px"><b>شكل البرنامج</b><p class="muted" style="margin:4px 0 10px">اختار الخلفية اللي تريّح عينك.</p>
+  c.innerHTML=head('الإعدادات')+`${bkRow().replace('margin-top:12px','')}<div style="height:12px"></div><div class="box" style="padding:14px;margin-bottom:12px"><b>شكل البرنامج</b><p class="muted" style="margin:4px 0 10px">اختار الخلفية اللي تريّح عينك.</p>
   <div class="skins">${SKINS.map(([k,l,cs])=>`<button type="button" data-skin="${k}" class="${skin===k?'on':''}"><i>${k==='auto'?`<b style="background:${cs[0]}"></b><b style="background:${cs[1]}"></b>`:`<b style="background:${cs[0]}"></b><b style="background:${cs[1]};max-width:40%"></b>`}</i>${l}</button>`).join('')}</div></div>
   <div class="box" style="padding:14px;margin-bottom:12px"><b>الخصوصية</b><p class="muted" style="margin:4px 0 10px">${LS.get('daftar_pin')?'البرنامج مقفول برقم سري على الجهاز ده.':'اقفل البرنامج برقم سري عشان محدش يشوف حساباتك.'}</p>
    <div class="btns">${LS.get('daftar_pin')?`<button class="btn ghost" data-act="setPin">${ic('lock')}غيّر الرقم</button><button class="btn danger" data-act="noPin">شيل القفل</button>`:`<button class="btn" data-act="setPin">${ic('lock')}حط رقم سري</button>`}<button class="btn ghost" data-act="hideT">${ic(HIDE?'eye':'eyeoff')}${HIDE?'أظهر المبالغ':'خبّي المبالغ'}</button></div></div>
@@ -884,11 +931,7 @@ function renderSheet(){
   <p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
   ${STORE?'':`<div class="box" style="padding:14px;margin-bottom:12px"><b>نزّل البرنامج على جهازك</b><p class="muted" style="margin:4px 0 10px">ملف واحد بيفتح في أي متصفح من غير نت. بياناته بتتحفظ على الجهاز نفسه، ولنقل البيانات بين النسختين استخدم النسخة الاحتياطية.</p>
   <button class="btn" data-act="dlApp">${ic('down')}تنزيل البرنامج</button></div>`}
-  <div class="box" style="padding:14px"><b>النسخ الاحتياطي</b><p class="muted" style="margin:4px 0 10px">${S.people.length} حساب · ${S.tx.length} حركة · ${S.exp.length} مصروف · ${S.gam.length} جمعية<br>${(a=>a===null?'لسه ماعملتش نسخة احتياطية':a===0?'آخر نسخة: النهارده ✅':'آخر نسخة من '+a.toLocaleString('ar-EG')+' يوم')(bkAge())}</p>
-  <div class="btns"><button class="btn" data-act="driveB" style="background:#1a73e8">${ic('up')}احفظ نسخة على Google Drive</button><button class="btn ghost" data-act="restore">${ic('down')}استرجاع نسخة</button></div>
-  ${gDriveBox()}
-  <details style="margin:10px 0 0;box-shadow:none;background:var(--soft)"><summary>إزاي بتتحفظ على Drive؟</summary><ol><li>دوس «احفظ نسخة على Google Drive».</li><li>من القايمة اللي هتظهر اختار <b>Drive</b>، ودوس <b>حفظ</b>.</li><li>للاسترجاع: دوس «استرجاع نسخة» واختار <b>Drive</b> من الجنب، وبعدين ملف <b>daftar-backup</b> الأحدث.</li></ol></details>
-  <div class="btns" style="margin-top:10px"><button class="btn ghost sm" data-act="backup">${ic('down')}حفظ على الجهاز</button><button class="btn ghost sm" data-act="shareB">${ic('share')}ابعت (واتساب…)</button><button class="btn ghost sm" data-act="export">${ic('sheet')}تصدير PDF / Excel</button></div></div>`;
+  <div class="box" style="padding:14px;margin-top:12px"><b>التقارير</b><p class="muted" style="margin:4px 0 10px">طلّع كشف بحساباتك ومصاريفك.</p><button class="btn ghost" data-act="export">${ic('sheet')}تصدير PDF / Excel</button></div>`;
   $('cur').onchange=e=>{S.cur=e.target.value.trim()||'ج.م';save();render()};return}
  if(k==='p'){
   const p=S.people.find(x=>x.id===open.id);if(!p){close();return}
@@ -1075,11 +1118,11 @@ document.addEventListener('click',async e=>{
  if(a==='pick'){try{const r=await navigator.contacts.select(['name','tel'],{multiple:true});addContacts(r.map(x=>({n:(x.name||[])[0]||(x.tel||[])[0]||'',p:(x.tel||[])[0]||''})))}catch(err){toast('مقدرتش أفتح جهات الاتصال')}return}
  if(a==='clearC'){const old=C;C=[];save('C');render();const el=$('toast');el.innerHTML='اتمسحت الأرقام<button id="undoC">تراجع</button>';el.classList.add('on');$('undoC').onclick=()=>{C=old;save('C');render();el.classList.remove('on')};clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),5000);return}
  if(a==='driveB')return shareBackup();
- if(a==='bkNow')return show({kind:'settings'});
+ if(a==='bkNow'||a==='bkSheet')return show({kind:'bkSheet'});
  if(a==='gRelink')return gAuth(true);
  if(a==='gConnect')return gAuth(false);
  if(a==='gNow')return driveBackup(true);
- if(a==='gAutoOn'){LS.set('daftar_gauto',true);renderSheet();toast('النسخ التلقائي شغال');return gSchedule()}
+ if(a==='gAutoOn'){LS.set('daftar_gauto',true);renderSheet();toast('النسخ التلقائي شغال');if(gtok())driveBackup(false);return}
  if(a==='gAutoOff'){LS.set('daftar_gauto',false);renderSheet();return toast('النسخ التلقائي اتقفل')}
  if(a==='gSaveId'){const v=($('gcidIn').value||'').trim();if(!/\.apps\.googleusercontent\.com$/.test(v))return toast('الـ Client ID لازم يخلص بـ .apps.googleusercontent.com');LS.set('daftar_gcid',v);renderSheet();return toast('اتحفظ، دوس «اربط بحساب جوجل»')}
  if(a==='gEditId'){LS.set('daftar_gcid','');return renderSheet()}
@@ -1124,7 +1167,7 @@ async function driveBackup(manual){if(!gOK()||!gcid())return;if(!gtok()){gNeed=t
   await gPut(dn,data,(files.find(f=>f.name===dn)||{}).id);
   const old=files.filter(f=>/^daftar-\d{4}-\d\d-\d\d\.json$/.test(f.name)&&f.name!==dn).sort((a,b)=>b.name.localeCompare(a.name)).slice(6);
   for(const f of old){try{await gfetch(GAPI+'/drive/v3/files/'+f.id,{method:'DELETE'})}catch(e){}}
-  LS.set('daftar_gbk',Date.now());bkMark();gNeed=false;if(manual)toast('اتحفظت على Google Drive ✅');if(open&&open.kind==='settings')renderSheet()}
+  LS.set('daftar_gbk',Date.now());bkMark();gNeed=false;if(manual)toast('اتحفظت على Google Drive ✅');if(open&&(open.kind==='settings'||open.kind==='bkSheet'))renderSheet()}
  catch(e){if(e.message==='auth'){gNeed=true;if(manual)gAuth(false)}else if(manual)toast('مقدرتش أوصل لـ Drive، اتأكد من النت')}
  finally{gBusy=false;render()}}
 const gAuto=()=>gOK()&&!!gcid()&&!!LS.get('daftar_gauto');
