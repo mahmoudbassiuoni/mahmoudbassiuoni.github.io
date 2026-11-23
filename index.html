@@ -64,6 +64,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans
 .wsel button .i{width:16px;height:16px;vertical-align:-3px;margin-inline-end:4px}
 .bdg{display:inline-grid;place-items:center;min-width:44px;height:26px;padding:0 7px;border-radius:9px;color:#fff;font:700 11px/1 inherit;letter-spacing:0;white-space:nowrap;vertical-align:middle;box-shadow:inset 0 0 0 1px rgb(255 255 255/.18)}.wcard small .bdg{height:22px;min-width:38px;font-size:10px;margin-inline-end:4px}.av .bdg{min-width:0;width:100%;height:100%;border-radius:inherit;padding:0 2px;font-size:10px}#wfPrev{margin-top:8px}
 .salc{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:0 0 12px;cursor:pointer;border-inline-start:5px solid #0a7a6c}.salc .ti{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#0a7a6c;color:#fff;flex:none}.salc .t{flex:1;display:flex;flex-direction:column}.salc small{color:var(--mute)}.salc .btn{background:#0a7a6c;pointer-events:none}
+.hexp{margin-top:12px;padding:10px 12px;border-radius:14px;background:rgb(255 255 255/.10);display:flex;flex-direction:column;gap:2px}.hexp div{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.hexp small{opacity:.8}.hexp b{font-size:20px}.hexp span{font-size:12px;opacity:.75}
+.vcard{cursor:pointer;margin:0 0 12px;padding:16px 18px;border-radius:18px;color:#fff;background:linear-gradient(135deg,#1b1f2a,#3a3f4f 60%,#c99a2e);box-shadow:var(--sh);direction:ltr;font-family:ui-monospace,monospace}.vtop{display:flex;justify-content:space-between;font-size:14px;opacity:.9}.vnum{font-size:19px;letter-spacing:2px;margin:22px 0 14px}.vbot{display:flex;gap:28px;font-size:13px}.vbot small{display:block;font-size:10px;opacity:.7;font-family:inherit}
 .hsearch[hidden]{display:none}.hsearch{margin:2px 0 14px;min-height:48px;cursor:text}.hsearch input{font-size:16px}.hsearch input::-webkit-search-cancel-button{display:none}.hqx{all:unset;cursor:pointer;padding:6px 4px;color:var(--mute);font-size:15px}.hqx[hidden]{display:none}#sres{margin-bottom:90px}
 .search{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:14px;padding:0 12px;box-shadow:var(--sh);margin-bottom:10px}
 .search input{border:0;background:transparent;padding:12px 0;min-height:46px;box-shadow:none}
@@ -270,7 +272,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٣ نوفمبر - ٢٨';
+const VER='٢٣ نوفمبر - ٣٠';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -329,12 +331,16 @@ const DEFW=[{id:'cash',name:'نقدي',ic:'wallet'},{id:'visa',name:'الفيز�
 const wn=id=>id==='none'?'مش من محفظتي':((S.wallets||[]).find(w=>w.id===id)||{name:id}).name;
 const ensureW=()=>{if(!Array.isArray(S.wallets)||!S.wallets.length)S.wallets=JSON.parse(JSON.stringify(DEFW));
  if(!Array.isArray(S.rec))S.rec=[];if(!Array.isArray(S.gam))S.gam=[];if(!Array.isArray(S.loans))S.loans=[];if(!Array.isArray(S.nDays))S.nDays=[3,2];if(!Array.isArray(S.goals))S.goals=[];if(typeof S.budget!=='number')S.budget=0;
- wMig28();
+ wMig28();wMig30();
  if(!S.wMig8){S.wMig8=1;S.wallets.forEach(w=>{if(w.id==='frozen'&&w.frozen){delete w.frozen;if(w.ic==='lock')w.ic='wallet';w.parent='cash'}if(w.id==='silver'&&!w.parent)w.parent='cash'})}};
 const GRPS={cash:'نقدي',visa:'الفيزا والبنوك',mob:'محافظ الموبايل'};const isGrp=w=>!!w&&w.id in GRPS;
 function ensureGrp(id){if(!S.wallets.some(w=>w.id===id)){const i=S.wallets.findIndex(w=>w.id==='visa');const g=id==='visa'?{id:'visa',name:'الفيزا',ic:'card'}:id==='mob'?{id:'mob',name:'محافظ الموبايل',ic:'mobile'}:{id:'cash',name:'نقدي',ic:'wallet'};S.wallets.splice(i<0?S.wallets.length:i+1,0,g)}}
-const grpOf=t=>t==='bank'?'visa':t==='ew'?'mob':null;
+const grpOf=t=>t==='bank'?'visa':t==='ew'?'mob':null;const isApp=w=>!!w&&w.t==='app';
 function remapW(a,b){for(const m of S.mv){if(m.w===a)m.w=b;if(m.to===a)m.to=b}for(const t of S.tx)if(t.w===a)t.w=b;for(const e of S.exp)if(e.w===a)e.w=b;for(const g of [...(S.gam||[]),...(S.loans||[]),...(S.rec||[])])if(g.w===a)g.w=b;if(S.sal&&S.sal.w===a)S.sal.w=b}
+function wMig30(){if(S.wMig30)return;S.wMig30=1;let ch=0;
+ for(const w of S.wallets){if(/bybit|باي ?بيت/i.test((w.prov||'')+' '+w.name)){w.t='app';w.prov='Bybit';w.cur='USD';w.ic='coin';delete w.parent;ch=1}}
+ const m=S.wallets.find(w=>w.id==='mob');if(m&&!kids('mob').length&&!S.mv.some(x=>(x.w==='mob'||x.to==='mob')&&x.amt)&&!S.exp.some(e=>e.w==='mob')&&!S.tx.some(t=>t.w==='mob')){S.mv=S.mv.filter(x=>x.w!=='mob');S.wallets=S.wallets.filter(w=>w.id!=='mob');ch=1}
+ if(ch)setTimeout(()=>{try{save()}catch(e){}},0)}
 function wMig28(){if(S.wMig28)return;S.wMig28=1;
  const v=S.wallets.find(w=>w.id==='visa');
  if(v&&(v.t==='bank'||v.t==='ew')){const id='w'+uid(),c={...v,id,parent:grpOf(v.t)};if(/^ال?فيزا$/.test((v.name||'').trim()))c.name=v.t==='ew'?(v.prov||'محفظة'):((NETS.find(x=>x[0]===v.net)||['','كارت'])[1]+(v.net==='meeza'&&v.mz==='salary'?' مرتبات':'')+' '+(v.bank||'')).trim();delete c.frozen;if(v.frozen)c.frozen=1;remapW('visa',id);for(const k of Object.keys(v))if(!['id'].includes(k))delete v[k];Object.assign(v,{name:'الفيزا',ic:'card'});if(c.parent==='mob')ensureGrp('mob');S.wallets.push(c)}
@@ -353,19 +359,25 @@ const wmeta=w=>w.t==='bank'?[w.bank,(NETS.find(x=>x[0]===w.net)||[])[1]&&w.net!=
 const BPAL=['#0f6b5c','#2a4d8f','#8a3b5c','#6b4fa3','#b5651d','#1f7a8c','#5a6b2e','#a8323e','#3d5a80','#7a5c2e','#2e7d4f','#5c3d7a'];
 const bshort=n=>{const x=String(n||'').replace(/\(.*?\)/g,'').replace(/^(محفظة|البنك|بنك|مصرف)\s+/,'').trim().split(/\s+/);return x[0]==='الشركة'?'SAIB':x[0]||'؟'};
 const bcol=n=>{let h=0;for(const c of String(n))h=(h*31+c.charCodeAt(0))>>>0;return BPAL[h%BPAL.length]};
-const wbadge=w=>{const n=w.t==='bank'?w.bank:w.t==='ew'?w.prov:'';if(!n)return '';const t=bshort(n);return `<span class="bdg" style="background:${bcol(n)}" title="${esc(n)}">${esc(t.length>7?t.slice(0,6)+'…':t)}</span>`};
+const wbadge=w=>{const n=w.t==='bank'?w.bank:w.t==='ew'||w.t==='app'?w.prov:'';if(!n)return '';const t=bshort(n);return `<span class="bdg" style="background:${bcol(n)}" title="${esc(n)}">${esc(t.length>7?t.slice(0,6)+'…':t)}</span>`};
 const salGot=m=>S.mv.some(x=>x.sal&&x.salM===m);
 const salW=()=>{const s=S.sal&&S.sal.w;if(s&&S.wallets.some(w=>w.id===s))return s;const z=S.wallets.find(w=>w.net==='meeza'&&w.mz==='salary')||S.wallets.find(w=>w.acc==='حساب مرتبات');return z?z.id:lastW};
 const salDue=()=>!!(S.sal&&S.sal.amt>0&&!salGot(month())&&+today().slice(8)>=Math.max(1,(S.sal.day||1)-2));
 function c2w(id){document.querySelectorAll('#card [data-wsel=w] button').forEach(x=>x.classList.toggle('on',x.dataset.w===id))}
 function salCard(){if(!salDue())return '';const late=+today().slice(8)>=(S.sal.day||1);return `<div class="box salc" data-act="salGet"><span class="ti">${ic('coin')}</span><span class="t"><b>${late?'المرتب نزل؟':'المرتب قرّب ينزل'}</b><small>${fmt(S.sal.amt)} · على ${esc(wn(salW()))}</small></span><span class="btn sm">${ic('plus')}نزل</span></div>`}
 const wlabel=w=>w.id==='frozen'&&w.name==='مجمد'?'مجمد (ورق)':w.id==='silver'&&w.name==='فضية'?'فضية (معدن)':w.name;
-const wsum=f=>S.wallets.filter(f).reduce((a,w)=>a+wbal(w.id),0);
+const wsum=f=>S.wallets.filter(f).reduce((a,w)=>a+wbalE(w.id),0);
 const sfmt=n=>(n<0?'− ':'')+fmt(n);
 const TXW={took:-1,paidMe:1,lent:1,iPaid:-1};
 const TXWL={took:'طلعت من',paidMe:'دخلت في',lent:'دخلت في',iPaid:'طلعت من'};
-function wbal(w){let b=0;for(const m of S.mv){if(m.k==='gl'&&m.w===w)b-=m.amt;else if(m.k==='in'&&m.w===w)b+=m.amt;else if(m.k==='adj'&&m.w===w)b+=m.amt;else if(m.k==='tr'){if(m.w===w)b-=m.amt;if(m.to===w)b+=m.amt}}
- for(const t of S.tx)if(t.w===w)b+=TXW[t.type]*t.amt;for(const e of S.exp)if(e.w===w)b-=e.amt;return b}
+const isUSD=id=>{const w=(S.wallets||[]).find(x=>x.id===id);return !!w&&w.cur==='USD'};const urate=()=>S.usd>0?S.usd:50;
+function wbal(w){const U=isUSD(w),A=x=>U?(x.ua!=null?x.ua:x.amt/urate()):x.amt;let b=0;for(const m of S.mv){if(m.k==='gl'&&m.w===w)b-=A(m);else if(m.k==='in'&&m.w===w)b+=A(m);else if(m.k==='adj'&&m.w===w)b+=A(m);else if(m.k==='tr'){if(m.w===w)b-=A(m);if(m.to===w)b+=A(m)}}
+ for(const t of S.tx)if(t.w===w)b+=TXW[t.type]*A(t);for(const e of S.exp)if(e.w===w)b-=A(e);return Math.round(b*100)/100}
+const wbalE=id=>isUSD(id)?wbal(id)*urate():wbal(id);
+const ufmt=n=>(n<0?'−':'')+'$'+Math.abs(n).toLocaleString('ar-EG',{maximumFractionDigits:2});
+const wfmt=id=>isUSD(id)?(HIDE?'••••':ufmt(wbal(id))):sfmt(wbal(id));
+function normCur(){for(const x of [...S.mv,...S.exp,...S.tx]){const a=isUSD(x.w),b=x.k==='tr'&&isUSD(x.to);if(!a&&!b){if(x.cx){delete x.cx;delete x.ua;delete x._a}continue}if(x.cx&&x.amt===x._a)continue;
+ if(a)x.ua=x.amt,x.amt=Math.round(x.amt*urate()*100)/100;else x.ua=Math.round(x.amt/urate()*100)/100;x.cx=1;x._a=x.amt}}
 const walletsSet=()=>S.mv.length>0;
 const spentOn=d=>S.exp.filter(e=>e.date===d).reduce((a,e)=>a+e.amt,0);
 const addDays=(d,n)=>{const x=new Date(d+'T12:00');x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
@@ -384,7 +396,7 @@ const snap=()=>{undoState=JSON.parse(JSON.stringify(S))};
 const timers={};
 function save(which='L'){
  if(which==='L'){clearTimeout(timers.snap);timers.snap=setTimeout(remSnap,800);gSchedule()}
- if(which==='L')LS.set('daftar',S);else LS.set('daftar_contacts',C);
+ if(which==='L'){try{normCur()}catch(e){}LS.set('daftar',S)}else LS.set('daftar_contacts',C);
  const r=which==='L'?ref:refC;
  if(!r){status(inArtifact?'على الجهاز ده بس':'محفوظ على الجهاز','off');return}
  status('بيحفظ…','busy');clearTimeout(timers[which]);
@@ -394,7 +406,7 @@ function save(which='L'){
 /* ---------- views ---------- */
 function wForm(w){const v=w||{},t=v.t||(w&&w.id==='visa'?'bank':w&&(w.id==='cash'||w.parent)?'cash':w?'cash':'bank');
  const opt=(L,cur,other)=>L.map(x=>`<option ${x===cur?'selected':''}>${esc(x)}</option>`).join('')+`<option value="__o" ${cur&&!L.includes(cur)?'selected':''}>${other}</option>`;
- return `<label>النوع</label><div class="wsel" data-wsel="wt"><button type="button" data-w="bank" class="${t==='bank'?'on':''}">${ic('bank')}بنك / فيزا</button><button type="button" data-w="ew" class="${t==='ew'?'on':''}">${ic('mobile')}محفظة موبايل</button><button type="button" data-w="cash" class="${t==='cash'?'on':''}">${ic('wallet')}كاش / تانية</button></div>
+ return `<label>النوع</label><div class="wsel" data-wsel="wt"><button type="button" data-w="bank" class="${t==='bank'?'on':''}">${ic('bank')}بنك / فيزا</button><button type="button" data-w="ew" class="${t==='ew'?'on':''}">${ic('mobile')}محفظة موبايل</button><button type="button" data-w="cash" class="${t==='cash'?'on':''}">${ic('wallet')}كاش / تانية</button><button type="button" data-w="app" class="${t==='app'?'on':''}">${ic('coin')}باي بيت (Bybit)</button></div>
  <div id="wfBank"><label>البنك</label><select id="wfBk">${opt(BANKS,v.bank,'بنك تاني…')}</select><input id="wfBkO" placeholder="اكتب اسم البنك" style="margin-top:6px" value="${v.bank&&!BANKS.includes(v.bank)?esc(v.bank):''}">
   <label style="margin-top:8px">الكارت</label><div class="wsel" data-wsel="net">${NETS.map(([k,l])=>`<button type="button" data-w="${k}" class="${(v.net||'visa')===k?'on':''}">${l}</button>`).join('')}</div>
   <div id="wfMz"><label>نوع الميزة</label><div class="wsel" data-wsel="mz"><button type="button" data-w="normal" class="${v.mz==='salary'?'':'on'}">عادية</button><button type="button" data-w="salary" class="${v.mz==='salary'?'on':''}">مرتبات</button></div></div>
@@ -402,19 +414,30 @@ function wForm(w){const v=w||{},t=v.t||(w&&w.id==='visa'?'bank':w&&(w.id==='cash
   <div class="g2"><div><label>نوع الحساب</label><select id="wfAcc">${ACCS.map(x=>`<option ${x===(v.acc||'حساب توفير')?'selected':''}>${x}</option>`).join('')}</select></div><div><label>آخر ٤ أرقام (اختياري)</label><input id="wfL4" inputmode="numeric" maxlength="4" value="${esc(v.l4||'')}" placeholder="1234"></div></div></div>
  <div id="wfEw"><label>المحفظة</label><select id="wfPr">${opt(EWS,v.prov,'محفظة تانية…')}</select><input id="wfPrO" placeholder="اكتب اسم المحفظة" style="margin-top:6px" value="${v.prov&&!EWS.includes(v.prov)?esc(v.prov):''}">
   <label style="margin-top:8px">رقم المحفظة (اختياري)</label><input id="wfPh" inputmode="tel" value="${esc(v.ph||'')}" placeholder="010…"></div>
- <div id="wfPrev"></div><label style="margin-top:8px">الاسم اللي هيظهر</label><input id="wfName" value="${esc(v.name||'')}" placeholder="مثلاً: دهب، حصالة…">
+ <div id="wfPrev"></div><label style="margin-top:8px">العملة</label><div class="wsel" data-wsel="cur"><button type="button" data-w="EGP" class="${v.cur==='USD'?'':'on'}">جنيه مصري</button><button type="button" data-w="USD" class="${v.cur==='USD'?'on':''}">دولار $</button></div>
+ <div id="wfRt"><label>سعر الدولار النهارده (بالجنيه)</label><input id="wfRate" type="text" inputmode="decimal" value="${urate()}"><p class="muted" style="margin:4px 0 8px;font-size:13px">الرصيد هيتكتب بالدولار، وهيتحسب في الإجمالي بالسعر ده. تقدر تحدّثه من جوّه المحفظة.</p></div>
+<label style="margin-top:8px">الاسم اللي هيظهر</label><input id="wfName" value="${esc(v.name||'')}" placeholder="مثلاً: دهب، حصالة…">
  <label style="margin-top:10px">الاستخدام</label><div class="wsel" data-wsel="kind"><button type="button" data-w="n" class="${v.frozen?'':'on'}">متاحة للصرف</button><button type="button" data-w="f" class="${v.frozen?'on':''}">تحويش (مش للصرف)</button></div>`}
 function wFormBind(c,w){let touched=!!w;const nm=$('wfName');nm.addEventListener('input',()=>touched=true);
- const auto=()=>{const t=getW(c,'wt');if(t==='bank'){const bk=$('wfBk').value==='__o'?$('wfBkO').value.trim():$('wfBk').value,net=getW(c,'net');const nl=(NETS.find(x=>x[0]===net)||['',''])[1];return (net==='none'?'حساب':nl+(net==='meeza'&&getW(c,'mz')==='salary'?' مرتبات':''))+' '+(bk||'البنك').replace(/ (CIB|NBK|FAB|ADCB|ADIB|EG Bank|ABK|aiBANK|AUB|SAIB)$/,'')}if(t==='ew'){const p=$('wfPr').value==='__o'?$('wfPrO').value.trim():$('wfPr').value;return p.replace(/\s*\(.*\)/,'')}return ''};
- const sync=()=>{const t=getW(c,'wt');$('wfBank').style.display=t==='bank'?'':'none';$('wfEw').style.display=t==='ew'?'':'none';$('wfBkO').style.display=$('wfBk').value==='__o'?'':'none';$('wfPrO').style.display=$('wfPr').value==='__o'?'':'none';$('wfCk').style.display=getW(c,'net')==='none'?'none':'';$('wfMz').style.display=getW(c,'net')==='meeza'?'':'none';
+ const auto=()=>{const t=getW(c,'wt');if(t==='bank'){const bk=$('wfBk').value==='__o'?$('wfBkO').value.trim():$('wfBk').value,net=getW(c,'net');const nl=(NETS.find(x=>x[0]===net)||['',''])[1];return (net==='none'?'حساب':nl+(net==='meeza'&&getW(c,'mz')==='salary'?' مرتبات':''))+' '+(bk||'البنك').replace(/ (CIB|NBK|FAB|ADCB|ADIB|EG Bank|ABK|aiBANK|AUB|SAIB)$/,'')}if(t==='ew'){const p=$('wfPr').value==='__o'?$('wfPrO').value.trim():$('wfPr').value;return p.replace(/\s*\(.*\)/,'')}if(t==='app')return 'باي بيت';return ''};
+ const sync=()=>{const t=getW(c,'wt');if(t==='app'&&getW(c,'cur')!=='USD')c.querySelectorAll('[data-wsel=cur] button').forEach(x=>x.classList.toggle('on',x.dataset.w==='USD'));$('wfBank').style.display=t==='bank'?'':'none';$('wfEw').style.display=t==='ew'?'':'none';$('wfBkO').style.display=$('wfBk').value==='__o'?'':'none';$('wfPrO').style.display=$('wfPr').value==='__o'?'':'none';$('wfCk').style.display=getW(c,'net')==='none'?'none':'';$('wfMz').style.display=getW(c,'net')==='meeza'?'':'none';$('wfRt').style.display=getW(c,'cur')==='USD'?'':'none';
   {const t=getW(c,'wt'),n=t==='bank'?($('wfBk').value==='__o'?$('wfBkO').value.trim():$('wfBk').value):t==='ew'?($('wfPr').value==='__o'?$('wfPrO').value.trim():$('wfPr').value):'';$('wfPrev').innerHTML=n?wbadge({t,bank:n,prov:n})+' <small class="muted">'+esc(n)+'</small>':''}
   if(!touched){const a=auto();if(a)nm.value=a;else if(!w)nm.value=''}};
- c.querySelectorAll('[data-wsel=wt],[data-wsel=net],[data-wsel=mz]').forEach(x=>x.addEventListener('click',()=>setTimeout(sync)));['wfBk','wfPr'].forEach(i=>$(i).addEventListener('change',sync));['wfBkO','wfPrO'].forEach(i=>$(i).addEventListener('input',sync));sync()}
+ c.querySelectorAll('[data-wsel=wt],[data-wsel=net],[data-wsel=mz],[data-wsel=cur]').forEach(x=>x.addEventListener('click',()=>setTimeout(sync)));['wfBk','wfPr'].forEach(i=>$(i).addEventListener('change',sync));['wfBkO','wfPrO'].forEach(i=>$(i).addEventListener('input',sync));sync()}
 function wFormRead(c,w){const t=getW(c,'wt'),name=$('wfName').value.trim();if(!name){toast('اكتب اسم المحفظة');return null}
- const o={name,t,ic:t==='bank'?'card':t==='ew'?'mobile':'wallet'};if(w&&w.parent)o.ic=w.ic;if(getW(c,'kind')==='f'){o.frozen=1;if(t==='cash'&&!(w&&w.parent))o.ic='lock'}
+ const o={name,t,ic:t==='bank'?'card':t==='ew'?'mobile':t==='app'?'coin':'wallet'};if(t==='app')o.prov='Bybit';if(w&&w.parent)o.ic=w.ic;if(getW(c,'kind')==='f'){o.frozen=1;if(t==='cash'&&!(w&&w.parent))o.ic='lock'}
  if(t==='bank'){o.bank=$('wfBk').value==='__o'?$('wfBkO').value.trim():$('wfBk').value;if(!o.bank){toast('اكتب اسم البنك');return null}o.net=getW(c,'net');if(o.net==='meeza')o.mz=getW(c,'mz');if(o.net!=='none')o.ck=getW(c,'ck');o.acc=$('wfAcc').value;const l4=String(pn($('wfL4').value)||'').replace(/\D/g,'');if($('wfL4').value.trim())o.l4=$('wfL4').value.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g,'').slice(-4)}
+{const cu=getW(c,'cur');if(cu==='USD'){o.cur='USD';const r=pn($('wfRate').value);if(r>0&&r!==urate()){S.usd=r;S.usdAt=Date.now()}setTimeout(()=>fetchRate(true),500)}}
  if(t==='ew'){o.prov=$('wfPr').value==='__o'?$('wfPrO').value.trim():$('wfPr').value;if(!o.prov){toast('اكتب اسم المحفظة');return null}const ph=$('wfPh').value.trim();if(ph)o.ph=ph}
  return o}
+function ago(t){const m=Math.round((Date.now()-t)/6e4);return m<2?'دلوقتي':m<60?'من '+m.toLocaleString('ar-EG')+' دقيقة':m<1440?'من '+Math.round(m/60).toLocaleString('ar-EG')+' ساعة':'من '+Math.round(m/1440).toLocaleString('ar-EG')+' يوم'}
+let rateBusy=0;
+async function fetchRate(force){if(rateBusy||S.usdAuto===false||!S.wallets.some(w=>w.cur==='USD'))return false;if(!force&&S.usdAt&&Date.now()-S.usdAt<3*36e5)return false;rateBusy=1;
+ const srcs=[['https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json',j=>j.usd&&j.usd.egp],['https://latest.currency-api.pages.dev/v1/currencies/usd.min.json',j=>j.usd&&j.usd.egp],['https://open.er-api.com/v6/latest/USD',j=>j.rates&&j.rates.EGP]];
+ try{for(const[u,f]of srcs){try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),8000);const r=await fetch(u,{cache:'no-store',signal:ctl.signal});clearTimeout(tm);if(!r.ok)continue;const v=+f(await r.json());if(v>5&&v<1000){S.usd=Math.round(v*100)/100;S.usdAt=Date.now();save();render();return true}}catch(e){}}return false}finally{rateBusy=0}}
+function vcardHTML(w){const v=w.vc;
+ if(!v)return `<div class="box" style="padding:12px 14px;margin-bottom:10px"><b>الفيزا بتاعة باي بيت</b><p class="muted" style="margin:4px 0 8px">ضيف اسمك وتاريخ الانتهاء وآخر ٤ أرقام عشان تعرفها بسهولة.</p><button class="btn ghost sm" data-act="vcEdit" data-wallet="${w.id}">${ic('plus')}ضيف بيانات الفيزا</button></div>`;
+ return `<div class="vcard" data-act="vcEdit" data-wallet="${w.id}"><div class="vtop"><b>Bybit</b><span>${v.net==='visa'?'VISA':'Mastercard'}</span></div><div class="vnum">•••• •••• •••• ${esc(v.l4||'••••')}</div><div class="vbot"><span><small>الاسم</small>${esc(v.nm||'—')}</span><span><small>ينتهي</small>${esc(v.ex||'—')}</span></div></div>`}
 function searchHTML(q){const qn=pn(q);
    const P=S.people.filter(p=>p.name.includes(q)||(p.phone&&normP(p.phone).includes(normP(q)||'~'))).slice(0,8).map(personRow);
    const F=S.funds.filter(f=>f.name.includes(q)).map(f=>`<div class="row" data-open="f:${f.id}">${av(f.name,f.color)}<span class="nm"><b>${esc(f.name)}</b><small>باب مصاريف</small></span><span class="amt">${fmt(ftot(f.id))}</span></div>`);
@@ -448,6 +471,7 @@ function walletHero(){
   <div class="net">${sfmt(av)}</div>
   <div class="lbl">${S.wallets.filter(w=>!w.frozen&&!w.parent).map(w=>esc(w.name)).join(' + ')}</div>
   <div class="hsplit">${hasFz()?`<div><small>متحوّش</small><b class="a">${sfmt(fz)}</b></div>`:`<div><small>كاش في إيدك</small><b class="a">${sfmt(cashT())}</b></div>`}<div><small>الإجمالي</small><b class="a">${sfmt(av+fz)}</b></div><div><small>صرفت النهارده</small><b class="c">${fmt(td)}</b></div></div>
+  ${(()=>{const T=totals();if(!T.plus&&!T.minus)return '';const ex=av+T.plus-T.minus;return `<div class="hexp"><div><small>المفروض معاك</small><b>${sfmt(ex)}</b></div><span>معاك ${sfmt(av)}${T.plus?` + ليك ${sfmt(T.plus)}`:''}${T.minus?` − عليك ${sfmt(T.minus)}`:''}</span></div>`})()}
  </section>`}
 function vHome(){
  const T=totals();
@@ -508,8 +532,8 @@ function vDaily(){
  const byW=S.wallets.map(w=>({n:w.name,v:ex.filter(e=>e.w===w.id).reduce((a,e)=>a+e.amt,0)})).filter(x=>x.v>0),other=out-byW.reduce((a,x)=>a+x.v,0);
  const days=[];for(let i=6;i>=0;i--){const k=addDays(today(),-i);days.push({k,v:spentOn(k),l:i===0?'النهارده':new Date(k+'T12:00').toLocaleDateString('ar-EG',{weekday:'short'})})}
  const mx=Math.max(1,...days.map(x=>x.v));
- return `<div class="wallets">${S.wallets.filter(w=>!w.parent).map(w=>{const b=wbal(w.id);const K=kids(w.id);const tot=b+K.reduce((a,k)=>a+wbal(k.id),0);
-  return `<button class="wcard ${w.frozen?'frz':''} ${K.length?'wpar':''}" data-act="${isGrp(w)||K.length?'wgrp':'adjust'}" data-wallet="${w.id}"><small>${wbadge(w)||ic(w.ic||(w.frozen?'lock':'wallet'))}${esc(wlabel(w))}${w.frozen?'<span class="tag">مجمد</span>':''}</small><span class="v ${tot<0?'neg':''}">${sfmt(tot)}</span>${!K.length&&wmeta(w)?`<span class="wbr">${esc(wmeta(w))}</span>`:''}${K.length?`<span class="wbr">${K.length.toLocaleString('ar-EG')} ${w.id==='visa'?(K.length>2&&K.length<11?'كروت':'كارت'):w.id==='mob'?(K.length>2&&K.length<11?'محافظ':'محفظة'):'أجزاء'} جوّه · دوس عشان تشوفهم</span>`:isGrp(w)?`<span class="wbr">دوس عشان تضيف ${w.id==='visa'?'كروتك':w.id==='mob'?'محافظك':'أجزاء'}</span>`:''}</button>`}).join('')}
+ return `<div class="wallets">${S.wallets.filter(w=>!w.parent).map(w=>{const b=wbalE(w.id);const K=kids(w.id);const tot=b+K.reduce((a,k)=>a+wbalE(k.id),0);
+  return `<button class="wcard ${w.frozen?'frz':''} ${K.length?'wpar':''}" data-act="${isGrp(w)||K.length?'wgrp':'wone'}" data-wallet="${w.id}"><small>${wbadge(w)||ic(w.ic||(w.frozen?'lock':'wallet'))}${esc(wlabel(w))}${w.frozen?'<span class="tag">مجمد</span>':''}</small><span class="v ${tot<0?'neg':''}">${!K.length&&isUSD(w.id)?wfmt(w.id):sfmt(tot)}</span>${!K.length&&isUSD(w.id)?`<span class="wbr">≈ ${sfmt(tot)} · الدولار ${urate().toLocaleString('ar-EG')} ج</span>`:''}${!K.length&&wmeta(w)&&!isApp(w)?`<span class="wbr">${esc(wmeta(w))}</span>`:''}${K.length?`<span class="wbr">${K.length.toLocaleString('ar-EG')} ${w.id==='visa'?(K.length>2&&K.length<11?'كروت':'كارت'):w.id==='mob'?(K.length>2&&K.length<11?'محافظ':'محفظة'):'أجزاء'} جوّه · دوس عشان تشوفهم</span>`:isGrp(w)?`<span class="wbr">دوس عشان تضيف ${w.id==='visa'?'كروتك':w.id==='mob'?'محافظك':'أجزاء'}</span>`:''}</button>`}).join('')}
   <button class="wcard wadd" data-act="wallets">${ic('plus')}<span>إدارة المحافظ</span></button></div>
  <div class="wtot"><div><small>متاح</small><b>${sfmt(avl)}</b></div>${hasFz()?`<div><small>متحوّش</small><b>${sfmt(fz)}</b></div>`:`<div><small>كاش (ورق + فضة)</small><b>${sfmt(cashT())}</b></div>`}<div><small>الإجمالي</small><b>${sfmt(avl+fz)}</b></div></div>
  <p class="muted" style="margin:6px 2px 0">دوس على أي محفظة لو عايز تعدّل رصيدها.</p>
@@ -784,13 +808,13 @@ function renderSheet(){
   const Q=sp?['أكل وشرب','مواصلات','فواتير','بنزين','بيت','هدوم','كافيه','علاج']:['مرتب','شغل','هدية','بيع حاجة'];
   c.innerHTML=head(sp?'صرفت فلوس':'دخل فلوس')+`<form class="form" id="fM">
    <label>${sp?'صرفتها من':'دخلت في'}</label>${wsel(open.w||lastW)}
-   <label>المبلغ</label><input id="mAmt" type="text" autocomplete="off" placeholder="ممكن تكتب 50+30" inputmode="decimal" min="0" step="any">
+   <label id="mAmtL">المبلغ</label><input id="mAmt" type="text" autocomplete="off" placeholder="ممكن تكتب 50+30" inputmode="decimal" min="0" step="any">
    <div style="height:10px"></div><label>${sp?'صرفته في إيه':'منين'}</label><input id="mNote" placeholder="${sp?'مثلاً: غدا، مواصلات…':'مثلاً: مرتب، شغل…'}">
    <div class="chips" style="flex-wrap:wrap;padding-top:8px">${Q.map(q=>`<button type="button" class="chip" data-q="${q}">${q}</button>`).join('')}</div>
    ${sp&&S.funds.length?`<label>على باب مصاريف؟ (اختياري)</label><select id="mFund"><option value="">لأ، مصروف يومي</option>${S.funds.map(f=>`<option value="${f.id}" ${open.fid===f.id?'selected':''}>${esc(f.name)}</option>`).join('')}</select><div style="height:10px"></div>`:''}
    <label>التاريخ</label><input id="mDate" type="date" value="${d}">
    <div class="btns" style="margin-top:12px"><button class="btn" style="background:${sp?'#c2334d':'#0a7a6c'}">${sp?'سجّل المصروف':'ضيف الفلوس'}</button></div></form>`;
-  $('mAmt').focus();
+  $('mAmt').focus();{const sy=()=>{$('mAmtL').textContent=isUSD(getW(c))?'المبلغ بالدولار $':'المبلغ'};c.querySelector('[data-wsel=w]').addEventListener('click',()=>setTimeout(sy));sy()}
   c.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{$('mNote').value=b.dataset.q;if(!sp&&b.dataset.q==='مرتب'){const sw=salW();c.querySelectorAll('[data-wsel=w] button').forEach(x=>x.classList.toggle('on',x.dataset.w===sw))}});
   $('fM').onsubmit=e=>{e.preventDefault();const amt=pn($('mAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');const w=getW(c);lastW=w;const date=$('mDate').value||today(),note=$('mNote').value.trim();
    if(sp)S.exp.push({id:uid(),fid:$('mFund')?.value||'',amt,date,note,w});else{const x={id:uid(),k:'in',w,amt,date,note};if(/^مرتب/.test(note)&&!salGot(date.slice(0,7))){x.sal=1;x.salM=date.slice(0,7);if(!S.sal)S.sal={amt,day:+date.slice(8),w};}S.mv.push(x)}
@@ -805,22 +829,38 @@ function renderSheet(){
    S.mv.push({id:uid(),k:'tr',w,to,amt,date:$('trDate').value||today(),note:''});save();close();toast(`اتحوّل ${fmt(amt)} من ${wn(w)} لـ ${wn(to)}`)};return}
 
  if(k==='wgrp'){
-  const g=S.wallets.find(x=>x.id===open.w);if(!g){close();return}const K=kids(g.id),own=wbal(g.id),tot=own+K.reduce((a,x)=>a+wbal(x.id),0);
-  const row=(w,lbl,sub)=>`<div class="row" data-act="wone" data-wallet="${w.id}"><span class="av" style="background:${w.frozen?'#4b6470':'var(--hero)'};overflow:hidden">${wbadge(w)||ic(w.ic||'wallet')}</span><span class="nm"><b>${esc(lbl)}</b><small>${esc(sub)}</small></span><span class="amt">${sfmt(wbal(w.id))}</span></div>`;
+  const g=S.wallets.find(x=>x.id===open.w);if(!g){close();return}const K=kids(g.id),own=wbalE(g.id),tot=own+K.reduce((a,x)=>a+wbalE(x.id),0);
+  const row=(w,lbl,sub)=>`<div class="row" data-act="wone" data-wallet="${w.id}"><span class="av" style="background:${w.frozen?'#4b6470':'var(--hero)'};overflow:hidden">${wbadge(w)||ic(w.ic||'wallet')}</span><span class="nm"><b>${esc(lbl)}</b><small>${esc(sub)}</small></span><span class="amt">${wfmt(w.id)}${isUSD(w.id)?`<small>≈ ${sfmt(wbalE(w.id))}</small>`:''}</span></div>`;
   const addL=g.id==='visa'?'ضيف فيزا / كارت':g.id==='mob'?'ضيف محفظة موبايل':'ضيف جزء (ورق، فضة، دولار…)';
   c.innerHTML=head((wbadge(g)||ic(g.ic||'wallet'))+' '+esc(g.name))+`<div class="pbal" style="background:var(--hero)"><small>الإجمالي</small><div class="big">${sfmt(tot)}</div><small>${K.length?K.length.toLocaleString('ar-EG')+' جوّه':'لسه مفيش حاجة جوّه'}</small></div>
   <div class="box">${K.map(w=>row(w,wlabel(w),[wmeta(w),w.frozen?'تحويش':''].filter(Boolean).join(' · ')||'دوس عشان تزوّد أو تعدّل')).join('')}${own||!K.length?row(g,K.length?(g.id==='cash'?'كاش مش مقسّم':'رصيد مش متحدد على كارت'):g.name,K.length?'فلوس مش محسوبة على حاجة معيّنة':'دوس عشان تزوّد أو تعدّل'):''}</div>
   <button class="btn" data-act="wnew" data-wallet="${g.id}" style="width:100%;margin-top:12px">${ic('plus')}${addL}</button>
   ${g.id==='visa'&&own&&K.length?`<p class="muted" style="margin:10px 0 0">عندك ${sfmt(own)} مش متحددة على كارت. دوس عليها وحوّلها للكارت بتاعها من «حوّل».</p>`:''}`;return}
  if(k==='wone'){
-  const w=S.wallets.find(x=>x.id===open.w);if(!w){close();return}const b=wbal(w.id),par=S.wallets.find(x=>x.id===w.parent);
+  const w=S.wallets.find(x=>x.id===open.w);if(!w){close();return}const b=wbal(w.id),par=S.wallets.find(x=>x.id===w.parent),U=isUSD(w.id);
   const H=[...S.mv.filter(m=>(m.w===w.id||m.to===w.id)&&!m.start).map(m=>({d:m.date,h:mvRow(m,false)})),...S.exp.filter(e=>e.w===w.id).map(e=>({d:e.date,h:expRow(e,false)}))].sort((a,b)=>b.d.localeCompare(a.d)).slice(0,15);
-  c.innerHTML=head((wbadge(w)||ic(w.ic||'wallet'))+' '+esc(wlabel(w)))+`<div class="pbal" style="background:var(--hero)"><small>${esc(wmeta(w)||(w.frozen?'تحويش':'الرصيد'))}</small><div class="big">${sfmt(b)}</div>${par?`<small>جوّه ${esc(par.name)}</small>`:''}</div>
-  <form class="form" id="fAdd"><label>زوّد عليها</label><div style="display:flex;gap:8px"><input id="adA" type="text" inputmode="decimal" placeholder="المبلغ (ممكن 500+200)" style="flex:1"><button class="btn" style="background:#0a7a6c;flex:none">${ic('plus')}زوّد</button></div>
+  c.innerHTML=head((wbadge(w)||ic(w.ic||'wallet'))+' '+esc(wlabel(w)))+`<div class="pbal" style="background:var(--hero)"><small>${esc(wmeta(w)||(w.frozen?'تحويش':'الرصيد'))}</small><div class="big">${wfmt(w.id)}</div>${U?`<small>≈ ${sfmt(wbalE(w.id))} · الدولار بـ ${urate().toLocaleString('ar-EG')} ج</small>`:''}${par?`<small style="display:block">جوّه ${esc(par.name)}</small>`:''}</div>
+  ${U?`<div class="box" style="padding:12px 14px;margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span><b>سعر الدولار: ${urate().toLocaleString('ar-EG')} ج</b><small class="muted" style="display:block">${S.usdAuto===false?'إنت كاتبه بإيدك':S.usdAt?'بيتحدّث لوحده من النت · آخر تحديث '+ago(S.usdAt):'هيتحدّث من النت أول ما يكون فيه نت'}</small></span>${S.usdAuto===false?'':`<button class="btn ghost sm" data-act="rateNow">حدّث دلوقتي</button>`}</div>
+   ${S.usdAuto===false?`<form id="fRate" style="display:flex;gap:8px;margin-top:8px"><input id="rtV" type="text" inputmode="decimal" value="${urate()}" style="flex:1"><button class="btn ghost" style="flex:none">حفظ</button></form><button class="btn ghost sm" data-act="rateAuto" style="margin-top:8px">خليه يتحدّث لوحده من النت</button>`:`<button class="btn ghost sm" data-act="rateManual" style="margin-top:8px">هكتبه بإيدي</button>`}</div>`:''}
+  ${isApp(w)?vcardHTML(w):''}
+  <form class="form" id="fAdd"><label>زوّد عليها${U?' (بالدولار)':''}</label><div style="display:flex;gap:8px"><input id="adA" type="text" inputmode="decimal" placeholder="${U?'المبلغ بالدولار':'المبلغ (ممكن 500+200)'}" style="flex:1"><button class="btn" style="background:#0a7a6c;flex:none">${ic('plus')}زوّد</button></div>
    <input id="adN" placeholder="منين؟ (اختياري) مثلاً: إيداع، تحويل…" style="margin-top:8px"></form>
   <div class="btns" style="margin:12px 0"><button class="btn ghost sm" data-act="wspend" data-wallet="${w.id}">${ic('minus')}صرفت منها</button><button class="btn ghost sm" data-act="transfer">⇄ حوّل</button><button class="btn ghost sm" data-act="adjust" data-wallet="${w.id}">عدّل الرصيد</button>${isGrp(w)?'':`<button class="btn ghost sm" data-act="wedit" data-wallet="${w.id}">${ic('edit')}البيانات</button>`}${par?`<button class="btn ghost sm" data-act="wgrp" data-wallet="${par.id}">رجوع</button>`:''}</div>
   <div class="box">${H.length?H.map(x=>x.h).join(''):'<div class="empty">مفيش حركات لسه.</div>'}</div>`;
-  $('fAdd').onsubmit=e=>{e.preventDefault();const a=pn($('adA').value);if(!(a>0))return toast('اكتب المبلغ صح');snap();S.mv.push({id:uid(),k:'in',w:w.id,amt:a,date:today(),note:$('adN').value.trim()||'إيداع'});lastW=w.id;save();renderSheet();render();toast('اتزوّد '+fmt(a)+' على '+wlabel(w),true)};return}
+  $('fAdd').onsubmit=e=>{e.preventDefault();const a=pn($('adA').value);if(!(a>0))return toast('اكتب المبلغ صح');snap();S.mv.push({id:uid(),k:'in',w:w.id,amt:a,date:today(),note:$('adN').value.trim()||'إيداع'});lastW=w.id;save();renderSheet();render();toast('اتزوّد '+(U?ufmt(a):fmt(a))+' على '+wlabel(w),true)};
+  if(U&&$('fRate'))$('fRate').onsubmit=e=>{e.preventDefault();const r=pn($('rtV').value);if(!(r>0))return toast('اكتب السعر صح');S.usd=r;save();renderSheet();render();toast('اتحدّث سعر الدولار')};return}
+ if(k==='vcEdit'){
+  const w=S.wallets.find(x=>x.id===open.w);if(!w){close();return}const v=w.vc||{};
+  c.innerHTML=head('بيانات الفيزا')+`<form class="form" id="fVc"><p class="muted" style="margin:0 0 10px">🔒 للأمان البرنامج بيحفظ آخر ٤ أرقام بس، ومبيحفظش الرقم السري ولا الـ CVV.</p>
+   <label>الشبكة</label><div class="wsel" data-wsel="vn"><button type="button" data-w="mc" class="${v.net==='visa'?'':'on'}">Mastercard</button><button type="button" data-w="visa" class="${v.net==='visa'?'on':''}">Visa</button></div>
+   <label>الاسم على الكارت</label><input id="vcN" value="${esc(v.nm||'')}" style="direction:ltr;text-align:left" placeholder="MAHMOUD NASSAR" autocapitalize="characters">
+   <div class="g2"><div><label>آخر ٤ أرقام</label><input id="vcL" inputmode="numeric" maxlength="4" value="${esc(v.l4||'')}" style="direction:ltr;text-align:left"></div><div><label>تاريخ الانتهاء</label><input id="vcE" inputmode="numeric" maxlength="5" placeholder="MM/YY" value="${esc(v.ex||'')}" style="direction:ltr;text-align:left"></div></div>
+   <div class="btns" style="margin-top:12px"><button class="btn">حفظ</button><button type="button" class="btn ghost" data-act="wone" data-wallet="${w.id}">رجوع</button>${w.vc?`<button type="button" class="btn danger" data-act="vcDel" data-wallet="${w.id}">مسح</button>`:''}</div></form>`;
+  const dg=x=>x.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+  $('vcL').oninput=e=>{e.target.value=dg(e.target.value).replace(/\D/g,'').slice(-4)};
+  $('vcE').oninput=e=>{let x=dg(e.target.value).replace(/\D/g,'').slice(0,4);if(x.length>2)x=x.slice(0,2)+'/'+x.slice(2);e.target.value=x};
+  $('fVc').onsubmit=e=>{e.preventDefault();const l4=dg($('vcL').value).replace(/\D/g,'').slice(-4),ex=$('vcE').value.trim();if(ex&&!/^(0[1-9]|1[0-2])\/\d\d$/.test(ex))return toast('اكتب التاريخ كده: 08/28');
+   w.vc={net:getW(c,'vn'),nm:$('vcN').value.trim().toUpperCase(),l4,ex};save();show({kind:'wone',w:w.id});toast('اتحفظت بيانات الفيزا')};return}
  if(k==='wnew'){
   const g=open.w,t=g==='visa'?'bank':g==='mob'?'ew':'cash';
   c.innerHTML=head(g==='visa'?'فيزا / كارت جديد':g==='mob'?'محفظة موبايل جديدة':'جزء جديد في '+esc(wn(g)))+`<form class="form" id="fWN">${wForm({t,parent:g==='cash'?'cash':undefined})}
@@ -832,12 +872,12 @@ function renderSheet(){
    save();render();show({kind:'wgrp',w:o.parent||g});toast('اتضافت '+o.name)};return}
  if(k==='adjust'){
   const w=open.w,b=wbal(w);
-  c.innerHTML=head('رصيد '+wn(w))+`<form class="form" id="fA"><p class="muted" style="margin:0 0 10px">البرنامج حاسب إن معاك <b style="color:var(--ink)">${(b<0?'− ':'')+fmt(b)}</b>. لو الرقم الحقيقي مختلف اكتبه هنا، والفرق هيتسجّل «تعديل رصيد».</p>
+  c.innerHTML=head('رصيد '+wn(w))+`<form class="form" id="fA"><p class="muted" style="margin:0 0 10px">البرنامج حاسب إن معاك <b style="color:var(--ink)">${isUSD(w)?ufmt(b):(b<0?'− ':'')+fmt(b)}</b>. لو الرقم الحقيقي مختلف اكتبه هنا، والفرق هيتسجّل «تعديل رصيد».</p>
    <label>الرصيد الحقيقي دلوقتي</label><input id="aAmt" type="text" autocomplete="off" inputmode="decimal" step="any" value="${Math.round(b*100)/100}">
    <div class="btns" style="margin-top:12px"><button class="btn">حفظ</button><button type="button" class="btn ghost" data-act="wedit" data-wallet="${w}">${ic('edit')}الاسم والنوع</button></div></form>`;
   $('fA').onsubmit=e=>{e.preventDefault();const n=pn($('aAmt').value);if(isNaN(n))return toast('اكتب الرقم صح');const diff=Math.round((n-wbal(w))*100)/100;if(diff)S.mv.push({id:uid(),k:'adj',w,amt:diff,date:today(),note:''});save();close();toast('اتعدّل الرصيد')};return}
  if(k==='wallets'){
-  c.innerHTML=head('المحافظ')+`<div class="box">${S.wallets.map(w=>{const b=wbal(w.id);return `<div class="row" data-act="wedit" data-wallet="${w.id}" style="${w.parent?'padding-inline-start:28px':''}"><span class="av" style="background:${w.frozen?'#4b6470':'var(--hero)'};overflow:hidden">${wbadge(w)||ic(w.ic||(w.frozen?'lock':'wallet'))}</span><span class="nm"><b>${esc(w.name)}</b><small>${wmeta(w)?esc(wmeta(w))+' · ':''}${w.frozen?'تحويش، مش بيتحسب في المتاح':'متاح للصرف'}</small></span><span class="amt">${sfmt(b)}</span></div>`}).join('')}</div>
+  c.innerHTML=head('المحافظ')+`<div class="box">${S.wallets.filter(w=>!isGrp(w)).map(w=>{const b=wbal(w.id);return `<div class="row" data-act="wedit" data-wallet="${w.id}"><span class="av" style="background:${w.frozen?'#4b6470':'var(--hero)'};overflow:hidden">${wbadge(w)||ic(w.ic||(w.frozen?'lock':'wallet'))}</span><span class="nm"><b>${esc(w.name)}</b><small>${wmeta(w)?esc(wmeta(w))+' · ':''}${w.frozen?'تحويش، مش بيتحسب في المتاح':'متاح للصرف'}</small></span><span class="amt">${wfmt(w.id)}</span></div>`}).join('')}</div>
   <form class="form" id="fWN" style="margin-top:14px"><b>محفظة جديدة</b><div style="height:8px"></div>${wForm(null)}
    <label>معاك فيها كام دلوقتي</label><input id="wnAmt" type="text" autocomplete="off" inputmode="decimal" placeholder="0">
    <div class="btns" style="margin-top:12px"><button class="btn">${ic('plus')}إضافة المحفظة</button></div></form>`;
@@ -850,7 +890,7 @@ function renderSheet(){
   c.innerHTML=head('تعديل '+esc(w.name))+`<form class="form" id="fWE">${wForm(w)}
    <div class="btns"><button class="btn">حفظ</button><button type="button" class="btn ghost" data-act="wallets">رجوع</button><button type="button" class="btn danger" data-act="wdel" data-wallet="${w.id}">مسح المحفظة</button></div></form>`;
   wFormBind(c,w);
-  $('fWE').onsubmit=e=>{e.preventDefault();const o=wFormRead(c,w);if(!o)return;for(const k of ['t','bank','net','mz','ck','acc','l4','prov','ph','frozen'])delete w[k];Object.assign(w,o);if(!isGrp(w)){const gp=grpOf(w.t);if(gp){ensureGrp(gp);w.parent=gp}else if(w.parent&&w.parent!=='cash')delete w.parent}else{for(const k of ['t','bank','net','mz','ck','acc','l4','prov','ph'])delete w[k]}save();show({kind:'wallets'});toast('اتحفظ')};return}
+  $('fWE').onsubmit=e=>{e.preventDefault();const o=wFormRead(c,w);if(!o)return;if((w.cur||'EGP')!==(o.cur||'EGP')&&(S.mv.some(m=>m.w===w.id&&!m.start)||S.exp.some(e=>e.w===w.id)||S.tx.some(t=>t.w===w.id))){toast('مينفعش تغيّر عملة محفظة عليها حركات');return}for(const k of ['t','bank','net','mz','ck','acc','l4','prov','ph','frozen','cur'])delete w[k];Object.assign(w,o);if(isApp(w))delete w.parent;if(!isGrp(w)){const gp=grpOf(w.t);if(gp){ensureGrp(gp);w.parent=gp}else if(w.parent&&w.parent!=='cash')delete w.parent}else{for(const k of ['t','bank','net','mz','ck','acc','l4','prov','ph'])delete w[k]}save();show({kind:'wallets'});toast('اتحفظ')};return}
  if(k==='pin'){
   c.innerHTML=head(LS.get('daftar_pin')?'تغيير الرقم السري':'قفل البرنامج')+`<form class="form" id="fPin"><p class="muted" style="margin:0 0 10px">اختار رقم سري من ٦ أرقام. البرنامج هيطلبه كل ما تفتحه على الجهاز ده.</p>
    <label>الرقم السري</label><input id="pin1" type="password" inputmode="numeric" maxlength="6" autocomplete="off">
@@ -866,7 +906,7 @@ function renderSheet(){
   const p=isT?S.people.find(x=>x.id===o.pid):null;
   c.innerHTML=head('تعديل '+(isT?'حركة '+esc(p?p.name:''):isE?'مصروف':isTr?'تحويل':isGl?'حركة هدف':isAdj?'تعديل رصيد':'فلوس داخلة'))+`<form class="form" id="fEd2">
    ${isT?`<div class="seg">${Object.entries(TYPES).map(([k,v])=>`<button type="button" data-et="${k}" class="${v.c} ${o.type===k?'on':''}"><b>${v.l}</b></button>`).join('')}</div>`:''}
-   <label>المبلغ</label><input id="edAmt" type="text" autocomplete="off" inputmode="decimal" value="${o.amt}">
+   <label>المبلغ${isUSD(o.w)?' (بالدولار)':''}</label><input id="edAmt" type="text" autocomplete="off" inputmode="decimal" value="${isUSD(o.w)&&o.ua!=null?o.ua:o.amt}">
    ${isTr?`<label style="margin-top:10px">من</label>${wsel(o.w,false,'from')}<label>إلى</label>${wsel(o.to,false,'to')}`:isGl?'':`<label style="margin-top:10px">المحفظة</label>${wsel(o.w||'none',isT||isE)}`}
    ${isE&&S.funds.length?`<label>الباب</label><select id="edFund"><option value="">مصروف يومي</option>${S.funds.map(f=>`<option value="${f.id}" ${o.fid===f.id?'selected':''}>${esc(f.name)}</option>`).join('')}</select><div style="height:10px"></div>`:''}
    ${isTr||isAdj||isGl?'':`<label>ملاحظة</label><input id="edNote" value="${esc(o.note||'')}"><div style="height:10px"></div>`}
@@ -1237,7 +1277,7 @@ $('fileC').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(
  try{const txt=await file.text();const L=/BEGIN:VCARD/i.test(txt)?parseVCF(txt):parseCSV(txt);
   if(!L.length){toast('مقدرتش ألاقي أرقام في الملف ده');return}addContacts(L)}catch(err){toast('الملف ده مش مقروء')}};
 function applyBackup(d){if(!d||!Array.isArray(d.people))throw 0;snap();
-  S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],loans:d.loans||[],sal:d.sal||null,nDays:d.nDays,nOwe:d.nOwe,goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(Array.isArray(d.contacts)){C=d.contacts;save('C')}
+  S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],loans:d.loans||[],sal:d.sal||null,usd:d.usd,usdAt:d.usdAt,usdAuto:d.usdAuto,wMig28:d.wMig28,wMig30:d.wMig30,nDays:d.nDays,nOwe:d.nOwe,goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(Array.isArray(d.contacts)){C=d.contacts;save('C')}
   ensureW();save();close();toast('اترجّعت النسخة',true)}
 $('fileB').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;
  try{applyBackup(JSON.parse(await file.text()))}catch(err){toast('الملف ده مش نسخة احتياطية من دفتري')}};
@@ -1316,6 +1356,11 @@ document.addEventListener('click',async e=>{
  if(a==='noPin'){try{localStorage.removeItem('daftar_pin');localStorage.removeItem('daftar_bio');localStorage.removeItem('daftar_pinlen')}catch(x){}renderSheet();return toast('اتشال القفل')}
  if(a==='hideT'){HIDE=!HIDE;LS.set('daftar_hide',HIDE);render();return}
  if(a==='spend'||a==='income'||a==='transfer')return show({kind:a});
+ if(a==='vcEdit')return show({kind:'vcEdit',w:e.target.closest('[data-wallet]').dataset.wallet});
+ if(a==='vcDel'){const w=S.wallets.find(x=>x.id===e.target.closest('[data-wallet]').dataset.wallet);if(w){delete w.vc;save()}return show({kind:'wone',w:w.id})}
+ if(a==='rateNow'){toast('بجيب السعر…');fetchRate(true).then(ok=>{toast(ok?'اتحدّث: الدولار بـ '+urate().toLocaleString('ar-EG')+' ج':'مقدرتش أجيب السعر، اتأكد من النت');renderSheet()});return}
+ if(a==='rateManual'){S.usdAuto=false;save();return renderSheet()}
+ if(a==='rateAuto'){S.usdAuto=true;S.usdAt=0;save();renderSheet();fetchRate(true).then(()=>renderSheet());return}
  if(a==='wgrp'||a==='wone'||a==='wnew')return show({kind:a,w:e.target.closest('[data-wallet]').dataset.wallet});
  if(a==='wspend'){lastW=e.target.closest('[data-wallet]').dataset.wallet;return show({kind:'spend'})}
  if(a==='adjust')return show({kind:'adjust',w:e.target.closest('[data-wallet]').dataset.wallet});
@@ -1411,6 +1456,7 @@ $('lock').addEventListener('click',async e=>{const b=e.target.closest('[data-k]'
  if(pinBuf.length===n){const ok=(await phash(pinBuf))===LS.get('daftar_pin');if(ok){$('lock').hidden=true;pinBuf=''}else{const d=$('dots');d.classList.add('bad');setTimeout(()=>{d.classList.remove('bad');pinBuf='';drawDots()},400)}}});
 let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else{if(hiddenAt&&Date.now()-hiddenAt>60000)lockOn();ensureW();if(runRec()){save();render()}}});
 lockOn();
+setTimeout(()=>fetchRate(),2500);setInterval(()=>fetchRate(),30*6e4);document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchRate()});
 $('hq').addEventListener('input',runSearch);$('hqx').addEventListener('click',e=>{e.preventDefault();clearSearch();$('hq').focus()});$('hq').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur()});
 /* ---------- load ---------- */
 const STORE=!!document.querySelector('link[rel=manifest]');
@@ -1432,7 +1478,7 @@ render();status('على الجهاز','off');
   const rd=r=>r&&(typeof r.data==='function'?r.data():(r.data!==undefined?r.data:r));
   const [a,b]=await Promise.all([ref.get(),refC.get()]);clearTimeout(timer);
   const cl=x=>x==null?x:JSON.parse(JSON.stringify(x));const d=cl(rd(a)),dc=cl(rd(b));
-  if(d&&Array.isArray(d.people)){S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],loans:d.loans||[],sal:d.sal||null,nDays:d.nDays,nOwe:d.nOwe,goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(S.skin&&!LS.get('daftar_skin')){skin=S.skin;applySkin()}}else if(S.people.length||S.funds.length)save();
+  if(d&&Array.isArray(d.people)){S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],loans:d.loans||[],sal:d.sal||null,usd:d.usd,usdAt:d.usdAt,usdAuto:d.usdAuto,wMig28:d.wMig28,wMig30:d.wMig30,nDays:d.nDays,nOwe:d.nOwe,goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(S.skin&&!LS.get('daftar_skin')){skin=S.skin;applySkin()}}else if(S.people.length||S.funds.length)save();
   if(dc&&Array.isArray(dc.list))C=dc.list;else if(C.length)save('C');
   ensureW();if(runRec())save();cloud=true;status('محفوظ');render();notifyOpen();
  }catch(err){clearTimeout(timer);ref=refC=null;status('على الجهاز ده بس','off')}
