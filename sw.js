@@ -1,12 +1,15 @@
-const C='daftar-v48';
+const C='daftar-v49';
 const FILES=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/maskable-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>Promise.all(FILES.map(f=>fetch(f,{cache:'no-store'}).then(r=>r.ok&&c.put(f,r)).catch(()=>{})))).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C&&k!=='daftar-data').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 const timeout=(p,ms)=>new Promise((ok,no)=>{const t=setTimeout(()=>no(new Error('timeout')),ms);p.then(v=>{clearTimeout(t);ok(v)},er=>{clearTimeout(t);no(er)})});
 self.addEventListener('fetch',e=>{const req=e.request;if(req.method!=='GET')return;
  const url=new URL(req.url);if(url.origin!==location.origin)return; /* never touch fonts/cdn: the browser handles them */
- if(req.mode==='navigate'){ /* page: network first (max 4s), else the saved copy */
-  e.respondWith(timeout(fetch(req),4000).then(r=>{if(r&&r.ok){const cp=r.clone();caches.open(C).then(c=>c.put('index.html',cp))}return r}).catch(()=>caches.match('index.html').then(h=>h||caches.match('./')).then(h=>h||fetch(req))));return}
+ if(req.mode==='navigate'&&!/\/(index\.html)?$/.test(url.pathname))return; /* other pages (privacy, download…) go to the network as usual */
+ if(req.mode==='navigate'){ /* page: open instantly from the saved copy, refresh it in the background (new version shows next time) */
+  const upd=fetch(req,{cache:'no-store'}).then(r=>{if(r&&r.ok){const cp=r.clone();caches.open(C).then(c=>c.put('index.html',cp))}return r});
+  e.waitUntil(upd.catch(()=>{}));
+  e.respondWith(caches.match('index.html').then(h=>h||caches.match('./')).then(h=>h||timeout(upd,8000)).catch(()=>upd));return}
  e.respondWith(caches.match(req,{ignoreSearch:true}).then(hit=>{const net=fetch(req).then(r=>{if(r&&r.ok){const cp=r.clone();caches.open(C).then(c=>c.put(req,cp))}return r});return hit?(net.catch(()=>{}),hit):net}))});
 /* reminders: notify only on the days the user chose before each date (once per item per chosen day) */
 const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
