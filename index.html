@@ -288,7 +288,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٤ نوفمبر - ١';
+const VER='٢٤ نوفمبر - ٣';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -307,6 +307,7 @@ const num=n=>(Math.round(Math.abs(n)*100)/100).toLocaleString('ar-EG');
 let HIDE=false;const fmt=n=>HIDE?'•••• '+S.cur:num(n)+' '+S.cur;
 const dstr=d=>{try{return new Date(d+'T00:00').toLocaleDateString('ar-EG',{day:'numeric',month:'short',year:'numeric'})}catch(e){return d}};
 const IC={
+ share:'<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/>',
  grid:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
  scale:'<path d="M12 4v16M6 20h12M5 8h14M5 8l-3 6a3 3 0 0 0 6 0zM19 8l-3 6a3 3 0 0 0 6 0z"/>',
  history:'<path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5M4 4v4.5h4.5M12 8v4l3 2"/>',
@@ -815,7 +816,7 @@ async function makePdf(R,owner){
  try{const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'pt',format:'a4',compress:true});const els=host.querySelectorAll('.pg');
   for(let i=0;i<els.length;i++){const cv=await html2canvas(els[i],{scale:2,backgroundColor:'#ffffff',logging:false});if(i)doc.addPage();doc.addImage(cv.toDataURL('image/jpeg',0.9),'JPEG',0,0,595.28,841.89)}
   doc.setProperties({title:'دفتري - '+R.label,creator:'دفتري'});const blob=doc.output('blob');host.remove();
-  await download('daftari-'+today()+'.pdf',blob,'application/pdf')}catch(e){host.remove();toast('حصلت مشكلة وهو بيعمل الـ PDF')}}
+  await deliver('daftari-'+today()+'.pdf',blob,'application/pdf')}catch(e){host.remove();toast('حصلت مشكلة وهو بيعمل الـ PDF')}}
 function gcal(e){const d=e.d.replace(/-/g,'');return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(e.t)+'&dates='+d+'T100000/'+d+'T103000&ctz=Africa/Cairo&details='+encodeURIComponent(e.s||'من تطبيق دفتري')+(e.rr?'&recur='+encodeURIComponent('RRULE:'+e.rr):'')}
 function csvAll(R){const hd=HIDE;HIDE=false;const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['التاريخ','النوع','المبلغ (ج.م)','بالدولار','المحفظة','الشخص / الباب','ملاحظة']];
  const U=x=>x.ua!=null&&(isUSD(x.w)||isUSD(x.to))?x.ua:'';
@@ -1254,7 +1255,7 @@ function renderSheet(){
     toast('مبروك 🎉 اتضاف '+fmt(a)+(to?' واتحوّل '+fmt(ta-f)+' لـ '+wn(to)+(f?' (عمولة '+fmt(f)+')':''):''),true)}}
   return}
  if(k==='more'){
-  const T=[['recon','scale','مراجعة الأرصدة'],['log','history','سجل التعديلات'],['salary','coin','المرتب'],['gamList','circle','الجمعيات'],['loans','card','القروض والأقساط'],['rems','bell','التنبيهات'],['goals','target','أهداف التحويش'],['bills','repeat','فواتير ثابتة'],['split','split','قسّم فاتورة'],['budget','gauge','ميزانية الشهر'],['export','sheet','تصدير PDF / Excel'],['calList','cal','ضيف للتقويم'],['pickC','users','إضافة عميل'],['importC','book','استيراد الأرقام'],['bkSheet','cloud','النسخ الاحتياطي']];
+  const T=[['recon','scale','مراجعة الأرصدة'],['log','history','سجل التعديلات'],['salary','coin','المرتب'],['gamList','circle','الجمعيات'],['loans','card','القروض والأقساط'],['rems','bell','التنبيهات'],['goals','target','أهداف التحويش'],['bills','repeat','فواتير ثابتة'],['split','split','قسّم فاتورة'],['budget','gauge','ميزانية الشهر'],['export','sheet','تصدير PDF / Excel'],['calList','cal','ضيف للتقويم'],['pickC','users','إضافة عميل'],['importC','book','استيراد الأرقام'],['bkSheet','cloud','النسخ الاحتياطي'],['shareApp','share','شارك التطبيق']];
   c.innerHTML=head(ic('grid')+' المزيد')+`<div class="tools">${T.map(([a,i,l])=>`<button data-act="${a}">${ic(i)}<span>${l}</span></button>`).join('')}</div>`;return}
  if(k==='log'){
   const L=LS.get('daftar_log')||[];let last='';
@@ -1272,6 +1273,10 @@ function renderSheet(){
   c.querySelectorAll('[data-rc]').forEach(i=>i.addEventListener('input',upd));
   $('fRc').onsubmit=e=>{e.preventDefault();const A=[];c.querySelectorAll('[data-rc]').forEach(i=>{if(!i.value.trim())return;const d=Math.round((pn(i.value)-wbal(i.dataset.rc))*100)/100;if(Math.abs(d)>=0.005)A.push([i.dataset.rc,d])});
    if(!A.length){S.lastRecon=today();save();close();return toast('كله مظبوط ✓')}snap();for(const[w,d]of A)S.mv.push({id:uid(),k:'adj',w,amt:d,date:today(),note:'مراجعة رصيد'});S.lastRecon=today();save();close();render();toast('اتظبطت '+A.length.toLocaleString('ar-EG')+' محفظة',true)};return}
+ if(k==='fileReady'){if(!pendFile){close();return}const isP=/pdf/.test(pendFile.mime);
+  c.innerHTML=head((isP?'📄':'📊')+' الملف جاهز')+`<div class="box" style="padding:14px;margin-bottom:12px"><b>${esc(pendFile.name)}</b><small class="muted" style="display:block">${Math.max(1,Math.round(pendFile.blob.size/1024)).toLocaleString('ar-EG')} ك.ب</small></div>
+  <p class="muted" style="margin:0 0 12px">دوس «احفظ أو ابعت» واختار: «الملفات» عشان يتحفظ على الموبايل، أو Drive، أو واتساب…</p>
+  <div class="btns"><button class="btn" data-act="fShare">📤 احفظ أو ابعت</button><button class="btn ghost" data-act="fDl">⬇️ تنزيل عادي</button></div>`;return}
  if(k==='export'){
   const pk=open.pk||'month';
   c.innerHTML=head(ic('sheet')+' تصدير التقرير')+`<div class="form"><label>الفترة</label><div class="chips" style="flex-wrap:wrap">${[['month','الشهر ده'],['last','الشهر اللي فات'],['3m','آخر ٣ شهور'],['year','السنة دي'],['all','كل الحركات'],['custom','من … لـ …']].map(([k,l])=>`<button type="button" class="chip ${pk===k?'on':''}" data-pk="${k}">${l}</button>`).join('')}</div>
@@ -1452,6 +1457,9 @@ function applyBackupOld(d){if(!d||!Array.isArray(d.people))throw 0;snap();
 $('fileB').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;
  try{restorePreview(JSON.parse(await file.text()),'ملف: '+file.name+' · '+new Date(file.lastModified).toLocaleString('ar-EG',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'}))}catch(err){toast('الملف ده مش نسخة احتياطية من دفتري')}};
 
+let pendFile=null;
+const canShareF=()=>{try{return !inArtifact&&!!navigator.canShare&&navigator.canShare({files:[new File(['x'],'a.pdf',{type:'application/pdf'})]})}catch(e){return false}};
+async function deliver(name,data,mime){if(!canShareF())return download(name,data,mime);const blob=data instanceof Blob?data:new Blob([data],{type:mime});pendFile={f:new File([blob],name,{type:mime}),name,mime,blob};show({kind:'fileReady'})}
 async function download(name,data,mime){
  if(DL){try{await DL.save({filename:name,data});toast('اتنزّل')}catch(e){toast('التنزيل اتلغى')}return}
  if(inArtifact){toast('التنزيل مش متاح هنا دلوقتي');return}
@@ -1487,10 +1495,15 @@ document.addEventListener('click',async e=>{
  const a=e.target.closest('[data-act]')?.dataset.act;if(!a)return;
  if(a==='close')return close();
  if(a==='quick')return show({kind:'quick'});
+ if(a==='fShare'){if(!pendFile)return close();try{await navigator.share({files:[pendFile.f],title:pendFile.name});pendFile=null;close();toast('تمام ✅')}catch(x){if(x&&x.name==='AbortError')return;toast('مقدرتش أفتح المشاركة، جرّب التنزيل العادي')}return}
+ if(a==='fDl'){if(!pendFile)return close();const p=pendFile;pendFile=null;close();return download(p.name,p.blob,p.mime)}
+ if(a==='shareApp'){const url='https://mahmoudbassiuoni.github.io/download.html',txt='جرّب تطبيق «دفتري» — بتسجّل فيه حساباتك مع الناس ومصاريفك ومحافظك، ومجاني. نزّله من هنا:';
+  if(navigator.share&&!inArtifact){try{await navigator.share({title:'دفتري',text:txt,url})}catch(x){}return}
+  try{await navigator.clipboard.writeText(txt+' '+url);toast('اتنسخ اللينك، ابعته لأي حد')}catch(x){toast(url)}return}
  if(a==='logClear'){LS.set('daftar_log',[]);return renderSheet()}
  if(['goals','bills','split','budget','search','rems','gamList','newJ','export','calList','loans','newL','salary','salSet','more','log','recon'].includes(a))return show({kind:a});
  if(a==='doPdf'||a==='doCsv'){const pk=open.pk||'month',R=prange(pk,$('exF')?.value,$('exT')?.value),nm=$('exN').value.trim();if(nm!==(S.owner||'')){S.owner=nm;save()}R.w=$('exW')?$('exW').value:'all';R.opt={};document.querySelectorAll('#card [data-exo]').forEach(b=>R.opt[b.dataset.exo]=b.classList.contains('on')?1:0);if(!Object.values(R.opt).some(Boolean))return toast('اختار حاجة واحدة على الأقل');if(R.w!=='all')R.label+=' · '+wn(R.w);
-  if(a==='doCsv')return download('daftari-'+today()+'.csv',csvAll(R),'text/csv');return makePdf(R,nm)}
+  if(a==='doCsv')return deliver('daftari-'+today()+'.csv',csvAll(R),'text/csv');return makePdf(R,nm)}
  if(a==='jMonth')return show({kind:'jm',id:open.id,m:e.target.closest('[data-m]').dataset.m});
  if(a==='jEdit')return show({kind:'jEdit',id:open.id});
  if(a==='jUnpay'||a==='jNoDeduct'||a==='jDeduct'){const g=S.gam.find(x=>x.id===open.id),m=open.m;if(!g)return;snap();const x=S.exp.find(e=>e.gam===g.id&&e.gm===m);
