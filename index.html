@@ -300,7 +300,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٤ نوفمبر - ٨';
+const VER='٢٤ نوفمبر - ١٠';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -350,6 +350,14 @@ let S={people:[],tx:[],funds:[],exp:[],mv:[],cur:'ج.م'},C=[];
 let dayV='',lastW='cash',skin='auto',view='home',open=null,filter='all',ttype='took',undoState=null,qP='',qC='',fColor=PAL[0];
 let ref=null,refC=null,DL=null,cloud=false,inArtifact=false;
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}};
+const NAT=window.DaftariNative||null,isNative=!!NAT,isDesktop=!isNative&&!/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+/* native (Android app) bridge: calls with a callback id, answered by window.__natCb */
+const natQ={};let natN=0;
+window.__natCb=(id,v)=>{const f=natQ[id];if(f){delete natQ[id];f(v)}};
+function natCall(fn,...a){return new Promise(res=>{const id='n'+(++natN);natQ[id]=res;try{NAT[fn](id,...a)}catch(e){delete natQ[id];res(null)}})}
+const natDump=()=>{const o={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^daftar/.test(k))o[k]=localStorage.getItem(k)}return JSON.stringify(o)};
+window.__persist=()=>{try{if(isNative&&localStorage.getItem('daftar'))NAT.persist(natDump())}catch(e){}};
+if(isNative){try{if(!localStorage.getItem('daftar')){const b=NAT.restore();if(b){const o=JSON.parse(b);for(const k in o)localStorage.setItem(k,o[k])}}}catch(e){}}
 
 let _pc={tx:null,n:-1,r:-1,b:{},l:{},o:{}};
 function pcache(){const r=typeof gRev==='number'?gRev:0;if(_pc.tx===S.tx&&_pc.n===S.tx.length&&_pc.r===r)return _pc;const b={},l={},o={},td=today();
@@ -447,9 +455,29 @@ function toast(msg,undo){const el=$('toast');el.innerHTML=esc(msg)+(undo?'<butto
 const snap=()=>{undoState=JSON.parse(JSON.stringify(S))};
 
 const timers={};
+const SYNCK=['people','tx','exp','mv','funds','wallets','gam','loans','goals','rec'],NOSYNC=new Set(['_mt','_del','contacts','v','savedAt']);
+let trPrev=null;
+function trIndex(){const o={};for(const k of SYNCK)for(const x of (S[k]||[]))if(x&&x.id)o[k+'|'+x.id]=JSON.stringify(x);for(const k of Object.keys(S))if(!SYNCK.includes(k)&&!NOSYNC.has(k))o['s|'+k]=JSON.stringify(S[k]);return o}
+function track(){try{const cur=trIndex();if(!trPrev){trPrev=cur;return}const now=Date.now();if(!S._mt||typeof S._mt!=='object')S._mt={};if(!S._del||typeof S._del!=='object')S._del={};
+ for(const k in cur)if(trPrev[k]!==cur[k]){S._mt[k]=now;delete S._del[k]}
+ for(const k in trPrev)if(!(k in cur)&&!k.startsWith('s|')){S._del[k]=now;delete S._mt[k]}
+ trPrev=cur}catch(e){}}
+function syncLoss(A,B){const keys=o=>{const r=new Set();for(const c of SYNCK)for(const x of (o[c]||[]))if(x&&x.id)r.add(c+'|'+x.id);return r};const a=keys(A),b=keys(B);let n=0;const by={};for(const k of a)if(!b.has(k)){n++;const c=k.split('|')[0];by[c]=(by[c]||0)+1}return {n,of:a.size,by}}
+function syncKeepMine(R){const now=Date.now();R=R||{};const rd=R._del||{};if(!S._mt||typeof S._mt!=='object')S._mt={};if(!S._del||typeof S._del!=='object')S._del={};
+ for(const c of SYNCK)for(const x of (S[c]||[]))if(x&&x.id){const k=c+'|'+x.id;S._mt[k]=Math.max(now,(rd[k]||0)+1);delete S._del[k]}}
+function mergeS(L,R){const mt={},del={},M=(a,b)=>{for(const k in (b||{}))if(!(k in a)||b[k]>a[k])a[k]=b[k]};M(mt,L._mt);M(mt,R._mt);M(del,L._del);M(del,R._del);
+ const old=Date.now()-120*864e5;for(const k in del)if(del[k]<old)delete del[k];const Lm=L._mt||{},Rm=R._mt||{},out={};
+ for(const c of SYNCK){const la=Array.isArray(L[c])?L[c]:[],ra=Array.isArray(R[c])?R[c]:[],rmap=new Map(ra.filter(x=>x&&x.id).map(x=>[x.id,x])),seen=new Set(),res=[];
+  for(const x of la){if(!x||!x.id){res.push(x);continue}const k=c+'|'+x.id;seen.add(k);const r=rmap.get(x.id);let v=x,t=Lm[k]||0;if(r&&(Rm[k]||0)>t){v=r;t=Rm[k]}if(del[k]&&del[k]>=t)continue;res.push(v)}
+  for(const x of ra){if(!x||!x.id)continue;const k=c+'|'+x.id;if(seen.has(k))continue;seen.add(k);const t=Rm[k]||0;if(del[k]&&del[k]>=t)continue;res.push(x)}
+  out[c]=res}
+ for(const k of new Set([...Object.keys(L),...Object.keys(R)])){if(SYNCK.includes(k)||NOSYNC.has(k))continue;const kk='s|'+k;out[k]=(k in R)&&(!(k in L)||(Rm[kk]||0)>(Lm[kk]||0))?R[k]:L[k]}
+ for(const k in del){if((mt[k]||0)>del[k])delete del[k];else delete mt[k]}out._mt=mt;out._del=del;return out}
+const canon=o=>JSON.stringify(Object.keys(o).filter(k=>!NOSYNC.has(k)||k==='_mt'||k==='_del').sort().reduce((a,k)=>(a[k]=o[k],a),{}));
+const hasData=d=>!!d&&((d.people||[]).length||(d.tx||[]).length||(d.exp||[]).length||(d.mv||[]).some(m=>!m.start&&m.amt));
 function save(which='L'){
  if(which==='L'){clearTimeout(timers.snap);timers.snap=setTimeout(remSnap,800);try{if(gAuto())LS.set('daftar_gdirty',1)}catch(e){}gSchedule();try{bkIcon()}catch(e){}}
- let okL=true;if(which==='L'){try{normCur()}catch(e){}okL=LS.set('daftar',S);gRev++;LS.set('daftar_savedAt',okL?Date.now():LS.get('daftar_savedAt'));try{logSchedule()}catch(e){}}else okL=LS.set('daftar_contacts',C);
+ let okL=true;if(which==='L'){try{normCur()}catch(e){}track();okL=LS.set('daftar',S);gRev++;if(isNative){clearTimeout(timers.nat);timers.nat=setTimeout(window.__persist,700)}LS.set('daftar_savedAt',okL?Date.now():LS.get('daftar_savedAt'));try{logSchedule()}catch(e){}}else okL=LS.set('daftar_contacts',C);
  if(!okL){status('مقدرتش أحفظ على الجهاز!','off');if(Date.now()-(window._lsWarn||0)>60000){window._lsWarn=Date.now();toast('⚠️ الحفظ على الجهاز فشل (المساحة مليانة؟). اعمل نسخة احتياطية دلوقتي')}return}
  const r=which==='L'?ref:refC;
  if(!r){status(inArtifact?'على الجهاز ده بس':'محفوظ على الجهاز','off');return}
@@ -732,13 +760,14 @@ function loanEv(l){const k=lNext(l);if(!k)return[];const M=lMonths(l).filter(x=>
 function oweEv(p){const b=-bal(p.id);return [{uid:'owe-'+p.id,d:addDays(today(),7),t:`عليك لـ ${p.name} ${num(b)} ${S.cur}`,s:'تذكير من دفتري: رجّع الفلوس',rr:'FREQ=WEEKLY;COUNT=12',before:0}]}
 function recEv(r){const nk=r.last===month()?addM(month(),1):month();return [{uid:'rec-'+r.id,d:nk+'-'+String(r.day).padStart(2,'0'),t:`فاتورة ${r.name} (${num(r.amt)} ${S.cur})`,s:'من دفتري',rr:'FREQ=MONTHLY',before:1}]}
 function toCal(evs,name){if(!evs.length)return toast('مفيش مواعيد جاية');download(name+'.ics',icsFile(evs),'text/calendar');toast('افتح الملف اللي نزل وهيتضاف لتقويم الموبايل')}
-async function remSnap(){try{if(!('caches' in window)||!STORE)return;const items=[];
+async function remSnap(){try{if(!isNative&&(!('caches' in window)||!STORE))return;const items=[];
  for(const g of S.gam){gMonths(g).filter(k=>!gPaid(g,k)).slice(0,3).forEach(k=>items.push({id:'g'+g.id+k,d:gDate(g,k),t:'قسط '+gnm(g.name)+' '+num(g.amt)+' '+S.cur}));
   if(!gGot(g))items.push({id:'gt'+g.id,d:gDate(g,gTurnM(g)),t:'دورك تقبض '+gnm(g.name)+' '+num(g.amt*g.n)+' '+S.cur})}
  for(const l of S.loans){lMonths(l).filter(k=>!lPaid(l,k)).slice(0,3).forEach(k=>items.push({id:'L'+l.id+k,d:gDate(l,k),t:'قسط '+l.name+' '+num(lAmt(l,k))+' '+S.cur}))}
  for(const r of S.rec){for(let i=0;i<3;i++){const k=addM(month(),i);if(i===0&&r.last===month())continue;items.push({id:'r'+r.id+k,d:k+'-'+String(r.day).padStart(2,'0'),t:'فاتورة '+r.name+' '+num(r.amt)+' '+S.cur})}}
  for(const p of S.people){const b=bal(p.id);if(b>0)S.tx.filter(t=>t.pid===p.id&&t.type==='took'&&t.due).forEach(t=>items.push({id:'t'+t.id,d:t.due,t:p.name+' عليه '+num(b)+' '+S.cur+' (ميعاد السداد)'}))}
  const owe=S.nOwe?S.people.filter(p=>bal(p.id)<0).map(p=>'عليك لـ '+p.name+' '+num(-bal(p.id))+' '+S.cur):[];
+ if(isNative){NAT.setReminders(JSON.stringify({items,days:S.nDays,owe}));return}
  const c=await caches.open('daftar-data');await c.put('/__daftar_rem',new Response(JSON.stringify({items,days:S.nDays,owe,ts:Date.now()}),{headers:{'content-type':'application/json'}}))}catch(e){}}
 async function enableDaily(){
  if(!('Notification' in window))return 'nosupport';
@@ -863,9 +892,14 @@ function logRun(){const cur=logIndex();if(!logPrev){logPrev=cur;return}const E=[
  for(const id in logPrev)if(!cur[id])E.push({t,a:'-',d:logDesc(id.split('|')[0],logPrev[id])});
  logPrev=JSON.parse(JSON.stringify(cur));if(!E.length)return;
  const L=LS.get('daftar_log')||[];if(E.length>25)L.unshift({t,a:'*',d:'تغييرات كتير مرة واحدة ('+E.length.toLocaleString('ar-EG')+') — استرجاع نسخة أو تراجع'});else L.unshift(...E.reverse());LS.set('daftar_log',L.slice(0,600))}
+let syncAsk=null;
+function toastOnce(m){if(Date.now()-(window._tOnce||0)>20000){window._tOnce=Date.now();toast(m)}}
+function syncSoon(){if(!gAuto()||gBusy||open||document.hidden)return;if(gtok())return driveBackup(false);if(isNative)natToken(false).then(ok=>ok&&driveBackup(false));else if(isDesktop&&Date.now()-(+LS.get('daftar_gsil')||0)>50*6e4&&Date.now()-(+LS.get('daftar_gsilfail')||0)>36e5){LS.set('daftar_gsil',Date.now());gAuth(true)}}
+setInterval(()=>syncSoon(),60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(syncSoon,700)});
 function bkStates(){const sa=LS.get('daftar_savedAt'),lb=LS.get('daftar_gbk'),dirty=!!LS.get('daftar_gdirty'),on=gAuto(),er=LS.get('daftar_gerr');
  const row=(ok,t,s)=>`<div class="bks"><i class="${ok===1?'g':ok===0?'r':'b'}"></i><span><b>${t}</b><small>${s}</small></span></div>`;
- return `<div class="box bkss">${row(sa?1:0,'اتحفظ على الجهاز',sa?ago(sa):'لسه')}${on?row(gBusy?2:dirty?0:1,gBusy?'بيرفع على Drive دلوقتي…':dirty?'مستني Drive':'Drive متحدّث',gBusy?'':dirty?(er&&er>(lb||0)?'آخر محاولة فشلت (النت؟) — هيحاول تاني لوحده':!gtok()?'هيترفع أول ما تفتح التطبيق':'هيترفع خلال ثواني'):'كل تعديلاتك مترفوعة'):''}${row(lb?1:0,'آخر رفع ناجح على Drive',lb?new Date(lb).toLocaleString('ar-EG',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})+' ('+ago(lb)+')':'لسه')}</div>
+ const ls=LS.get('daftar_lastSync');
+ return `<div class="box bkss">${row(sa?1:0,'اتحفظ على الجهاز',sa?ago(sa):'لسه')}${on?row(ls?1:2,'المزامنة مع أجهزتك التانية',ls?'آخر مزامنة '+ago(ls):'هتبدأ أول ما يتربط Drive'):''}${on?row(gBusy?2:dirty?0:1,gBusy?'بيرفع على Drive دلوقتي…':dirty?'مستني Drive':'Drive متحدّث',gBusy?'':dirty?(er&&er>(lb||0)?'آخر محاولة فشلت (النت؟) — هيحاول تاني لوحده':!gtok()?'هيترفع أول ما تفتح التطبيق':'هيترفع خلال ثواني'):'كل تعديلاتك مترفوعة'):''}${row(lb?1:0,'آخر رفع ناجح على Drive',lb?new Date(lb).toLocaleString('ar-EG',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})+' ('+ago(lb)+')':'لسه')}</div>
  ${LS.get('daftar_prerestore')?`<button class="btn ghost sm" data-act="undoRestore" style="margin:0 0 12px">↩︎ رجّع البيانات اللي كانت قبل آخر استرجاع</button>`:''}`}
 function bkSheet(c){const on=gAuto(),tk=!!gtok(),st=bkStatus(),can=gOK()&&!!gcid();
  c.innerHTML=head('النسخ الاحتياطي')+`
@@ -1304,6 +1338,16 @@ function renderSheet(){
   <div class="box">${ev.length?ev.map(e=>`<div class="tx"><span class="ti" style="background:var(--soft);color:var(--plus)">${ic('cal')}</span><span class="t"><b>${esc(e.t)}</b><small>${dstr(e.d)}${e.rr?(e.rr.includes('WEEKLY')?' · كل أسبوع':' · كل شهر'):''}</small></span><a class="btn sm" href="${gcal(e)}" target="_blank" rel="noopener">ضيف</a></div>`).join(''):'<div class="empty">مفيش مواعيد جاية تتضاف.</div>'}</div>
   ${ev.length&&STORE?`<div class="box" style="padding:14px;margin-top:12px"><b>كلهم مرة واحدة</b><p class="muted" style="margin:4px 0 10px">بينزّل ملف واحد فيه كل المواعيد مع تنبيه قبلها بالأيام اللي اخترتها. افتحه من الإشعارات والتقويم هيسألك تضيفهم.</p><button class="btn ghost" data-act="calAll">${ic('down')}نزّل ملف التقويم</button></div>`:''}`;return}
  if(k==='bkSheet'){bkSheet(c);return}
+ if(k==='syncFirst'){if(!syncAsk){close();return}const R=bkNorm(syncAsk.remote),n=x=>(x||[]).length.toLocaleString('ar-EG');
+  const G=syncAsk.guard;
+  c.innerHTML=(G?head('⚠️ وقّفت المزامنة')+`<p class="muted" style="margin:0 0 10px">النسخة اللي على Google Drive (من جهاز تاني) ناقص منها <b>${G.n.toLocaleString('ar-EG')}</b> حاجة موجودة عندك هنا. علشان مايتمسحش حاجة من غير ما تعرف، وقّفت المزامنة لحد ما تختار:</p>`:head('🔄 ربط الجهاز ده بأجهزتك')+`<p class="muted" style="margin:0 0 10px">على Google Drive فيه بيانات من جهاز تاني، والجهاز ده عليه بيانات كمان. عايز تعمل إيه؟</p>`)+`
+  <div class="box" style="padding:8px 14px;margin-bottom:12px"><table class="cmpt"><tr><th></th><th class="n">على Drive</th><th class="n">الجهاز ده</th></tr>
+   <tr><td>الأشخاص</td><td class="n">${n(R.people)}</td><td class="n">${n(S.people)}</td></tr><tr><td>الحركات</td><td class="n">${n(R.tx)}</td><td class="n">${n(S.tx)}</td></tr><tr><td>المصاريف</td><td class="n">${n(R.exp)}</td><td class="n">${n(S.exp)}</td></tr><tr><td>حركات المحافظ</td><td class="n">${n(R.mv.filter(m=>!m.start))}</td><td class="n">${n(S.mv.filter(m=>!m.start))}</td></tr></table>
+   <small class="muted">آخر تعديل على Drive: ${new Date(syncAsk.t).toLocaleString('ar-EG',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}</small></div>
+  ${G?`<button class="btn" data-act="syncKeep" style="width:100%;margin-bottom:8px">✋ احتفظ باللي عندي هنا وارفعه لباقي الأجهزة</button>
+  <button class="btn ghost" data-act="syncUse" style="width:100%;margin-bottom:8px">📥 خد اللي على Drive (اللي اتمسح هنا كان مقصود)</button>`:`<button class="btn" data-act="syncUse" style="width:100%;margin-bottom:8px">📥 استخدم اللي على Drive (الجهاز ده جديد)</button>
+  <button class="btn ghost" data-act="syncMerge" style="width:100%;margin-bottom:8px">🔀 ادمج الاتنين مع بعض</button>`}
+  <p class="muted" style="margin:6px 0 0;font-size:13px">${G?'«احتفظ باللي عندي» بيرجّع كل حاجة هنا لباقي أجهزتك، وأي حاجة جديدة اتضافت على الجهاز التاني بتتضاف هنا برضه. ':''}«استخدم اللي على Drive» بيحفظ نسخة من بيانات الجهاز ده الأول، وتقدر ترجعلها من «النسخ الاحتياطي». «ادمج» بيحط كل الحركات اللي هنا واللي هناك مع بعض.</p>`;return}
  if(k==='rsPrev'){if(!rsPending){close();return}const d=rsPending.d,r=rsSummary(d),n=x=>(x||[]).length.toLocaleString('ar-EG'),nowR=rsSummary({...S,contacts:C});
   const cmp=(l,a,b)=>`<tr><td>${l}</td><td class="n">${a}</td><td class="n">${b}</td></tr>`;
   c.innerHTML=head('مراجعة النسخة قبل الاسترجاع')+`<div class="box" style="padding:12px 14px;margin-bottom:12px"><b>${esc(rsPending.src||'نسخة')}</b><small class="muted" style="display:block">${d.savedAt?'اتحفظت: '+new Date(d.savedAt).toLocaleString('ar-EG',{weekday:'long',day:'numeric',month:'long',hour:'numeric',minute:'2-digit'}):'تاريخ الحفظ مش مكتوب في النسخة دي'}${r.last?' · آخر حركة فيها '+dstr(r.last):''}</small>${(()=>{const w=bkValid(d,true);return w.length?`<small style="display:block;color:var(--gold);margin-top:4px">✅ الملف سليم، بس: ${esc(w.join('، '))}</small>`:'<small style="display:block;color:var(--plus);margin-top:4px">✅ الملف سليم</small>'})()}</div>
@@ -1462,7 +1506,7 @@ function applyBackup(d){const er=bkValid(d);if(er)throw new Error(er);const pre=
   if(!okPre){try{localStorage.removeItem('daftar_prerestore')}catch(x){}download('daftar-before-restore-'+stamp()+'.json',JSON.stringify({...pre.d,v:2,savedAt:pre.t},null,1));throw new Error('مقدرتش أحفظ نسخة من بياناتك الحالية على الجهاز، فما استرجعتش. نزّلتلك نسخة منها كملف — احفظه وجرّب تاني')}
   snap();
   S=bkNorm(d);if(Array.isArray(d.contacts)){C=d.contacts;save('C')}
-  ensureW();save();close();render();toast('اترجّعت النسخة ✅ (والقديمة محفوظة لو حبيت ترجع لها)',true)}
+  ensureW();save();syncKeepMine(null);LS.set('daftar',S);trPrev=trIndex();close();render();toast('اترجّعت النسخة ✅ (والقديمة محفوظة لو حبيت ترجع لها)',true)}
 function applyBackupOld(d){if(!d||!Array.isArray(d.people))throw 0;snap();
   S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],loans:d.loans||[],sal:d.sal||null,vcph:d.vcph,usd:d.usd,usdAt:d.usdAt,usdAuto:d.usdAuto,usdSrc:d.usdSrc,usdQ:d.usdQ,wMig28:d.wMig28,wMig30:d.wMig30,nDays:d.nDays,nOwe:d.nOwe,goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(Array.isArray(d.contacts)){C=d.contacts;save('C')}
   ensureW();save();close();toast('اترجّعت النسخة',true)}
@@ -1574,9 +1618,13 @@ document.addEventListener('click',async e=>{
  if(a==='addImported')return addAllContacts(lastImport);
  if(a==='restore')return $('fileB').click();
  if(a==='pickC')return pickClients();
- if(a==='pick'){try{const r=await navigator.contacts.select(['name','tel'],{multiple:true});addContacts(r.map(x=>({n:(x.name||[])[0]||(x.tel||[])[0]||'',p:(x.tel||[])[0]||''})))}catch(err){toast('مقدرتش أفتح جهات الاتصال')}return}
+ if(a==='pick'){if(isNative)return pickClients();try{const r=await navigator.contacts.select(['name','tel'],{multiple:true});addContacts(r.map(x=>({n:(x.name||[])[0]||(x.tel||[])[0]||'',p:(x.tel||[])[0]||''})))}catch(err){toast('مقدرتش أفتح جهات الاتصال')}return}
  if(a==='clearC'){const old=C;C=[];save('C');render();const el=$('toast');el.innerHTML='اتمسحت الأرقام<button id="undoC">تراجع</button>';el.classList.add('on');$('undoC').onclick=()=>{C=old;save('C');render();el.classList.remove('on')};clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),5000);return}
  if(a==='driveB')return shareBackup();
+ if(a==='syncKeep'){if(!syncAsk)return close();const R=bkNorm(syncAsk.remote);LS.set('daftar_prerestore',{t:Date.now(),d:JSON.parse(JSON.stringify({...S,contacts:C}))});
+  syncKeepMine(syncAsk.remote);S=mergeS(S,R);ensureW();LS.set('daftar',S);trPrev=trIndex();LS.set('daftar_synced',1);syncAsk=null;close();render();toast('تمام، بياناتك اللي هنا هتترفع لباقي الأجهزة ✅');setTimeout(()=>driveBackup(false),600);return}
+ if(a==='syncUse'||a==='syncMerge'){if(!syncAsk)return close();const R=bkNorm(syncAsk.remote);LS.set('daftar_prerestore',{t:Date.now(),d:JSON.parse(JSON.stringify({...S,contacts:C}))});snap();
+  S=a==='syncUse'?R:mergeS(S,R);if(a==='syncUse'&&Array.isArray(syncAsk.remote.contacts)){C=syncAsk.remote.contacts;LS.set('daftar_contacts',C)}ensureW();LS.set('daftar',S);trPrev=trIndex();LS.set('daftar_synced',1);syncAsk=null;close();render();toast(a==='syncUse'?'تمام، الجهاز ده بقى زي التاني ✅':'اتدمجت البيانات ✅');setTimeout(()=>driveBackup(false),600);return}
  if(a==='rsDo'){if(rsPending){const d=rsPending.d;rsPending=null;try{applyBackup(d)}catch(x){toast('⚠️ '+(x.message||'مقدرتش أسترجع'))}}return}
  if(a==='undoRestore'){const pr=LS.get('daftar_prerestore');if(!pr)return;rsPending={d:pr.d,src:'البيانات اللي كانت قبل الاسترجاع ('+ago(pr.t)+')'};return show({kind:'rsPrev'})}
  if(a==='bkNow'||a==='bkSheet')return show({kind:'bkSheet'});
@@ -1608,12 +1656,15 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&open)close();if(e.k
 
 /* ---------- Google Drive auto backup ---------- */
 const GSC='https://www.googleapis.com/auth/drive.appdata',GAPI='https://www.googleapis.com';
+window.__nativeTok=(at,sec)=>{LS.set('daftar_gtok',{at,exp:Date.now()+(+sec||3600)*1000});LS.set('daftar_gauto',true);gNeed=false;const f=window.__tokWait;window.__tokWait=null;if(f)f(true);else{render();gSchedule(800)}};
+window.__nativeTokErr=(m)=>{const f=window.__tokWait;window.__tokWait=null;gNeed=true;if(f)f(false);if(m&&m!=='silent')toast('مقدرتش أربط حساب جوجل: '+m);render()};
+function natToken(interactive){return new Promise(res=>{window.__tokWait=res;try{NAT.authorize(!!interactive)}catch(e){window.__tokWait=null;res(false)}setTimeout(()=>{if(window.__tokWait===res){window.__tokWait=null;res(false)}},interactive?120000:20000)})}
 const GCID_DEF='539562884900-qaoe259426nuptoo34dfd17db8a9ebrl.apps.googleusercontent.com';
 const gcid=()=>LS.get('daftar_gcid')||GCID_DEF;
 const gtok=()=>{const t=LS.get('daftar_gtok');return t&&t.exp>Date.now()+60000?t.at:null};
-const gOK=()=>location.protocol==='https:'&&!inArtifact;
+const gOK=()=>isNative||(location.protocol==='https:'&&!inArtifact);
 let gNeed=false,gBusy=false,gRev=0,gAgain=false,gRetry=0;
-function gAuth(silent,man){const st=uid();LS.set('daftar_gstate',{st,silent:!!silent,man:!!man});
+function gAuth(silent,man){if(isNative){natToken(!silent).then(ok=>{if(ok){toast(silent?'':'اتربط Google Drive ✅');driveBackup(false)}else if(silent&&man)natToken(true).then(o=>o&&driveBackup(false))});return}const st=uid();LS.set('daftar_gstate',{st,silent:!!silent,man:!!man});
  location.href='https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:gcid(),redirect_uri:location.origin+location.pathname,response_type:'token',scope:GSC,include_granted_scopes:'true',state:st,prompt:silent?'none':'consent'})}
 async function gfetch(u,o={}){const t=gtok();if(!t){gNeed=true;throw new Error('auth')}
  const r=await fetch(u,{...o,headers:{...(o.headers||{}),Authorization:'Bearer '+t}});if(r.status===401||r.status===403&&!o.noAuthReset){if(r.status===401){LS.set('daftar_gtok',null);gNeed=true;throw new Error('auth')}}if(!r.ok)throw new Error('http '+r.status);return r}
@@ -1623,7 +1674,20 @@ async function gPut(name,data,id){if(id)return gfetch(GAPI+'/upload/drive/v3/fil
  return gfetch(GAPI+'/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body})}
 async function driveBackup(manual){if(!gOK()||!gcid())return;if(!gtok()){gNeed=true;if(manual)gAuth(false);else render();return}
  if(gBusy){gAgain=true;return}gBusy=true;gAgain=false;bkIcon();if(manual)toast('بيحفظ على Drive…');const rev0=gRev;let okUp=false;
- try{const data=JSON.stringify({...S,contacts:C,v:2,savedAt:Date.now()}),files=await gList(),dn='daftar-'+today()+'.json';
+ try{let files=await gList();const sf=files.find(f=>f.name==='daftar-sync.json');
+  /* ---- sync: pull the other devices' copy and merge ---- */
+  let remote=null,src=sf;if(!src&&!hasData(S)&&!LS.get('daftar_synced'))src=files.find(f=>f.name==='daftar-backup.json');
+  if(src){const r=await gfetch(GAPI+'/drive/v3/files/'+src.id+'?alt=media');try{remote=await r.json()}catch(x){remote=null}if(remote&&bkValid(remote))remote=null}
+  if(remote){const first=!LS.get('daftar_synced');
+   if(first&&hasData(S)&&hasData(remote)&&sf){syncAsk={remote,t:sf.modifiedTime};gBusy=false;if(!open||open.kind!=='syncFirst')show({kind:'syncFirst'});return}
+   const base=first&&!hasData(S)?bkNorm(remote):mergeS(S,bkNorm(remote));
+   if(!(first&&!hasData(S))){const ls=syncLoss(S,base);if(ls.n>=5&&ls.n>=ls.of*0.2){syncAsk={remote,t:(sf||src).modifiedTime,guard:ls};gBusy=false;if(!open||open.kind!=='syncFirst')show({kind:'syncFirst'});return}}if(first&&!hasData(S)&&Array.isArray(remote.contacts)&&!C.length){C=remote.contacts;LS.set('daftar_contacts',C)}
+   if(canon(base)!==canon(S)){S=base;ensureW();LS.set('daftar',S);trPrev=trIndex();pcache&&(_pc.tx=null);if(!open)render();toastOnce('اتحدّثت البيانات من جهازك التاني 🔄')}}
+  LS.set('daftar_synced',1);
+  const data=JSON.stringify({...S,contacts:C,v:2,savedAt:Date.now()}),dn='daftar-'+today()+'.json';
+  if(!remote||!sf||canon(bkNorm(remote))!==canon(S)||src!==sf)await gPut('daftar-sync.json',data,(sf||{}).id);
+  LS.set('daftar_lastSync',Date.now());
+  if(!LS.get('daftar_gdirty')&&!manual&&new Date(LS.get('daftar_gbk')||0).toDateString()===new Date().toDateString()){okUp=true;gRetry=0;LS.set('daftar_gerr',null);gNeed=false;return}
   await gPut('daftar-backup.json',data,(files.find(f=>f.name==='daftar-backup.json')||{}).id);
   await gPut(dn,data,(files.find(f=>f.name===dn)||{}).id);
   const old=files.filter(f=>/^daftar-\d{4}-\d\d-\d\d\.json$/.test(f.name)&&f.name!==dn).sort((a,b)=>b.name.localeCompare(a.name)).slice(6);
@@ -1699,12 +1763,38 @@ if(!gAutoRenew()){lockOn();(()=>{const b=document.getElementById('boot');if(!b)r
 setTimeout(()=>{if(!logPrev)logPrev=JSON.parse(JSON.stringify(logIndex()))},50);
 setTimeout(()=>fetchRate(),2500);setInterval(()=>fetchRate(),30*6e4);document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchRate();else{vcShown=null}});
 $('hq').addEventListener('input',runSearch);$('hqx').addEventListener('click',e=>{e.preventDefault();clearSearch();$('hq').focus()});$('hq').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur()});
+/* ---------- Android app (native) ---------- */
+window.__back=()=>{try{if(!$('lock').hidden)return false}catch(e){}if(open){goBack();return true}if(view!=='home'){view='home';render();return true}return false};
+if(isNative){
+ const toB64=d=>new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(String(fr.result).split(',')[1]||'');fr.onerror=()=>r('');fr.readAsDataURL(d instanceof Blob?d:new Blob([d]))});
+ LIBS.h2c='lib/html2canvas.min.js';LIBS.pdf='lib/jspdf.umd.min.js';
+ const nshare=async o=>{o=o||{};if(o.files&&o.files.length){const f=o.files[0];const r=await natCall('shareFile',f.name,f.type||'application/octet-stream',await toB64(f));if(!r)throw new Error('share');return}
+  NAT.shareText([o.text,o.url].filter(Boolean).join(' '))};
+ try{Object.defineProperty(navigator,'share',{value:nshare,configurable:true});Object.defineProperty(navigator,'canShare',{value:()=>true,configurable:true})}catch(e){}
+ const allC=async()=>{const r=await natCall('contacts');if(r===null||r===undefined){toast('محتاج إذن جهات الاتصال عشان أفتحها');return null}return r};
+ try{Object.defineProperty(navigator,'contacts',{value:{select:async()=>{const r=await allC();if(!r)throw new Error('denied');return r.map(c=>({name:[c.n],tel:c.p?[c.p]:[]}))}},configurable:true})}catch(e){}
+ pickClients=async()=>{const r=await allC();if(!r)return;if(!r.length)return toast('مفيش أرقام على الموبايل');
+  const seen=new Set(C.map(c=>c.n+'|'+normP(c.p)));let n=0;for(const x of r){const c={n:String(x.n||'').trim(),p:String(x.p||'').trim()};const k=c.n+'|'+normP(c.p);if(!c.n||seen.has(k))continue;seen.add(k);C.push(c);n++}
+  C.sort((a,b)=>a.n.localeCompare(b.n,'ar'));save('C');if(open)open=null,$('sheet').classList.remove('on','side');view='contacts';qC='';render();toast('اختار اللي عاوز تضيفه من القايمة — دوّر بالاسم أو الرقم')};
+ download=async(name,data,mime)=>{const r=await natCall('saveFile',name,mime||'application/octet-stream',await toB64(data));toast(r==='saved'?'اتحفظ في التنزيلات (Download/Daftari) ✅':r==='shared'?'تمام ✅':'مقدرتش أحفظ الملف')};
+ const NP={get permission(){try{return NAT.notifState()}catch(e){return 'default'}},requestPermission:()=>natCall('notifPerm').then(v=>v||'denied')};
+ try{window.Notification=NP}catch(e){}
+ enableDaily=async()=>{const r=await NP.requestPermission();if(r!=='granted')return 'denied';await remSnap();return 'daily'};
+ notifyOpen=async()=>{try{if(NAT.notifState()!=='granted')return;await remSnap();NAT.checkNow()}catch(e){}};
+ bioAvail=async()=>{try{return !!NAT.hasBiometric()}catch(e){return false}};
+ bioEnable=async()=>{const r=await natCall('biometric','تفعيل الفتح بالبصمة');if(r===true){LS.set('daftar_bio','native');return true}return false};
+ bioUnlock=async()=>{if(!LS.get('daftar_bio'))return false;const r=await natCall('biometric','افتح دفتري');if(r===true){$('lock').hidden=true;pinBuf='';return true}return false};
+ const navC=()=>{try{NAT.setNavColor(getComputedStyle(document.body).backgroundColor)}catch(e){}};
+ const _as=applySkin;applySkin=()=>{_as();setTimeout(navC,30)};setTimeout(navC,300);
+ try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>setTimeout(navC,50))}catch(e){}
+}
 /* ---------- load ---------- */
 const STORE=!!document.querySelector('link[rel=manifest]');
 if(STORE&&'serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 const l=LS.get('daftar');if(l&&Array.isArray(l.people)){S=Object.assign(S,l);if(!Array.isArray(S.mv))S.mv=[]}
 skin=LS.get('daftar_skin')||S.skin||'auto';applySkin();HIDE=!!LS.get('daftar_hide');ensureW();if(runRec())save();setTimeout(notifyOpen,1500);setTimeout(remSnap,2000);setTimeout(()=>{if(gAuto()&&new Date(LS.get('daftar_gbk')||0).toDateString()!==new Date().toDateString())driveBackup(false)},5000);
 const lc=LS.get('daftar_contacts');if(Array.isArray(lc))C=lc;
+if(!trPrev)trPrev=trIndex();setTimeout(syncSoon,isNative?1500:4000);
 render();status('على الجهاز','off');
 (async()=>{
  let tries=0;while(typeof window.claude==='undefined'&&tries<8){await new Promise(r=>setTimeout(r,250));tries++}
