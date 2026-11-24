@@ -103,6 +103,11 @@ nav .fab .i{width:28px;height:28px;color:#fff}
 .card::before{content:"";display:block;width:40px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 6px}
 @keyframes up{from{transform:translateY(30px);opacity:.4}}
 @media(prefers-reduced-motion:reduce){.card{animation:none}}
+.sheet.side{align-items:stretch;justify-content:flex-start;animation:fadein .2s}.sheet.side .card{margin-right:auto;margin-left:0;width:min(86vw,430px);max-height:none;height:100%;border-radius:0 24px 24px 0;padding-top:calc(10px + env(safe-area-inset-top));animation:sidein .26s cubic-bezier(.2,.85,.25,1)}
+.sheet.side .card::before{display:none}
+.sheet.side.out{animation:fadeout .19s forwards}.sheet.side.out .card{animation:sideout .19s ease-in forwards}
+@keyframes sidein{from{transform:translateX(-100%)}}@keyframes sideout{to{transform:translateX(-100%)}}@keyframes fadein{from{background:rgb(0 0 0/0)}}@keyframes fadeout{to{background:rgb(0 0 0/0)}}
+@media(min-width:700px){.sheet.side .card{border-radius:0 24px 24px 0;max-height:none}}
 @media(min-width:700px){.sheet{align-items:center}.card{border-radius:24px;max-height:86vh}}
 .hd{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .hd h2{font:400 26px/1.15 Lalezar,sans-serif;margin:0;flex:1;display:flex;align-items:center;gap:10px}
@@ -288,7 +293,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٤ نوفمبر - ٣';
+const VER='٢٤ نوفمبر - ٤';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -884,8 +889,8 @@ function gDriveBox(){
   <div class="wsel" style="margin:8px 0"><button type="button" data-act="gAutoOn" class="${on?'on':''}">شغال</button><button type="button" data-act="gAutoOff" class="${on?'':'on'}">مقفول</button></div>
   <p class="muted">${on?'بعد أي حاجة تضيفها أو تعدّلها بثواني، البرنامج بيحفظ نسخة على Drive لوحده، وكمان نسخة لكل يوم (آخر ٧ أيام).':'مقفول: مش هيتحفظ حاجة لوحده.'}<br>${lb?'آخر نسخة على Drive: '+new Date(lb).toLocaleString('ar-EG',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'لسه مااتحفظش حاجة على Drive'}${tk?' · متوصّل ✅':''}</p>
   <div class="btns">${tk?`<button class="btn sm" data-act="gNow">${ic('up')}احفظ دلوقتي</button>`:`<button class="btn sm" data-act="gConnect" style="background:#1a73e8">اربط بحساب جوجل</button>`}<button class="btn sm ghost" data-act="gRestore">${ic('down')}استرجاع من Drive</button><button class="btn sm ghost" data-act="gEditId">تغيير الـ Client ID</button></div></div>`}
-function show(o){open=o;$('sheet').classList.add('on');renderSheet()}
-function close(){open=null;$('sheet').classList.remove('on');render()}
+function show(o){const sh=$('sheet');if(!open)sh.classList.toggle('side',o.kind==='settings');sh.classList.remove('out');open=o;sh.classList.add('on');renderSheet()}
+function close(){const sh=$('sheet');open=null;if(sh.classList.contains('side')&&sh.classList.contains('on')&&!matchMedia('(prefers-reduced-motion:reduce)').matches){sh.classList.add('out');setTimeout(()=>{if(!open){sh.classList.remove('on','out','side')}},190)}else sh.classList.remove('on','side');render()}
 const head=t=>`<div class="hd"><h2>${t}</h2><button class="ib" data-act="close" aria-label="إغلاق" style="font-size:26px">×</button></div>`;
 function renderSheet(){
  const c=$('card'),k=open.kind;
@@ -1313,7 +1318,7 @@ function renderSheet(){
   c.innerHTML=head('تسجّل إيه؟')+`<div class="acts" style="margin-top:0"><button data-act="spend" style="background:#c2334d">${ic('minus')}صرفت</button><button data-act="income" style="background:#0a7a6c">${ic('plus')}دخل فلوس</button><button data-act="transfer" style="background:var(--hero)">⇄ تحويل</button></div><div class="sec" style="margin-top:4px"><h3>حساب شخص</h3><div class="chips" style="flex-wrap:wrap">${P.map(p=>`<button class="chip" data-open="p:${p.id}">${esc(p.name)}</button>`).join('')}<button class="chip" data-act="pickC">+ من جهات الاتصال</button><button class="chip" data-act="newP">+ شخص جديد</button></div></div>
   <div class="sec"><h3>مصروف على باب</h3><div class="chips" style="flex-wrap:wrap">${S.funds.map(f=>`<button class="chip" data-open="f:${f.id}" style="border-color:${f.color||colorOf(f.name)}">${esc(f.name)}</button>`).join('')}<button class="chip" data-act="newF">+ باب جديد</button></div></div>`;return}
  if(k==='settings'){
-  c.innerHTML=head('الإعدادات')+`${bkRow().replace('margin-top:12px','')}<div style="height:12px"></div><div class="box" style="padding:14px;margin-bottom:12px"><b>شكل البرنامج</b><p class="muted" style="margin:4px 0 10px">اختار الخلفية اللي تريّح عينك.</p>
+  c.innerHTML=head('الإعدادات')+`${bkRow().replace('margin-top:12px','')}<button class="btn ghost" data-act="shareApp" style="width:100%;margin:12px 0 0">${ic('share')}شارك التطبيق مع حد</button><div style="height:12px"></div><div class="box" style="padding:14px;margin-bottom:12px"><b>شكل البرنامج</b><p class="muted" style="margin:4px 0 10px">اختار الخلفية اللي تريّح عينك.</p>
   <div class="skins">${SKINS.map(([k,l,cs])=>`<button type="button" data-skin="${k}" class="${skin===k?'on':''}"><i>${k==='auto'?`<b style="background:${cs[0]}"></b><b style="background:${cs[1]}"></b>`:`<b style="background:${cs[0]}"></b><b style="background:${cs[1]};max-width:40%"></b>`}</i>${l}</button>`).join('')}</div></div>
   <div class="box" style="padding:14px;margin-bottom:12px"><b>الخصوصية</b><p class="muted" style="margin:4px 0 10px">${LS.get('daftar_pin')?'البرنامج مقفول برقم سري على الجهاز ده'+(pinLen()<6?' (٤ أرقام — غيّره لـ ٦ أرقام عشان يبقى أأمن)':'')+(LS.get('daftar_bio')?' وبالبصمة ✅':'')+'.':'اقفل البرنامج برقم سري من ٦ أرقام وبالبصمة عشان محدش يشوف حساباتك.'}</p>
    <div class="btns">${LS.get('daftar_pin')?`<button class="btn ghost" data-act="setPin">${ic('lock')}غيّر الرقم</button>${LS.get('daftar_bio')?`<button class="btn ghost" data-act="bioOff">${ic('finger')}إلغاء البصمة</button>`:`<button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn danger" data-act="noPin">شيل القفل</button>`:`<button class="btn" data-act="setPin">${ic('lock')}حط رقم سري</button><button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn ghost" data-act="hideT">${ic(HIDE?'eye':'eyeoff')}${HIDE?'أظهر المبالغ':'خبّي المبالغ'}</button></div></div>
