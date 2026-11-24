@@ -1,14 +1,18 @@
 [
   {
-    "relation": [
-      "delegate_permission/common.handle_all_urls"
-    ],
+    "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
       "package_name": "com.mahmoud.daftari",
-      "sha256_cert_fingerprints": [
-        "8B:F0:C7:C7:32:89:06:82:E1:D1:5D:5C:C6:B6:C0:FC:F1:A8:2B:96:22:3A:FD:C2:79:CB:99:94:B2:77:1F:A3"
-      ]
+      "sha256_cert_fingerprints": ["8B:F0:C7:C7:32:89:06:82:E1:D1:5D:5C:C6:B6:C0:FC:F1:A8:2B:96:22:3A:FD:C2:79:CB:99:94:B2:77:1F:A3"]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.mahmoudbassiuoni.velora",
+      "sha256_cert_fingerprints": ["33:B4:62:7E:AF:5C:9C:E9:41:7F:FF:30:64:39:06:3E:4D:1A:C6:BC:0D:2A:15:45:33:35:6A:3A:2D:8B:04:36"]
     }
   }
 ]
