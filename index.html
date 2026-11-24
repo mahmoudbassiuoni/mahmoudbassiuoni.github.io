@@ -293,7 +293,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٤ نوفمبر - ٤';
+const VER='٢٤ نوفمبر - ٥';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -821,7 +821,7 @@ async function makePdf(R,owner){
  try{const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'pt',format:'a4',compress:true});const els=host.querySelectorAll('.pg');
   for(let i=0;i<els.length;i++){const cv=await html2canvas(els[i],{scale:2,backgroundColor:'#ffffff',logging:false});if(i)doc.addPage();doc.addImage(cv.toDataURL('image/jpeg',0.9),'JPEG',0,0,595.28,841.89)}
   doc.setProperties({title:'دفتري - '+R.label,creator:'دفتري'});const blob=doc.output('blob');host.remove();
-  await deliver('daftari-'+today()+'.pdf',blob,'application/pdf')}catch(e){host.remove();toast('حصلت مشكلة وهو بيعمل الـ PDF')}}
+  await deliver('daftari-'+stamp()+'.pdf',blob,'application/pdf')}catch(e){host.remove();toast('حصلت مشكلة وهو بيعمل الـ PDF')}}
 function gcal(e){const d=e.d.replace(/-/g,'');return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(e.t)+'&dates='+d+'T100000/'+d+'T103000&ctz=Africa/Cairo&details='+encodeURIComponent(e.s||'من تطبيق دفتري')+(e.rr?'&recur='+encodeURIComponent('RRULE:'+e.rr):'')}
 function csvAll(R){const hd=HIDE;HIDE=false;const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['التاريخ','النوع','المبلغ (ج.م)','بالدولار','المحفظة','الشخص / الباب','ملاحظة']];
  const U=x=>x.ua!=null&&(isUSD(x.w)||isUSD(x.to))?x.ua:'';
@@ -834,7 +834,7 @@ function csvAll(R){const hd=HIDE;HIDE=false;const q=v=>'"'+String(v??'').replace
  HIDE=hd;return '﻿'+rows.map(r=>r.map(q).join(',')).join('\r\n')}
 const bkMark=()=>{LS.set('daftar_lastbk',today())};
 const bkAge=()=>{const l=LS.get('daftar_lastbk');return l?-daysTo(l):null};
-async function shareBackup(){const data=JSON.stringify({...S,contacts:C,v:2,savedAt:Date.now()},null,1),name='daftar-backup-'+today()+'.json';
+async function shareBackup(){const data=JSON.stringify({...S,contacts:C,v:2,savedAt:Date.now()},null,1),name='daftar-backup-'+stamp()+'.json';
  try{const f=new File([data],name,{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'نسخة دفتري'});bkMark();render();toast('تمام، اتحفظت النسخة');return}}catch(e){if(e&&e.name==='AbortError')return}
  await download(name,data,'application/json');bkMark();render()}
 function bkStatus(){const on=gAuto(),lb=LS.get('daftar_gbk'),a=bkAge();
@@ -1452,7 +1452,7 @@ function restorePreview(d,src){const er=bkValid(d);if(er){toast('⚠️ المل
 function rsSummary(d){const cur=S;let r={};try{S=bkNorm(JSON.parse(JSON.stringify(d)));ensureW();r={av:wsum(w=>!w.frozen),tot:wsum(()=>true),T:totals(),last:[...S.tx,...S.exp,...S.mv.filter(m=>!m.start)].map(x=>x.date).sort().pop()}}catch(e){}S=cur;return r}
 function applyBackup(d){const er=bkValid(d);if(er)throw new Error(er);const pre={t:Date.now(),d:JSON.parse(JSON.stringify({...S,contacts:C}))};
   let okPre=LS.set('daftar_prerestore',pre);if(okPre){try{const r=JSON.parse(localStorage.getItem('daftar_prerestore'));okPre=!!r&&r.t===pre.t&&JSON.stringify(r.d.mv||[]).length===JSON.stringify(pre.d.mv||[]).length&&(r.d.people||[]).length===(pre.d.people||[]).length}catch(x){okPre=false}}
-  if(!okPre){try{localStorage.removeItem('daftar_prerestore')}catch(x){}download('daftar-before-restore-'+today()+'.json',JSON.stringify({...pre.d,v:2,savedAt:pre.t},null,1));throw new Error('مقدرتش أحفظ نسخة من بياناتك الحالية على الجهاز، فما استرجعتش. نزّلتلك نسخة منها كملف — احفظه وجرّب تاني')}
+  if(!okPre){try{localStorage.removeItem('daftar_prerestore')}catch(x){}download('daftar-before-restore-'+stamp()+'.json',JSON.stringify({...pre.d,v:2,savedAt:pre.t},null,1));throw new Error('مقدرتش أحفظ نسخة من بياناتك الحالية على الجهاز، فما استرجعتش. نزّلتلك نسخة منها كملف — احفظه وجرّب تاني')}
   snap();
   S=bkNorm(d);if(Array.isArray(d.contacts)){C=d.contacts;save('C')}
   ensureW();save();close();render();toast('اترجّعت النسخة ✅ (والقديمة محفوظة لو حبيت ترجع لها)',true)}
@@ -1462,6 +1462,7 @@ function applyBackupOld(d){if(!d||!Array.isArray(d.people))throw 0;snap();
 $('fileB').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;
  try{restorePreview(JSON.parse(await file.text()),'ملف: '+file.name+' · '+new Date(file.lastModified).toLocaleString('ar-EG',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'}))}catch(err){toast('الملف ده مش نسخة احتياطية من دفتري')}};
 
+const stamp=()=>{const d=new Date(),z=n=>String(n).padStart(2,'0');return today()+'_'+z(d.getHours())+'-'+z(d.getMinutes())+'-'+z(d.getSeconds())};
 let pendFile=null;
 const canShareF=()=>{try{return !inArtifact&&!!navigator.canShare&&navigator.canShare({files:[new File(['x'],'a.pdf',{type:'application/pdf'})]})}catch(e){return false}};
 async function deliver(name,data,mime){if(!canShareF())return download(name,data,mime);const blob=data instanceof Blob?data:new Blob([data],{type:mime});pendFile={f:new File([blob],name,{type:mime}),name,mime,blob};show({kind:'fileReady'})}
@@ -1508,7 +1509,7 @@ document.addEventListener('click',async e=>{
  if(a==='logClear'){LS.set('daftar_log',[]);return renderSheet()}
  if(['goals','bills','split','budget','search','rems','gamList','newJ','export','calList','loans','newL','salary','salSet','more','log','recon'].includes(a))return show({kind:a});
  if(a==='doPdf'||a==='doCsv'){const pk=open.pk||'month',R=prange(pk,$('exF')?.value,$('exT')?.value),nm=$('exN').value.trim();if(nm!==(S.owner||'')){S.owner=nm;save()}R.w=$('exW')?$('exW').value:'all';R.opt={};document.querySelectorAll('#card [data-exo]').forEach(b=>R.opt[b.dataset.exo]=b.classList.contains('on')?1:0);if(!Object.values(R.opt).some(Boolean))return toast('اختار حاجة واحدة على الأقل');if(R.w!=='all')R.label+=' · '+wn(R.w);
-  if(a==='doCsv')return deliver('daftari-'+today()+'.csv',csvAll(R),'text/csv');return makePdf(R,nm)}
+  if(a==='doCsv')return deliver('daftari-'+stamp()+'.csv',csvAll(R),'text/csv');return makePdf(R,nm)}
  if(a==='jMonth')return show({kind:'jm',id:open.id,m:e.target.closest('[data-m]').dataset.m});
  if(a==='jEdit')return show({kind:'jEdit',id:open.id});
  if(a==='jUnpay'||a==='jNoDeduct'||a==='jDeduct'){const g=S.gam.find(x=>x.id===open.id),m=open.m;if(!g)return;snap();const x=S.exp.find(e=>e.gam===g.id&&e.gm===m);
@@ -1581,7 +1582,7 @@ document.addEventListener('click',async e=>{
  if(a==='gEditId'){LS.set('daftar_gcid','');return renderSheet()}
  if(a==='gRestore')return show({kind:'gRestore'});
  if(a==='gPick'){const id=e.target.closest('[data-gid]').dataset.gid;toast('بيجيب النسخة…');try{const r=await gfetch(GAPI+'/drive/v3/files/'+id+'?alt=media');restorePreview(await r.json(),'Google Drive · '+(e.target.closest('[data-gid]').dataset.gt||''))}catch(x){toast(x.message==='auth'?'محتاج تربط حساب جوجل تاني':'مقدرتش أجيب النسخة')}return}
- if(a==='backup'){bkMark();setTimeout(render,300);return download('daftar-backup-'+today()+'.json',JSON.stringify({...S,contacts:C,v:2,savedAt:Date.now()},null,1),'application/json')}
+ if(a==='backup'){bkMark();setTimeout(render,300);return download('daftar-backup-'+stamp()+'.json',JSON.stringify({...S,contacts:C,v:2,savedAt:Date.now()},null,1),'application/json')}
  if(a==='dlApp')return download('daftar.html',appSource(),'text/html');
  const isP=open?.kind==='p',o=open&&(isP?S.people:S.funds).find(x=>x.id===open.id);if(!o)return;
  if(a==='editP'||a==='editF')return show({kind:a,id:o.id});
