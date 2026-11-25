@@ -259,6 +259,11 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 .pad button{font:400 26px/1 Lalezar,sans-serif;height:64px;border-radius:50%;border:0;background:rgb(255 255 255/.1);color:#fff;cursor:pointer}
 .pad button:active{background:rgb(255 255 255/.25)}
 @media(max-width:420px){.hsplit b{font-size:15px}.hero{padding:16px}.wtot b{font-size:16px}}
+#gate{position:fixed;inset:0;z-index:95;background:radial-gradient(120% 80% at 50% 35%,#145553 0%,#0c3b3a 55%,#082a29 100%);color:#e9f6f2;display:grid;place-items:center;padding:24px;overflow:auto}
+#gate[hidden]{display:none}#gate .gwrap{max-width:380px;width:100%;display:flex;flex-direction:column;align-items:center;text-align:center;animation:bup .5s ease both}
+#gate h1{font:400 34px/1.2 Lalezar,"IBM Plex Sans Arabic",system-ui,sans-serif;margin:22px 0 6px}#gate p{margin:0 0 26px;opacity:.82;line-height:1.7}
+#gBtn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:15px 18px;border:0;border-radius:18px;background:#fff;color:#1f1f1f;font:600 16px "IBM Plex Sans Arabic",system-ui,sans-serif;box-shadow:0 10px 30px rgb(0 0 0/.25);cursor:pointer}
+#gBtn:disabled{opacity:.65}#gate .gmsg{min-height:22px;margin:12px 0 4px;color:#ffcf5a;font-size:14px}#gate small{opacity:.62;font-size:12.5px;line-height:1.7}#gate small a{color:#ffcf5a}
 #boot{position:fixed;inset:0;z-index:100;background:#0c3b3a;display:grid;place-items:center;color:#e9f6f2;transition:opacity .45s ease,visibility .45s}
 #boot.gone{opacity:0;visibility:hidden}#boot.gone .bwrap{transform:scale(1.06);transition:transform .45s cubic-bezier(.4,0,.2,1)}
 #boot::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 40%,#145553 0%,#0c3b3a 55%,#082a29 100%);animation:bfade .8s ease both}@keyframes bfade{from{opacity:0}}
@@ -279,6 +284,11 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 </style>
 </head>
 <body>
+<div id="gate" hidden><div class="gwrap"><div class="blogo" style="animation:none"><svg viewBox="0 0 512 512" width="96" height="96" aria-hidden="true"><rect x="128" y="110" width="256" height="305" rx="30" fill="#e8f4f0"/><rect x="185" y="187" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="250" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="313" width="87" height="26" rx="13" fill="#0c3b3a"/><circle cx="368" cy="368" r="74" fill="#0c3b3a"/><circle cx="368" cy="368" r="57" fill="#ffcf5a"/></svg></div>
+<h1>أهلًا بيك في دفتري</h1><p>حساباتك ومصاريفك ومحافظك في مكان واحد، ومتزامنة على كل أجهزتك.</p>
+<button type="button" id="gBtn"><svg viewBox="0 0 48 48" width="22" height="22" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg><span>سجّل الدخول بحساب جوجل</span></button>
+<div id="gMsg" class="gmsg"></div>
+<small>بنحتفظ باسمك وإيميلك وصورتك من جوجل، وإمتى بتستخدم التطبيق. حساباتك وفلوسك بتفضل على جهازك وعلى Google Drive بتاعك، ومحدش يقدر يشوفها. <a href="https://mahmoudbassiuoni.github.io/privacy.html" target="_blank" rel="noopener">سياسة الخصوصية</a></small></div></div>
 <div id="boot" aria-hidden="true"><div class="bwrap"><div class="blogo"><svg viewBox="0 0 512 512" width="112" height="112" aria-hidden="true"><rect x="128" y="110" width="256" height="305" rx="30" fill="#e8f4f0"/><rect x="185" y="187" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="250" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="313" width="87" height="26" rx="13" fill="#0c3b3a"/><circle cx="368" cy="368" r="74" fill="#0c3b3a"/><circle cx="368" cy="368" r="57" fill="#ffcf5a"/></svg></div><div class="bname">دفتري</div><div class="bsub">حساباتك ومصاريفك في مكان واحد</div><div class="bbar"><i></i></div></div></div>
 <script>document.body.classList.add('booting');setTimeout(function(){var b=document.getElementById('boot');if(b)b.classList.add('long')},1900);setTimeout(function(){var b=document.getElementById('boot');if(b&&!/access_token=/.test(location.hash)){b.classList.add('gone');document.body.classList.replace('booting','booted');setTimeout(function(){b.remove()},460)}},6000)</script>
 <div id="root">
@@ -312,7 +322,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ١';
+const VER='٢٦ نوفمبر - ٢';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -964,7 +974,7 @@ function gDriveBox(){
   <div class="wsel" style="margin:8px 0"><button type="button" data-act="gAutoOn" class="${on?'on':''}">شغال</button><button type="button" data-act="gAutoOff" class="${on?'':'on'}">مقفول</button></div>
   <p class="muted">${on?'بعد أي حاجة تضيفها أو تعدّلها بثواني، البرنامج بيحفظ نسخة على Drive لوحده، وكمان نسخة لكل يوم (آخر ٧ أيام).':'مقفول: مش هيتحفظ حاجة لوحده.'}<br>${lb?'آخر نسخة على Drive: '+new Date(lb).toLocaleString('ar-EG',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'لسه مااتحفظش حاجة على Drive'}${tk?' · متوصّل ✅':''}</p>
   <div class="btns">${tk?`<button class="btn sm" data-act="gNow">${ic('up')}احفظ دلوقتي</button>`:`<button class="btn sm" data-act="gConnect" style="background:#1a73e8">اربط بحساب جوجل</button>`}<button class="btn sm ghost" data-act="gRestore">${ic('down')}استرجاع من Drive</button><button class="btn sm ghost" data-act="gEditId">تغيير الـ Client ID</button></div></div>`}
-function show(o){const sh=$('sheet');if(!open)sh.classList.toggle('side',o.kind==='settings');sh.classList.remove('out');open=o;sh.classList.add('on');renderSheet()}
+function show(o){try{featHit(o.kind)}catch(e){}const sh=$('sheet');if(!open)sh.classList.toggle('side',o.kind==='settings');sh.classList.remove('out');open=o;sh.classList.add('on');renderSheet()}
 function close(){const sh=$('sheet');open=null;if(sh.classList.contains('side')&&sh.classList.contains('on')&&!matchMedia('(prefers-reduced-motion:reduce)').matches){sh.classList.add('out');setTimeout(()=>{if(!open){sh.classList.remove('on','out','side')}},190)}else sh.classList.remove('on','side');render()}
 const head=t=>`<div class="hd"><h2>${t}</h2><button class="ib" data-act="close" aria-label="إغلاق" style="font-size:26px">×</button></div>`;
 function renderSheetKeep(){const c=$('card');if(!c||!c.querySelector('form'))return renderSheet();
@@ -1141,6 +1151,9 @@ function renderSheet(){
    o.amt=a;o.date=$('edDate').value||o.date;if($('edNote'))o.note=$('edNote').value.trim();if($('edFund'))o.fid=$('edFund').value;
    if(isT){o.type=et;const du=$('edDue').value;if(du&&et==='took')o.due=du;else delete o.due}
    save();goBack();toast('اتعدّل')};return}
+ if(k==='admin'){
+  c.innerHTML=head('لوحة الأدمن')+(adminData&&!adminData.err?adminHTML(adminData):`<p class="muted" style="text-align:center;padding:30px 0">${adminData&&adminData.err?'مقدرتش أجيب البيانات: '+esc(adminData.err)+'<br><br>اتأكد إن قواعد Firestore اتحطت وإن حسابك أدمن.':'بيجيب البيانات…'}</p>`);
+  if(!adminData)adminLoad().then(()=>{if(open&&open.kind==='admin')renderSheet()});return}
  if(k==='split'){
   const sel=open.sel||(open.sel=[]),st=open.st||(open.st={});
   const H=splitSugs(),D=['غدا','عشا','فطار','قهوة','رحلة','فاتورة نت'],Q=[...H.slice(0,12),...D.filter(x=>!H.includes(x))].slice(0,Math.max(6,Math.min(12,H.length)));
@@ -1450,7 +1463,8 @@ function renderSheet(){
   <div class="sec"><h3>مصروف على باب</h3><div class="chips" style="flex-wrap:wrap">${S.funds.map(f=>`<button class="chip" data-open="f:${f.id}" style="border-color:${f.color||colorOf(f.name)}">${esc(f.name)}</button>`).join('')}<button class="chip" data-act="newF">+ باب جديد</button></div></div>`;return}
  if(k==='settings'){
   setTimeout(()=>{const so=$('secOn');if(so)so.onchange=()=>{LS.set('daftar_secure',so.checked?1:null);try{NAT.setSecure(!!so.checked)}catch(e){}toast(so.checked?'تمام، محتوى دفتري مش هيظهر في الشاشات الأخيرة ولا في سكرين شوت':'اتلغت')}});
-  c.innerHTML=head('الإعدادات')+`${bkRow().replace('margin-top:12px','')}<button class="btn ghost" data-act="shareApp" style="width:100%;margin:12px 0 0">${ic('share')}شارك التطبيق مع حد</button><div style="height:12px"></div><div class="box" style="padding:14px;margin-bottom:12px"><b>شكل البرنامج</b><p class="muted" style="margin:4px 0 10px">اختار الخلفية اللي تريّح عينك.</p>
+  const AC=acct();
+  c.innerHTML=head('الإعدادات')+`${AC?`<div class="box" style="padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px">${AC.photo?`<img src="${esc(AC.photo)}" alt="" referrerpolicy="no-referrer" style="width:44px;height:44px;border-radius:50%">`:''}<div style="flex:1;min-width:0"><b>${esc(AC.name||'حسابك')}</b><div class="muted" style="font-size:13px;overflow:hidden;text-overflow:ellipsis">${esc(AC.email||'')}</div></div><button class="btn ghost" data-act="signOut" style="padding:8px 12px">خروج</button></div>${ADMIN?`<button class="btn" data-act="admin" style="width:100%;margin:0 0 12px">${ic('users')}لوحة الأدمن</button>`:''}`:''}${bkRow().replace('margin-top:12px','')}<button class="btn ghost" data-act="shareApp" style="width:100%;margin:12px 0 0">${ic('share')}شارك التطبيق مع حد</button><div style="height:12px"></div><div class="box" style="padding:14px;margin-bottom:12px"><b>شكل البرنامج</b><p class="muted" style="margin:4px 0 10px">اختار الخلفية اللي تريّح عينك.</p>
   <div class="skins">${SKINS.map(([k,l,cs])=>`<button type="button" data-skin="${k}" class="${skin===k?'on':''}"><i>${k==='auto'?`<b style="background:${cs[0]}"></b><b style="background:${cs[1]}"></b>`:`<b style="background:${cs[0]}"></b><b style="background:${cs[1]};max-width:40%"></b>`}</i>${l}</button>`).join('')}</div></div>
   <div class="box" style="padding:14px;margin-bottom:12px"><b>الخصوصية</b><p class="muted" style="margin:4px 0 10px">${LS.get('daftar_pin')?'البرنامج مقفول برقم سري على الجهاز ده'+(pinLen()<6?' (٤ أرقام — غيّره لـ ٦ أرقام عشان يبقى أأمن)':'')+(LS.get('daftar_bio')?' وبالبصمة ✅':'')+'.':'اقفل البرنامج برقم سري من ٦ أرقام وبالبصمة عشان محدش يشوف حساباتك.'}</p>
    <div class="btns">${LS.get('daftar_pin')?`<button class="btn ghost" data-act="setPin">${ic('lock')}غيّر الرقم</button>${LS.get('daftar_bio')?`<button class="btn ghost" data-act="bioOff">${ic('finger')}إلغاء البصمة</button>`:`<button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn danger" data-act="noPin">شيل القفل</button>`:`<button class="btn" data-act="setPin">${ic('lock')}حط رقم سري</button><button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn ghost" data-act="hideT">${ic(HIDE?'eye':'eyeoff')}${HIDE?'أظهر المبالغ':'خبّي المبالغ'}</button></div>
@@ -1676,6 +1690,11 @@ document.addEventListener('click',async e=>{
   const used=S.tx.some(t=>t.w===id)||S.exp.some(x=>x.w===id)||S.mv.some(m=>(m.w===id||m.to===id)&&!(m.start&&!m.amt));
   if(used)return toast('المحفظة دي عليها حركات، مقدرش أمسحها. ممكن تغيّر اسمها');
   S.mv=S.mv.filter(m=>m.w!==id);S.wallets=S.wallets.filter(w=>w.id!==id);save();show({kind:'wallets'});return toast('اتمسحت')}
+ if(a==='signOut'){if(!confirm('تسجّل خروج؟ بياناتك هتفضل على الجهاز، وهتحتاج تسجّل تاني عشان تفتح.'))return;return fbSignOut()}
+ if(a==='admin')return show({kind:'admin'});
+ if(a==='admAdd'){const em=String($('admEm').value||'').trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))return toast('اكتب إيميل صح');try{const f=await fbReady();await f.fs.setDoc(f.fs.doc(f.db,'admins',em),{by:(acct()||{}).email||'',at:f.fs.serverTimestamp()});toast('اتضاف '+em+' أدمن ✅');adminData=null;renderSheet()}catch(x){toast('مقدرتش أضيفه: '+(x.code||x.message))}return}
+ if(a==='admDel'){const em=e.target.closest('[data-em]').dataset.em;if(!confirm('تشيل '+em+' من الأدمنز؟'))return;try{const f=await fbReady();await f.fs.deleteDoc(f.fs.doc(f.db,'admins',em));toast('اتشال');adminData=null;renderSheet()}catch(x){toast('مقدرتش: '+(x.code||x.message))}return}
+ if(a==='admRef'){adminData=null;return renderSheet()}
  if(a==='updPrev'){e.preventDefault();try{NAT.previewUpdate()}catch(x){}return}
  if(a==='setPin')return show({kind:'pin'});
  if(a==='bioOn'){if(!LS.get('daftar_pin')){toast('حط رقم سري الأول، وبعده هنفعّل البصمة على طول');return show({kind:'pin',bio:1})}if(!(await bioAvail()))return toast('البصمة بتشتغل في تطبيق الموبايل بس، ولازم تكون متسجّلة على الموبايل');const ok=await bioEnable();renderSheet();return toast(ok?'تمام، تقدر تفتح البرنامج بالبصمة':'البصمة ماتفعّلتش')}
@@ -1847,6 +1866,59 @@ if(!gAutoRenew()){lockOn();(()=>{const b=document.getElementById('boot');if(!b)r
 setTimeout(()=>{if(!logPrev)logPrev=JSON.parse(JSON.stringify(logIndex()))},50);
 setTimeout(()=>fetchRate(),2500);setInterval(()=>fetchRate(),30*6e4);document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchRate();else{vcShown=null}});
 $('hq').addEventListener('input',runSearch);$('hqx').addEventListener('click',e=>{e.preventDefault();clearSearch();$('hq').focus()});$('hq').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur()});
+/* ---------- account (Google sign-in via Firebase) + usage stats + admin ---------- */
+const FBC={apiKey:'AIzaSyBbgXH2SAdILnf0mDpinMsY3nwBq0g_oV4',authDomain:'daftari-515600.firebaseapp.com',projectId:'daftari-515600',storageBucket:'daftari-515600.firebasestorage.app',messagingSenderId:'539562884900',appId:'1:539562884900:web:f06e4ff72ae49e17067db1'};
+const FB_WEB_CLIENT='539562884900-16omjdoeg9h6l95sfjem3n9i5tale3lb.apps.googleusercontent.com',FBV='11.0.2',OWNER=['maaaahmooood99@gmail.com'];
+let fb=null;
+async function fbLoad(){if(fb)return fb;const u=n=>`https://www.gstatic.com/firebasejs/${FBV}/firebase-${n}.js`;const [a,au,fs]=await Promise.all([import(u('app')),import(u('auth')),import(u('firestore'))]);
+ const app=a.initializeApp(FBC);fb={au,fs,app,auth:au.getAuth(app),db:fs.getFirestore(app)};return fb}
+const acct=()=>LS.get('daftar_user');
+const fbReady=async()=>{const f=await fbLoad();if(f.auth.currentUser)return f;await new Promise(r=>{const un=f.au.onAuthStateChanged(f.auth,()=>{un();r()});setTimeout(r,6000)});return f};
+function gateShow(){const g=$('gate');if(!g)return;g.hidden=false;$('gMsg').textContent=navigator.onLine===false?'محتاج نت أول مرة بس عشان تسجّل':''}
+async function gateSignIn(){const b=$('gBtn'),m=$('gMsg');b.disabled=true;m.textContent='لحظة…';
+ try{const f=await fbLoad();let cred,res;
+  if(isNative){const t=await natCall('googleIdToken');if(!t||String(t).startsWith('ERR:'))throw new Error(t&&String(t).slice(4)||'cancel');cred=f.au.GoogleAuthProvider.credential(t);res=await f.au.signInWithCredential(f.auth,cred)}
+  else{const p=new f.au.GoogleAuthProvider();p.addScope(GSC);p.setCustomParameters({prompt:'select_account'});res=await f.au.signInWithPopup(f.auth,p);
+   const c=f.au.GoogleAuthProvider.credentialFromResult(res);if(c&&c.accessToken){LS.set('daftar_gtok',{at:c.accessToken,exp:Date.now()+3500e3});LS.set('daftar_gauto',true);gNeed=false}}
+  const u=res.user;const prev=acct();LS.set('daftar_user',{uid:u.uid,email:u.email,name:u.displayName||'',photo:u.photoURL||'',at:Date.now()});
+  $('gate').hidden=true;b.disabled=false;m.textContent='';fbPing(true,prev&&prev.uid===u.uid);toast('أهلًا '+(u.displayName||'')+' 👋');
+  if(isNative){natToken(true).then(ok=>{if(ok){toast('اتربط Google Drive ✅');driveBackup(false)}})}else{render();gSchedule(800)}
+ }catch(e){b.disabled=false;const t=String(e&&(e.code||e.message)||'');m.textContent=/cancel|closed-by-user|popup-closed|16:|canceled/i.test(t)?'اتلغى، دوس تاني لما تحب':/network|offline|Failed to fetch|unavailable/i.test(t)?'مفيش نت، اتأكد من الاتصال وجرّب تاني':'مقدرتش أسجّل دلوقتي ('+t.slice(0,60)+')'}}
+const featQ={};const FEATS=new Set(['spend','income','split','transfer','salary','loans','gamList','goals','bills','budget','export','recon','rems','wallets','quick','vcEdit']);
+let adminData=null;
+async function adminLoad(){try{const f=await fbReady();const F=f.fs;const [us,ad]=await Promise.all([F.getDocs(F.collection(f.db,'users')),F.getDocs(F.collection(f.db,'admins'))]);
+ adminData={users:us.docs.map(d=>({id:d.id,...d.data()})),admins:ad.docs.map(d=>({email:d.id,...d.data()})),at:Date.now()}}catch(e){adminData={err:String(e.code||e.message||e)}}}
+function adminHTML(D){const ts=x=>x&&x.toMillis?x.toMillis():0,now=Date.now(),U=D.users.slice().sort((a,b)=>ts(b.lastSeen)-ts(a.lastSeen));
+ const act=ms=>U.filter(u=>now-ts(u.lastSeen)<ms).length,cnt=(f)=>{const m={};U.forEach(u=>{const k=f(u)||'—';m[k]=(m[k]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
+ const feat={};U.forEach(u=>{for(const k in (u.feat||{}))feat[k]=(feat[k]||0)+(+u.feat[k]||0)});const FN={spend:'صرفت',income:'دخل فلوس',split:'قسّم فاتورة',transfer:'تحويل',salary:'المرتب',loans:'القروض',gamList:'الجمعيات',goals:'أهداف التحويش',bills:'فواتير ثابتة',budget:'الميزانية',export:'تصدير',recon:'راجع رصيدك',rems:'التنبيهات',wallets:'المحافظ',quick:'سجّل حركة',vcEdit:'بيانات الفيزا'};
+ const N=n=>(+n||0).toLocaleString('ar-EG'),tile=(l,v)=>`<div class="box" style="padding:12px;text-align:center"><b style="font-size:22px">${v}</b><div class="muted" style="font-size:12.5px">${l}</div></div>`;
+ const bars=(rows,lab)=>{const mx=Math.max(1,...rows.map(r=>r[1]));return rows.slice(0,8).map(([k,v])=>`<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${esc(lab?lab(k):k)}</span><span class="muted">${N(v)}</span></div><div style="height:6px;border-radius:6px;background:rgb(127 127 127/.18);overflow:hidden;margin-top:3px"><i style="display:block;height:100%;width:${Math.max(4,v/mx*100)}%;background:var(--gold)"></i></div></div>`).join('')||'<p class="muted">لسه مفيش</p>'};
+ const PL={android:'موبايل (التطبيق)',desktop:'لابتوب',web:'متصفح موبايل'};
+ return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">${tile('كل المستخدمين',N(U.length))}${tile('فتحوا النهارده',N(act(864e5)))}${tile('آخر ٧ أيام',N(act(7*864e5)))}${tile('آخر ٣٠ يوم',N(act(30*864e5)))}</div>
+ <div class="box" style="padding:12px 14px;margin-bottom:12px"><b>الأجهزة</b>${bars(cnt(u=>u.platform),k=>PL[k]||k)}</div>
+ <div class="box" style="padding:12px 14px;margin-bottom:12px"><b>النسخ</b>${bars(cnt(u=>u.platform==='android'?(u.app||'?'):u.ver))}</div>
+ <div class="box" style="padding:12px 14px;margin-bottom:12px"><b>أكتر المميزات استخدامًا</b>${bars(Object.entries(feat).sort((a,b)=>b[1]-a[1]),k=>FN[k]||k)}</div>
+ <div class="box" style="padding:12px 14px;margin-bottom:12px"><b>المستخدمين (${N(U.length)})</b>${U.map(u=>`<div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid rgb(127 127 127/.15)">${u.photo?`<img src="${esc(u.photo)}" referrerpolicy="no-referrer" alt="" style="width:36px;height:36px;border-radius:50%">`:'<span style="width:36px"></span>'}<div style="flex:1;min-width:0"><b style="font-size:14px">${esc(u.name||'—')}</b><div class="muted" style="font-size:12px;overflow:hidden;text-overflow:ellipsis">${esc(u.email||'')}</div><div class="muted" style="font-size:12px">${esc(PL[u.platform]||u.platform||'')} · ${esc(u.platform==='android'?(u.app||''):'')} ${esc(u.device||'')} · فتح ${N(u.opens)} مرة · آخر مرة ${ts(u.lastSeen)?ago(ts(u.lastSeen)):'—'}${u.createdAt&&ts(u.createdAt)?' · سجّل '+new Date(ts(u.createdAt)).toLocaleDateString('ar-EG'):''}</div></div></div>`).join('')}</div>
+ <div class="box" style="padding:12px 14px;margin-bottom:12px"><b>الأدمنز</b><p class="muted" style="margin:4px 0 8px;font-size:13px">الأدمن يقدر يشوف اللوحة دي ويضيف أو يشيل أدمنز.</p>
+  ${OWNER.map(e=>`<div style="padding:6px 0">${esc(e)} <span class="muted">(صاحب التطبيق)</span></div>`).join('')}${D.admins.filter(a=>!OWNER.includes(a.email)).map(a=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0"><span>${esc(a.email)}</span><button class="btn ghost" data-act="admDel" data-em="${esc(a.email)}" style="padding:6px 10px">شيل</button></div>`).join('')}
+  <div class="form" style="margin-top:8px"><input id="admEm" type="email" placeholder="إيميل الأدمن الجديد" style="direction:ltr;text-align:left"><div class="btns" style="margin-top:8px"><button type="button" class="btn" data-act="admAdd">ضيف أدمن</button><button type="button" class="btn ghost" data-act="admRef">تحديث</button></div></div></div>`}
+function featHit(k){if(FEATS.has(k))featQ[k]=(featQ[k]||0)+1}
+async function fbPing(first,known){const a=acct();if(!a||navigator.onLine===false)return;try{const f=await fbReady();const u=f.auth.currentUser;if(!u||u.uid!==a.uid)return;const F=f.fs,ref=F.doc(f.db,'users',u.uid);
+ const ua=navigator.userAgent,dev=(ua.match(/Android [\d.]+;[^)]*?([^;)]+)\)/)||[])[1]||(/Windows/.test(ua)?'Windows':/Mac/.test(ua)?'Mac':/iPhone|iPad/.test(ua)?'iOS':'');
+ const d={name:u.displayName||'',email:u.email||'',photo:u.photoURL||'',lastSeen:F.serverTimestamp(),ver:VER,app:isNative?(NAT.version?NAT.version():''):'web',platform:isNative?'android':isDesktop?'desktop':'web',device:String(dev).trim().slice(0,40),opens:F.increment(1)};
+ const day=today();if(LS.get('daftar_pday')!==day){d.days=F.increment(1);LS.set('daftar_pday',day)}
+ for(const k in featQ){if(featQ[k]){d['feat.'+k]=F.increment(featQ[k]);featQ[k]=0}}
+ if(first&&!known)d.createdAt=F.serverTimestamp();
+ const fl={};for(const k in d)if(k.startsWith('feat.')){fl[k]=d[k];delete d[k]}
+ if(first&&!known){const snap=await F.getDoc(ref);if(snap.exists())delete d.createdAt}
+ await F.setDoc(ref,d,{merge:true});if(Object.keys(fl).length)await F.updateDoc(ref,fl);
+ isAdminCheck()}catch(e){}}
+let ADMIN=!!LS.get('daftar_isadm');
+async function isAdminCheck(){const a=acct();if(!a)return false;let v=OWNER.includes(String(a.email||'').toLowerCase());if(!v){try{const f=await fbReady();const sn=await f.fs.getDoc(f.fs.doc(f.db,'admins',String(a.email).toLowerCase()));v=sn.exists()}catch(e){}}
+ if(v!==ADMIN){ADMIN=v;LS.set('daftar_isadm',v?1:null);if(open&&open.kind==='settings')renderSheet()}return v}
+async function fbSignOut(){try{const f=await fbLoad();await f.au.signOut(f.auth)}catch(e){}LS.set('daftar_user',null);LS.set('daftar_isadm',null);ADMIN=false;close();gateShow()}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&Object.values(featQ).some(Boolean))fbPing()});
+setInterval(()=>{if(Object.values(featQ).some(Boolean))fbPing()},5*6e4);
 /* ---------- Android app (native) ---------- */
 let scPend=null;const SCK={spend:1,income:1,split:1,transfer:1};
 const scRun=()=>{if(!scPend||!$('lock').hidden)return;const k=scPend;scPend=null;view='home';render();show({kind:k})};
@@ -1884,7 +1956,8 @@ if(STORE&&'serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')
 const l=LS.get('daftar');if(l&&Array.isArray(l.people)){S=Object.assign(S,l);if(!Array.isArray(S.mv))S.mv=[]}
 skin=LS.get('daftar_skin')||S.skin||'auto';applySkin();HIDE=!!LS.get('daftar_hide');ensureW();if(runRec())save();setTimeout(notifyOpen,1500);setTimeout(remSnap,2000);setTimeout(()=>{if(gAuto()&&new Date(LS.get('daftar_gbk')||0).toDateString()!==new Date().toDateString())driveBackup(false)},5000);
 const lc=LS.get('daftar_contacts');if(Array.isArray(lc))C=lc;
-if(!trPrev)trPrev=trIndex();if(dropVcph())save();setTimeout(syncSoon,isNative?1500:4000);
+if(!trPrev)trPrev=trIndex();if(dropVcph())save();
+if(!inArtifact){$('gBtn').onclick=gateSignIn;if(!acct())gateShow();else setTimeout(()=>fbPing(false),3000)}setTimeout(syncSoon,isNative?1500:4000);
 render();status('على الجهاز','off');
 (async()=>{
  let tries=0;while(typeof window.claude==='undefined'&&tries<8){await new Promise(r=>setTimeout(r,250));tries++}
