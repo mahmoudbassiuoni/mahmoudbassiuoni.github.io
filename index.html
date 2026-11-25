@@ -312,7 +312,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٥ نوفمبر - ٤';
+const VER='٢٥ نوفمبر - ٥';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -469,7 +469,7 @@ const SKINS=[['auto','تلقائي',['#f1f2ee','#0f1211']],['light','فاتح',[
 function applySkin(){const r=document.documentElement;if(skin==='auto')delete r.dataset.skin;else r.dataset.skin=skin}
 
 function status(t,c){$('st').textContent=t;$('dot').className='dot '+(c||'')}
-function toast(msg,undo){const el=$('toast');el.innerHTML=esc(msg)+(undo?'<button id="undo">تراجع</button>':'');el.classList.add('on');
+function toast(msg,undo){try{if(isNative)NAT.haptic()}catch(e){}const el=$('toast');el.innerHTML=esc(msg)+(undo?'<button id="undo">تراجع</button>':'');el.classList.add('on');
  if(undo)$('undo').onclick=()=>{S=undoState;undoState=null;save();render();el.classList.remove('on')};
  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),undo?5000:2200)}
 const snap=()=>{undoState=JSON.parse(JSON.stringify(S))};
@@ -492,9 +492,10 @@ function mergeS(L,R){const mt={},del={},M=(a,b)=>{for(const k in (b||{}))if(!(k 
   for(const x of ra){if(!x||!x.id)continue;const k=c+'|'+x.id;if(seen.has(k))continue;seen.add(k);const t=Rm[k]||0;if(del[k]&&del[k]>=t)continue;res.push(x)}
   out[c]=res}
  for(const k of new Set([...Object.keys(L),...Object.keys(R)])){if(SYNCK.includes(k)||NOSYNC.has(k))continue;const kk='s|'+k;out[k]=(k in R)&&(!(k in L)||(Rm[kk]||0)>(Lm[kk]||0))?R[k]:L[k]}
- for(const k in del){if((mt[k]||0)>del[k])delete del[k];else delete mt[k]}out._mt=mt;out._del=del;return out}
+ for(const k in del){if((mt[k]||0)>del[k])delete del[k];else delete mt[k]}delete out.vcph;delete mt['s|vcph'];out._mt=mt;out._del=del;return out}
 const canon=o=>JSON.stringify(Object.keys(o).filter(k=>!NOSYNC.has(k)||k==='_mt'||k==='_del').sort().reduce((a,k)=>(a[k]=o[k],a),{}));
 const hasData=d=>!!d&&((d.people||[]).length||(d.tx||[]).length||(d.exp||[]).length||(d.mv||[]).some(m=>!m.start&&m.amt));
+function dropVcph(){if(S&&S.vcph){delete S.vcph;return true}return false}
 function save(which='L'){
  if(which==='L'){clearTimeout(timers.snap);timers.snap=setTimeout(remSnap,800);try{if(gAuto())LS.set('daftar_gdirty',1)}catch(e){}gSchedule();try{bkIcon()}catch(e){}}
  let okL=true;if(which==='L'){try{normCur()}catch(e){}track();okL=LS.set('daftar',S);gRev++;if(isNative){clearTimeout(timers.nat);timers.nat=setTimeout(window.__persist,700)}LS.set('daftar_savedAt',okL?Date.now():LS.get('daftar_savedAt'));try{logSchedule()}catch(e){}}else okL=LS.set('daftar_contacts',C);
@@ -560,6 +561,8 @@ const vcB64=u=>btoa(String.fromCharCode(...new Uint8Array(u))),vcU8=x=>Uint8Arra
 async function vcKey(pin,salt){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode('daftar-card:'+pin),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'},k,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
 async function vcLock(obj,pin){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},await vcKey(pin,salt),new TextEncoder().encode(JSON.stringify(obj)));return{s:vcB64(salt),i:vcB64(iv),c:vcB64(ct)}}
 async function vcOpen(e,pin){try{const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:vcU8(e.i)},await vcKey(pin,vcU8(e.s)),vcU8(e.c));return JSON.parse(new TextDecoder().decode(pt))}catch(x){return null}}
+const vcHasPin=()=>!!S.vcchk||(S.wallets||[]).some(w=>w.vc&&w.vc.enc);
+async function vcCheck(pin){const e=S.vcchk||((S.wallets||[]).find(w=>w.vc&&w.vc.enc)||{vc:{}}).vc.enc;return !e||!!(await vcOpen(e,pin))}
 const vcGrp=n=>String(n||'').replace(/(\d{4})(?=\d)/g,'$1 ');
 let vcShown=null,vcTimer=0;
 function vcardHTML(w){const v=w.vc;
@@ -609,7 +612,7 @@ function vHome(){
  const T=totals();
  if(walletsSet())return walletHero()+`
  <div class="acts"><button data-act="spend" style="background:#c2334d">${ic('minus')}صرفت</button><button data-act="income" style="background:#0a7a6c">${ic('plus')}دخل فلوس</button><button data-act="quick" style="background:var(--hero)">${ic('users')}شخص</button></div>${salCard()}
- <div class="box pcard" data-go="people" style="cursor:pointer"><div><small>ليك عند الناس</small><b class="pl">${fmt(T.plus)}</b></div><div><small>عليك للناس</small><b class="mi">${fmt(T.minus)}</b></div><div><small>صرفت الشهر ده</small><b>${fmt(T.month)}</b></div></div>`+alertsCard()+budgetCard()+quickRow()+homeRest(T);
+ <div class="box pcard" data-go="people" style="cursor:pointer"><div><small>ليك عند الناس</small><b class="pl">${fmt(T.plus)}</b></div><div><small>عليك للناس</small><b class="mi">${fmt(T.minus)}</b></div><div><small>صرفت الشهر ده</small><b>${fmt(T.month)}</b></div></div>`+alertsCard()+budgetCard()+monthInsight()+quickRow()+homeRest(T);
  return `<div class="box" style="padding:16px;margin-bottom:14px;border-inline-start:5px solid var(--gold)"><b>جديد: محفظتك</b><p class="muted" style="margin:4px 0 10px">سجّل معاك كام نقدي وكام على الفيزا، وكل ما تصرف أو يدخلك فلوس هتتحسب لوحدها.</p><button class="btn" data-go="daily">ابدأ</button></div>`+`<section class="hero">
   <small>صافي حسابك مع الناس</small>
   <div class="net">${T.net===0?'خالصين':(T.net<0?'− ':'')+fmt(T.net)}</div>
@@ -617,6 +620,15 @@ function vHome(){
   <div class="hsplit"><div><small>ليك</small><b class="a">${fmt(T.plus)}</b></div><div><small>عليك</small><b class="b">${fmt(T.minus)}</b></div><div><small>الشهر ده</small><b class="c">${fmt(T.month)}</b></div></div>
  </section>
  `+alertsCard()+budgetCard()+quickRow()+homeRest(T)}
+function monthInsight(){const m=month(),d=today().slice(8),pm=(()=>{const [y,mm]=m.split('-').map(Number);const t=new Date(y,mm-2,1);return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')})();
+ const E=(S.exp||[]).filter(x=>x.date&&x.date.startsWith(m)&&x.date<=today());if(E.length<2)return '';const tot=E.reduce((a,x)=>a+(+x.amt||0),0);
+ const prev=(S.exp||[]).filter(x=>x.date&&x.date.startsWith(pm)&&x.date.slice(8)<=d).reduce((a,x)=>a+(+x.amt||0),0);
+ const g=new Map();for(const x of E){let n=x.fee?'عمولات ورسوم':String(x.note||'').replace(/ \(نصيبي\)$/,'').replace(/^قسط .*/,'أقساط').trim()||'من غير وصف';g.set(n,(g.get(n)||0)+(+x.amt||0))}
+ const top=[...g].sort((a,b)=>b[1]-a[1]).slice(0,4),mx=top[0][1]||1;
+ const diff=prev>0?Math.round((tot-prev)/prev*100):null;
+ return `<div class="box insight" data-go="daily" style="cursor:pointer;padding:14px 16px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b>مصاريفك الشهر ده</b><b>${fmt(tot)}</b></div>
+  ${diff!==null?`<div class="muted" style="font-size:13px;margin:2px 0 10px">${diff===0?'زي الشهر اللي فات لحد نفس اليوم':diff>0?`<span style="color:var(--minus)">أكتر بـ ${diff.toLocaleString('ar-EG')}٪</span> من الشهر اللي فات لحد نفس اليوم`:`<span style="color:var(--plus)">أقل بـ ${(-diff).toLocaleString('ar-EG')}٪</span> من الشهر اللي فات لحد نفس اليوم`}</div>`:'<div style="height:8px"></div>'}
+  ${top.map(([n,v])=>`<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:13px;gap:8px"><span>${esc(n)}</span><span class="muted">${fmt(v)}</span></div><div style="height:6px;border-radius:6px;background:var(--line,rgb(127 127 127/.18));overflow:hidden;margin-top:4px"><i style="display:block;height:100%;width:${Math.max(4,Math.round(v/mx*100))}%;background:var(--gold);border-radius:6px"></i></div></div>`).join('')}</div>`}
 const quickRow=()=>`<div class="tools qrow">${[['quick','plus','سجّل حركة'],['salary','coin','المرتب'],['recon','scale','راجع رصيدك'],['more','grid','المزيد']].map(([a,i,l])=>`<button data-act="${a}">${ic(i)}<span>${l}</span></button>`).join('')}</div>`;
 const toolsGrid=()=>`<div class="tools">${[['salary','coin','المرتب'],['gamList','circle','الجمعيات'],['loans','card','القروض والأقساط'],['rems','bell','التنبيهات'],['goals','target','أهداف التحويش'],['bills','repeat','فواتير ثابتة'],['split','split','قسّم فاتورة'],['budget','gauge','ميزانية الشهر'],['export','sheet','تصدير PDF / Excel']].map(([a,i,l])=>`<button data-act="${a}">${ic(i)}<span>${l}</span></button>`).join('')}</div>`;
 function alertsCard(){const R=reminders().filter(r=>r.u&&r.act!=='salGet'&&r.ic!=='up');if(!R.length)return'';return `<div class="box alerts">${R.slice(0,3).map(r=>`<div class="tx" ${r.o?`data-open="${r.o}"`:`data-act="${r.act}"`} style="cursor:pointer"><span class="ti" style="background:${r.n<0?'var(--minus)':'var(--gold)'};color:${r.n<0?'#fff':'#3a2a00'}">${ic(r.ic)}</span><span class="t"><b>${esc(r.t)}</b><small>${esc(r.s)}</small></span></div>`).join('')}${R.length>3?`<button class="more" data-act="rems">كل التنبيهات (${R.length.toLocaleString('ar-EG')})</button>`:''}</div>`}
@@ -1039,7 +1051,7 @@ function renderSheet(){
   $('fAdd').onsubmit=e=>{e.preventDefault();const a=pn($('adA').value);if(!(a>0))return toast('اكتب المبلغ صح');snap();S.mv.push({id:uid(),k:'in',w:w.id,amt:a,date:today(),note:$('adN').value.trim()||'إيداع'});lastW=w.id;save();renderSheet();render();toast('اتزوّد '+(U?ufmt(a):fmt(a))+' على '+wlabel(w),true)};
   if(U&&$('fRate'))$('fRate').onsubmit=e=>{e.preventDefault();const r=pn($('rtV').value);if(!(r>0))return toast('اكتب السعر صح');S.usd=r;save();renderSheet();render();toast('اتحدّث سعر الدولار')};return}
  if(k==='vcEdit'){
-  const w=S.wallets.find(x=>x.id===open.w);if(!w){close();return}const v=w.vc||{},hasPin=!!S.vcph;
+  const w=S.wallets.find(x=>x.id===open.w);if(!w){close();return}const v=w.vc||{},hasPin=vcHasPin();
   const L='direction:ltr;text-align:left';
   c.innerHTML=head('بيانات الفيزا')+`<form class="form" id="fVc"><p class="muted" style="margin:0 0 10px">🔒 الرقم والـ CVV بيتقفلوا برقم سري خاص بالفيزا بس (مش بيقفل البرنامج)، ومش بيبانوا غير لما تكتبه.</p>
    <label>الشبكة</label><div class="wsel" data-wsel="vn"><button type="button" data-w="mc" class="${v.net==='visa'?'':'on'}">Mastercard</button><button type="button" data-w="visa" class="${v.net==='visa'?'on':''}">Visa</button></div>
@@ -1056,7 +1068,8 @@ function renderSheet(){
    if(num&&(num.length<13||num.length>19))return toast('رقم الفيزا ناقص');if(cvv&&cvv.length<3)return toast('الـ CVV ٣ أو ٤ أرقام');if(ex&&!/^(0[1-9]|1[0-2])\/\d\d$/.test(ex))return toast('اكتب التاريخ كده: 08/28');
    const nv={net:getW(c,'vn'),nm:$('vcN').value.trim().toUpperCase(),ex,l4:v.l4||''};if(v.enc)nv.enc=v.enc;
    if(num||cvv){const pin=dg($('vcP').value).replace(/\D/g,'');if(!/^\d{4,6}$/.test(pin))return toast(hasPin?'اكتب الرقم السري بتاع الفيزا':'الرقم السري لازم يكون من ٤ لـ ٦ أرقام');
-    if(hasPin){if(await phash('vc:'+pin)!==S.vcph)return toast('الرقم السري غلط')}else{if(pin!==dg($('vcP2').value).replace(/\D/g,''))return toast('الرقمين مش زي بعض');S.vcph=await phash('vc:'+pin)}
+    if(hasPin){if(!(await vcCheck(pin)))return toast('الرقم السري غلط')}else{if(pin!==dg($('vcP2').value).replace(/\D/g,''))return toast('الرقمين مش زي بعض')}
+    if(!S.vcchk)S.vcchk=await vcLock({ok:1},pin);delete S.vcph;
     let old={};if(v.enc){const o=await vcOpen(v.enc,pin);if(o)old=o}
     const d={num:num||old.num||'',cvv:cvv||old.cvv||''};nv.enc=await vcLock(d,pin);if(d.num)nv.l4=d.num.slice(-4)}
    w.vc=nv;vcShown=null;save();show({kind:'wone',w:w.id});toast('اتحفظت بيانات الفيزا 🔒')};return}
@@ -1434,10 +1447,12 @@ function renderSheet(){
   c.innerHTML=head('تسجّل إيه؟')+`<div class="acts" style="margin-top:0"><button data-act="spend" style="background:#c2334d">${ic('minus')}صرفت</button><button data-act="income" style="background:#0a7a6c">${ic('plus')}دخل فلوس</button><button data-act="transfer" style="background:var(--hero)">⇄ تحويل</button></div><div class="sec" style="margin-top:4px"><h3>حساب شخص</h3><div class="chips" style="flex-wrap:wrap">${P.map(p=>`<button class="chip" data-open="p:${p.id}">${esc(p.name)}</button>`).join('')}<button class="chip" data-act="pickC">+ من جهات الاتصال</button><button class="chip" data-act="newP">+ شخص جديد</button></div></div>
   <div class="sec"><h3>مصروف على باب</h3><div class="chips" style="flex-wrap:wrap">${S.funds.map(f=>`<button class="chip" data-open="f:${f.id}" style="border-color:${f.color||colorOf(f.name)}">${esc(f.name)}</button>`).join('')}<button class="chip" data-act="newF">+ باب جديد</button></div></div>`;return}
  if(k==='settings'){
+  setTimeout(()=>{const so=$('secOn');if(so)so.onchange=()=>{LS.set('daftar_secure',so.checked?1:null);try{NAT.setSecure(!!so.checked)}catch(e){}toast(so.checked?'تمام، محتوى دفتري مش هيظهر في الشاشات الأخيرة ولا في سكرين شوت':'اتلغت')}});
   c.innerHTML=head('الإعدادات')+`${bkRow().replace('margin-top:12px','')}<button class="btn ghost" data-act="shareApp" style="width:100%;margin:12px 0 0">${ic('share')}شارك التطبيق مع حد</button><div style="height:12px"></div><div class="box" style="padding:14px;margin-bottom:12px"><b>شكل البرنامج</b><p class="muted" style="margin:4px 0 10px">اختار الخلفية اللي تريّح عينك.</p>
   <div class="skins">${SKINS.map(([k,l,cs])=>`<button type="button" data-skin="${k}" class="${skin===k?'on':''}"><i>${k==='auto'?`<b style="background:${cs[0]}"></b><b style="background:${cs[1]}"></b>`:`<b style="background:${cs[0]}"></b><b style="background:${cs[1]};max-width:40%"></b>`}</i>${l}</button>`).join('')}</div></div>
   <div class="box" style="padding:14px;margin-bottom:12px"><b>الخصوصية</b><p class="muted" style="margin:4px 0 10px">${LS.get('daftar_pin')?'البرنامج مقفول برقم سري على الجهاز ده'+(pinLen()<6?' (٤ أرقام — غيّره لـ ٦ أرقام عشان يبقى أأمن)':'')+(LS.get('daftar_bio')?' وبالبصمة ✅':'')+'.':'اقفل البرنامج برقم سري من ٦ أرقام وبالبصمة عشان محدش يشوف حساباتك.'}</p>
-   <div class="btns">${LS.get('daftar_pin')?`<button class="btn ghost" data-act="setPin">${ic('lock')}غيّر الرقم</button>${LS.get('daftar_bio')?`<button class="btn ghost" data-act="bioOff">${ic('finger')}إلغاء البصمة</button>`:`<button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn danger" data-act="noPin">شيل القفل</button>`:`<button class="btn" data-act="setPin">${ic('lock')}حط رقم سري</button><button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn ghost" data-act="hideT">${ic(HIDE?'eye':'eyeoff')}${HIDE?'أظهر المبالغ':'خبّي المبالغ'}</button></div></div>
+   <div class="btns">${LS.get('daftar_pin')?`<button class="btn ghost" data-act="setPin">${ic('lock')}غيّر الرقم</button>${LS.get('daftar_bio')?`<button class="btn ghost" data-act="bioOff">${ic('finger')}إلغاء البصمة</button>`:`<button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn danger" data-act="noPin">شيل القفل</button>`:`<button class="btn" data-act="setPin">${ic('lock')}حط رقم سري</button><button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn ghost" data-act="hideT">${ic(HIDE?'eye':'eyeoff')}${HIDE?'أظهر المبالغ':'خبّي المبالغ'}</button></div>
+   ${isNative?`<label class="fee" style="margin-top:12px"><input type="checkbox" id="secOn" ${LS.get('daftar_secure')?'checked':''}> خبّي دفتري في التطبيقات الأخيرة وامنع تصوير الشاشة</label>`:''}</div>
   <div class="box" style="padding:14px;margin-bottom:12px"><b>المحافظ</b><p class="muted" style="margin:4px 0 10px">${S.wallets.map(w=>esc(w.name)).join('، ')}</p><button class="btn ghost" data-act="wallets">${ic('wallet')}إدارة المحافظ</button></div>
   <p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
   ${STORE?'':`<div class="box" style="padding:14px;margin-bottom:12px"><b>نزّل البرنامج على جهازك</b><p class="muted" style="margin:4px 0 10px">ملف واحد بيفتح في أي متصفح من غير نت. بياناته بتتحفظ على الجهاز نفسه، ولنقل البيانات بين النسختين استخدم النسخة الاحتياطية.</p>
@@ -1573,7 +1588,7 @@ function applyBackup(d){const er=bkValid(d);if(er)throw new Error(er);const pre=
   S=bkNorm(d);if(Array.isArray(d.contacts)){C=d.contacts;save('C')}
   ensureW();save();syncKeepMine(null);LS.set('daftar',S);trPrev=trIndex();close();render();toast('اترجّعت النسخة ✅ (والقديمة محفوظة لو حبيت ترجع لها)',true)}
 function applyBackupOld(d){if(!d||!Array.isArray(d.people))throw 0;snap();
-  S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],loans:d.loans||[],sal:d.sal||null,vcph:d.vcph,usd:d.usd,usdAt:d.usdAt,usdAuto:d.usdAuto,usdSrc:d.usdSrc,usdQ:d.usdQ,wMig28:d.wMig28,wMig30:d.wMig30,nDays:d.nDays,nOwe:d.nOwe,goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(Array.isArray(d.contacts)){C=d.contacts;save('C')}
+  S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],loans:d.loans||[],sal:d.sal||null,vcchk:d.vcchk,usd:d.usd,usdAt:d.usdAt,usdAuto:d.usdAuto,usdSrc:d.usdSrc,usdQ:d.usdQ,wMig28:d.wMig28,wMig30:d.wMig30,nDays:d.nDays,nOwe:d.nOwe,goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(Array.isArray(d.contacts)){C=d.contacts;save('C')}
   ensureW();save();close();toast('اترجّعت النسخة',true)}
 $('fileB').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;
  try{restorePreview(JSON.parse(await file.text()),'ملف: '+file.name+' · '+new Date(file.lastModified).toLocaleString('ar-EG',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'}))}catch(err){toast('الملف ده مش نسخة احتياطية من دفتري')}};
@@ -1792,7 +1807,8 @@ const drawDots=()=>$('dots').querySelectorAll('i').forEach((d,i)=>d.classList.to
 $('bioBtn').addEventListener('click',()=>bioUnlock());
 $('lock').addEventListener('click',async e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k,n=pinLen();
  if(k==='x')pinBuf=pinBuf.slice(0,-1);else if(pinBuf.length<n)pinBuf+=k;drawDots();
- if(pinBuf.length===n){const ok=(await phash(pinBuf))===LS.get('daftar_pin');if(ok){$('lock').hidden=true;pinBuf=''}else{const d=$('dots');d.classList.add('bad');setTimeout(()=>{d.classList.remove('bad');pinBuf='';drawDots()},400)}}});
+ if(pinBuf.length===n){const F=LS.get('daftar_pinfail')||{n:0,u:0};if(Date.now()<F.u){pinBuf='';drawDots();return toast('استنى '+Math.ceil((F.u-Date.now())/1000).toLocaleString('ar-EG')+' ثانية وجرّب تاني')}
+  const ok=(await phash(pinBuf))===LS.get('daftar_pin');if(ok){LS.set('daftar_pinfail',null);$('lock').hidden=true;pinBuf=''}else{F.n++;if(F.n>=5){F.u=Date.now()+Math.min(15*60e3,30e3*2**(F.n-5));toast('رقم غلط كذا مرة، استنى '+Math.ceil((F.u-Date.now())/1000).toLocaleString('ar-EG')+' ثانية')}LS.set('daftar_pinfail',F);const d=$('dots');d.classList.add('bad');if(navigator.vibrate)try{navigator.vibrate(80)}catch(x){}setTimeout(()=>{d.classList.remove('bad');pinBuf='';drawDots()},400)}}});
 let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else{if(hiddenAt&&Date.now()-hiddenAt>60000)lockOn();ensureW();if(runRec()){save();render()}}});
 function viewHTML(nm){const o=view;view=nm;let h='';try{h=nm==='home'?vHome():nm==='daily'?vDaily():nm==='people'?vPeople():nm==='funds'?vFunds():vContacts()}catch(e){}view=o;return h}
 const GC={};let gcT=0;
@@ -1829,8 +1845,14 @@ setTimeout(()=>{if(!logPrev)logPrev=JSON.parse(JSON.stringify(logIndex()))},50);
 setTimeout(()=>fetchRate(),2500);setInterval(()=>fetchRate(),30*6e4);document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchRate();else{vcShown=null}});
 $('hq').addEventListener('input',runSearch);$('hqx').addEventListener('click',e=>{e.preventDefault();clearSearch();$('hq').focus()});$('hq').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur()});
 /* ---------- Android app (native) ---------- */
+let scPend=null;const SCK={spend:1,income:1,split:1,transfer:1};
+const scRun=()=>{if(!scPend||!$('lock').hidden)return;const k=scPend;scPend=null;view='home';render();show({kind:k})};
+window.__shortcut=k=>{if(!SCK[k])return;scPend=k;setTimeout(scRun,400)};
+try{new MutationObserver(scRun).observe($('lock'),{attributes:true,attributeFilter:['hidden']})}catch(e){}
 window.__back=()=>{try{if(!$('lock').hidden)return false}catch(e){}if(open){goBack();return true}if(view!=='home'){view='home';render();return true}return false};
 if(isNative){
+ try{if(LS.get('daftar_secure'))NAT.setSecure(true)}catch(e){}
+ setTimeout(()=>{try{const k=NAT.takeShortcut();if(k)window.__shortcut(k)}catch(e){}},1900);
  const toB64=d=>new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(String(fr.result).split(',')[1]||'');fr.onerror=()=>r('');fr.readAsDataURL(d instanceof Blob?d:new Blob([d]))});
  LIBS.h2c='lib/html2canvas.min.js';LIBS.pdf='lib/jspdf.umd.min.js';
  const nshare=async o=>{o=o||{};if(o.files&&o.files.length){const f=o.files[0];const r=await natCall('shareFile',f.name,f.type||'application/octet-stream',await toB64(f));if(!r)throw new Error('share');return}
@@ -1859,7 +1881,7 @@ if(STORE&&'serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')
 const l=LS.get('daftar');if(l&&Array.isArray(l.people)){S=Object.assign(S,l);if(!Array.isArray(S.mv))S.mv=[]}
 skin=LS.get('daftar_skin')||S.skin||'auto';applySkin();HIDE=!!LS.get('daftar_hide');ensureW();if(runRec())save();setTimeout(notifyOpen,1500);setTimeout(remSnap,2000);setTimeout(()=>{if(gAuto()&&new Date(LS.get('daftar_gbk')||0).toDateString()!==new Date().toDateString())driveBackup(false)},5000);
 const lc=LS.get('daftar_contacts');if(Array.isArray(lc))C=lc;
-if(!trPrev)trPrev=trIndex();setTimeout(syncSoon,isNative?1500:4000);
+if(!trPrev)trPrev=trIndex();if(dropVcph())save();setTimeout(syncSoon,isNative?1500:4000);
 render();status('على الجهاز','off');
 (async()=>{
  let tries=0;while(typeof window.claude==='undefined'&&tries<8){await new Promise(r=>setTimeout(r,250));tries++}
@@ -1874,7 +1896,7 @@ render();status('على الجهاز','off');
   const rd=r=>r&&(typeof r.data==='function'?r.data():(r.data!==undefined?r.data:r));
   const [a,b]=await Promise.all([ref.get(),refC.get()]);clearTimeout(timer);
   const cl=x=>x==null?x:JSON.parse(JSON.stringify(x));const d=cl(rd(a)),dc=cl(rd(b));
-  if(d&&Array.isArray(d.people)){S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],loans:d.loans||[],sal:d.sal||null,vcph:d.vcph,usd:d.usd,usdAt:d.usdAt,usdAuto:d.usdAuto,usdSrc:d.usdSrc,usdQ:d.usdQ,wMig28:d.wMig28,wMig30:d.wMig30,nDays:d.nDays,nOwe:d.nOwe,goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(S.skin&&!LS.get('daftar_skin')){skin=S.skin;applySkin()}}else if(S.people.length||S.funds.length)save();
+  if(d&&Array.isArray(d.people)){S={people:d.people,tx:d.tx||[],funds:d.funds||[],exp:d.exp||[],mv:d.mv||[],wallets:d.wallets,rec:d.rec||[],gam:d.gam||[],loans:d.loans||[],sal:d.sal||null,vcchk:d.vcchk,usd:d.usd,usdAt:d.usdAt,usdAuto:d.usdAuto,usdSrc:d.usdSrc,usdQ:d.usdQ,wMig28:d.wMig28,wMig30:d.wMig30,nDays:d.nDays,nOwe:d.nOwe,goals:d.goals||[],budget:d.budget||0,wMig8:d.wMig8,cur:d.cur||'ج.م',skin:d.skin};if(S.skin&&!LS.get('daftar_skin')){skin=S.skin;applySkin()}}else if(S.people.length||S.funds.length)save();
   if(dc&&Array.isArray(dc.list))C=dc.list;else if(C.length)save('C');
   ensureW();if(runRec())save();cloud=true;status('محفوظ');render();notifyOpen();
  }catch(err){clearTimeout(timer);ref=refC=null;status('على الجهاز ده بس','off')}
