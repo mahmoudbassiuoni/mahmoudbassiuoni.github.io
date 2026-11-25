@@ -312,7 +312,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٥ نوفمبر - ٣';
+const VER='٢٥ نوفمبر - ٤';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -434,6 +434,9 @@ const salWallet0=()=>{const z=S.wallets.find(w=>w.net==='meeza'&&w.mz==='salary'
 const salWName=()=>{const z=S.wallets.find(w=>w.net==='meeza'&&w.mz==='salary')||S.wallets.find(w=>w.acc==='حساب مرتبات');return z?z.name:'ميزة مرتبات الأهلي'};
 const noteSugs=sp=>{const m=new Map(),src=sp?(S.exp||[]).filter(x=>!x.fee&&!x.gam&&!x.loan):(S.mv||[]).filter(x=>x.k==='in'&&!x.start&&!x.sal);
  for(const x of src){const n=String(x.note||'').trim();if(!n||n.length>40)continue;const o=m.get(n)||{n,c:0,d:''};o.c++;if((x.date||'')>o.d)o.d=x.date||'';m.set(n,o)}
+ return [...m.values()].sort((a,b)=>b.c-a.c||b.d.localeCompare(a.d)).map(o=>o.n)};
+const splitSugs=()=>{const m=new Map(),add=(n,d)=>{n=String(n||'').trim();if(!n||n.length>40||n==='فاتورة')return;const o=m.get(n)||{n,c:0,d:''};o.c++;if((d||'')>o.d)o.d=d||'';m.set(n,o)};
+ const seen=new Set();for(const t of S.tx||[]){const x=/^تقسيم: (.*?)(?: \((?:اداني كاش|حوّلي|دفعها عني|اديته كاش|حوّلتله)\))?$/.exec(t.note||'');if(x&&t.type==='took'||x&&t.type==='lent'){const k=t.date+'|'+x[1];if(!seen.has(k)){seen.add(k);add(x[1],t.date)}}}
  return [...m.values()].sort((a,b)=>b.c-a.c||b.d.localeCompare(a.d)).map(o=>o.n)};
 const feeOf=(a,r)=>r>0?Math.round(a*r/1000*100)/100:0;
 const maxSend=(bal,r)=>r>0?Math.floor(bal*100000/(1000+r))/100:bal;
@@ -1124,26 +1127,53 @@ function renderSheet(){
    if(isT){o.type=et;const du=$('edDue').value;if(du&&et==='took')o.due=du;else delete o.due}
    save();goBack();toast('اتعدّل')};return}
  if(k==='split'){
-  const sel=open.sel||(open.sel=[]);
-  c.innerHTML=head('قسّم فاتورة')+`<form class="form" id="fSp"><p class="muted" style="margin:0 0 10px">دفعت فاتورة عن ناس؟ البرنامج هيقسمها ويسجّل على كل واحد نصيبه.</p>
+  const sel=open.sel||(open.sel=[]),st=open.st||(open.st={});
+  const H=splitSugs(),D=['غدا','عشا','فطار','قهوة','رحلة','فاتورة نت'],Q=[...H.slice(0,12),...D.filter(x=>!H.includes(x))].slice(0,Math.max(6,Math.min(12,H.length)));
+  const leaf=S.wallets.filter(w=>!kids(w.id).length&&w.t!=='app'),cashW=leaf.filter(w=>w.id==='cash'||w.parent==='cash'),trW=leaf.filter(w=>!(w.id==='cash'||w.parent==='cash'));
+  const wl=(L,cur,name)=>{const c0=L.some(w=>w.id===cur)?cur:(L[0]||{}).id;return `<div class="wsel" data-wsel="${name}">${L.map(w=>`<button type="button" data-w="${w.id}" class="${w.id===c0?'on':''}">${esc(wlabel(w))}</button>`).join('')}</div>`};
+  c.innerHTML=head('قسّم فاتورة')+`<form class="form" id="fSp"><p class="muted" style="margin:0 0 10px">اكتب الفاتورة واختار مين كان معاك، وحدد كل واحد دفع نصيبه إزاي.</p>
    <label>المبلغ كله</label><input id="spAmt" type="text" autocomplete="off" inputmode="decimal" placeholder="ممكن تكتب 120+80">
-   <div style="height:10px"></div><label>على إيه</label><input id="spNote" placeholder="مثلاً: غدا، رحلة، فاتورة نت…">
-   <label style="margin-top:10px">دفعتها من</label>${wsel(lastW,true)}
-   <label>مين معاك؟ <span id="spCnt"></span></label><input id="spQ" placeholder="ابحث بالاسم"><div class="chips" id="spL" style="flex-wrap:wrap;padding-top:8px"></div>
-   <label style="margin-top:6px">نصيبك محسوب معاهم؟</label><div class="wsel" data-wsel="me"><button type="button" data-w="y" class="on">أيوه، أنا كمان</button><button type="button" data-w="n">لأ، عليهم بس</button></div>
+   <div style="height:10px"></div><label>على إيه</label><input id="spNote" list="spNoteL" autocomplete="off" placeholder="مثلاً: غدا، رحلة، فاتورة نت…"><datalist id="spNoteL">${H.map(q=>`<option value="${esc(q)}">`).join('')}</datalist>
+   <div class="chips" style="flex-wrap:wrap;padding-top:8px">${Q.map(q=>`<button type="button" class="chip" data-spq="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+   <label style="margin-top:6px">مين معاك؟ <span id="spCnt"></span></label><input id="spQ" placeholder="ابحث بالاسم"><div class="chips" id="spL" style="flex-wrap:wrap;padding-top:8px"></div>
+   <label style="margin-top:6px">مين دفع الفاتورة؟</label><div class="wsel" data-wsel="payer"><button type="button" data-w="me" class="on">أنا</button><button type="button" data-w="other">حد من اللي معايا</button></div>
+   <div id="spMe"><label>دفعتها من</label>${wsel(lastW,true)}
+    <label>نصيبك محسوب معاهم؟</label><div class="wsel" data-wsel="me"><button type="button" data-w="y" class="on">أيوه، أنا كمان</button><button type="button" data-w="n">لأ، عليهم بس</button></div>
+    <div id="spRows"></div>
+    <div id="spCashW" hidden><label>الكاش اللي خدته دخل في</label>${wl(cashW,lastW,'cin')}</div>
+    <div id="spTrW" hidden><label>التحويلات نزلت على</label>${wl(trW,'','tin')}</div></div>
+   <div id="spOther" hidden><label>مين اللي دفع؟</label><select id="spPayer"></select>
+    <label style="margin-top:10px">نصيبك انت</label><div class="wsel" data-wsel="mine"><button type="button" data-w="owe" class="on">لسه عليا</button><button type="button" data-w="cash">اديته كاش</button><button type="button" data-w="tr">حوّلتله</button></div>
+    <div id="spMineW" hidden><label>منين؟</label>${wsel(lastW,false,'mw')}</div></div>
    <label>التاريخ</label><input id="spDate" type="date" value="${today()}">
    <p class="muted" id="spRes" style="margin:10px 0 0"></p>
    <div class="btns" style="margin-top:12px"><button class="btn">${ic('split')}قسّم وسجّل</button></div></form>`;
+  const payer=()=>getW(c,'payer'),meIn=()=>payer()==='other'||getW(c,'me')==='y',share=()=>{const a=pn($('spAmt').value)||0,n=sel.length+(meIn()?1:0);return n?r2(a/n):0};
+  const STL={owe:'لسه عليه',cash:'اداني كاش',tr:'حوّلي'};
+  const drawRows=()=>{const sh=share(),P=S.people.filter(p=>sel.includes(p.id));$('spRows').innerHTML=P.length?`<label style="margin-top:6px">كل واحد دفع نصيبه إزاي؟</label>`+P.map(p=>{const v=st[p.id]||'owe';return `<div class="box" style="padding:10px 12px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:6px"><b>${esc(p.name)}</b><span class="muted">${sh?fmt(sh):''}</span></div><div class="wsel" data-wsel="st_${p.id}" data-stp="${p.id}" style="margin:0">${Object.keys(STL).map(k=>`<button type="button" data-w="${k}" class="${v===k?'on':''}">${STL[k]}</button>`).join('')}</div></div>`}).join(''):'';
+   const vs=sel.map(id=>st[id]||'owe');$('spCashW').hidden=!vs.includes('cash');$('spTrW').hidden=!vs.includes('tr')};
+  const calcR=()=>{const a=pn($('spAmt').value),sh=share(),oth=payer()==='other';$('spMe').hidden=oth;$('spOther').hidden=!oth;$('spMineW').hidden=getW(c,'mine')==='owe';
+   const cur=$('spPayer').value;$('spPayer').innerHTML=S.people.filter(p=>sel.includes(p.id)).map(p=>`<option value="${p.id}" ${p.id===cur?'selected':''}>${esc(p.name)}</option>`).join('');
+   if(!oth)drawRows();
+   $('spRes').textContent=!(a>0)||!sel.length?'':oth?`نصيبك ${fmt(sh)}`:(()=>{const vs=sel.map(id=>st[id]||'owe'),o=vs.filter(v=>v==='owe').length,p=vs.length-o;return `كل واحد عليه ${fmt(sh)}`+(p?` · ${p.toLocaleString('ar-EG')} دفعوا (${fmt(sh*p)})`:'')+(o?` · ${o.toLocaleString('ar-EG')} لسه عليهم`:'')})()};
   const drawL=()=>{const q=$('spQ').value.trim();const L=S.people.filter(p=>sel.includes(p.id)).concat(S.people.filter(p=>!sel.includes(p.id)&&(!q||p.name.includes(q))).sort((a,b)=>lastAct(b.id).localeCompare(lastAct(a.id))).slice(0,30));
    $('spL').innerHTML=L.map(p=>`<button type="button" class="chip ${sel.includes(p.id)?'on':''}" data-sp="${p.id}">${esc(p.name)}</button>`).join('')||'<span class="muted">مفيش أسماء، ضيف ناس الأول.</span>';$('spCnt').textContent=sel.length?`(${sel.length.toLocaleString('ar-EG')})`:'';calcR()};
-  const calcR=()=>{const a=pn($('spAmt').value),me=getW(c,'me')==='y',n=sel.length+(me?1:0);$('spRes').textContent=a>0&&sel.length?`كل واحد عليه ${fmt(r2(a/n))}`:''};
-  $('spQ').oninput=drawL;$('spAmt').oninput=calcR;c.querySelector('[data-wsel=me]').addEventListener('click',()=>setTimeout(calcR));
+  $('spQ').oninput=drawL;$('spAmt').oninput=calcR;
+  c.querySelectorAll('[data-spq]').forEach(b=>b.onclick=()=>{$('spNote').value=b.dataset.spq});
+  ['payer','me','mine'].forEach(n=>c.querySelector(`[data-wsel=${n}]`).addEventListener('click',()=>setTimeout(calcR)));
+  $('spRows').addEventListener('click',e=>{const b=e.target.closest('[data-stp] [data-w]');if(!b)return;st[b.parentNode.dataset.stp]=b.dataset.w;setTimeout(calcR)});
   $('spL').onclick=e=>{const b=e.target.closest('[data-sp]');if(!b)return;const id=b.dataset.sp;const i=sel.indexOf(id);if(i>=0)sel.splice(i,1);else sel.push(id);drawL()};drawL();
   $('fSp').onsubmit=e=>{e.preventDefault();const a=pn($('spAmt').value);if(!(a>0))return toast('اكتب المبلغ صح');if(!sel.length)return toast('اختار شخص واحد على الأقل');
-   const me=getW(c,'me')==='y',n=sel.length+(me?1:0),sh=r2(a/n),note=$('spNote').value.trim()||'فاتورة',date=$('spDate').value||today(),w=getW(c);lastW=w==='none'?lastW:w;snap();
-   sel.forEach(pid=>{const t={id:uid(),pid,type:'took',amt:sh,date,note:'تقسيم: '+note};if(w!=='none')t.w=w;S.tx.push(t)});
+   const note=$('spNote').value.trim()||'فاتورة',date=$('spDate').value||today(),sh=share(),tn='تقسيم: '+note;
+   if(payer()==='other'){const pid=$('spPayer').value;if(!pid)return toast('اختار مين دفع');const mine=getW(c,'mine');snap();
+    S.exp.push({id:uid(),fid:'',amt:sh,date,note:note+' (نصيبي)'});S.tx.push({id:uid(),pid,type:'lent',amt:sh,date,note:tn+' (دفعها عني)'});
+    if(mine!=='owe'){const w=getW(c,'mw');lastW=w;S.tx.push({id:uid(),pid,type:'iPaid',amt:sh,date,note:tn+(mine==='cash'?' (اديته كاش)':' (حوّلتله)'),w})}
+    const pn0=(S.people.find(p=>p.id===pid)||{}).name||'';save();close();return toast(mine==='owe'?`اتسجّل إن عليك ${fmt(sh)} لـ ${pn0}`:`اتسجّل نصيبك ${fmt(sh)} واتدفع لـ ${pn0}`,true)}
+   const me=getW(c,'me')==='y',w=getW(c),cin=getW(c,'cin'),tin=getW(c,'tin');lastW=w==='none'?lastW:w;snap();let paid=0,owe=0;
+   sel.forEach(pid=>{const t={id:uid(),pid,type:'took',amt:sh,date,note:tn};if(w!=='none')t.w=w;S.tx.push(t);const v=st[pid]||'owe';
+    if(v==='owe'){owe++;return}paid++;S.tx.push({id:uid(),pid,type:'paidMe',amt:sh,date,note:tn+(v==='cash'?' (اداني كاش)':' (حوّلي)'),w:v==='cash'?cin:tin})});
    if(me){const x={id:uid(),fid:'',amt:r2(a-sh*sel.length),date,note:note+' (نصيبي)'};if(w!=='none')x.w=w;S.exp.push(x)}
-   save();close();toast(`اتقسمت: ${sel.length.toLocaleString('ar-EG')} شخص عليهم ${fmt(sh)}`,true)};return}
+   save();close();toast(`اتقسمت ${fmt(a)}: كل واحد ${fmt(sh)}`+(paid?` · ${paid.toLocaleString('ar-EG')} دفعوا`:'')+(owe?` · ${owe.toLocaleString('ar-EG')} لسه عليهم`:''),true)};return}
  if(k==='bills'){
   const dn=new Date().getDate();
   c.innerHTML=head('فواتير ومصاريف ثابتة')+`<p class="muted" style="margin:0 0 10px">زي الإيجار والنت والكهربا. كل شهر في يومها البرنامج هيسجّلها لوحده ويخصمها.</p>
