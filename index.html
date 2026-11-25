@@ -312,7 +312,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٥ نوفمبر - ٥';
+const VER='٢٥ نوفمبر - ٦';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -1454,7 +1454,7 @@ function renderSheet(){
    <div class="btns">${LS.get('daftar_pin')?`<button class="btn ghost" data-act="setPin">${ic('lock')}غيّر الرقم</button>${LS.get('daftar_bio')?`<button class="btn ghost" data-act="bioOff">${ic('finger')}إلغاء البصمة</button>`:`<button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn danger" data-act="noPin">شيل القفل</button>`:`<button class="btn" data-act="setPin">${ic('lock')}حط رقم سري</button><button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn ghost" data-act="hideT">${ic(HIDE?'eye':'eyeoff')}${HIDE?'أظهر المبالغ':'خبّي المبالغ'}</button></div>
    ${isNative?`<label class="fee" style="margin-top:12px"><input type="checkbox" id="secOn" ${LS.get('daftar_secure')?'checked':''}> خبّي دفتري في التطبيقات الأخيرة وامنع تصوير الشاشة</label>`:''}</div>
   <div class="box" style="padding:14px;margin-bottom:12px"><b>المحافظ</b><p class="muted" style="margin:4px 0 10px">${S.wallets.map(w=>esc(w.name)).join('، ')}</p><button class="btn ghost" data-act="wallets">${ic('wallet')}إدارة المحافظ</button></div>
-  <p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
+  <p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}${isNative?` · <a href="#" data-act="updPrev" style="color:inherit">شكل رسالة التحديث</a>`:''}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
   ${STORE?'':`<div class="box" style="padding:14px;margin-bottom:12px"><b>نزّل البرنامج على جهازك</b><p class="muted" style="margin:4px 0 10px">ملف واحد بيفتح في أي متصفح من غير نت. بياناته بتتحفظ على الجهاز نفسه، ولنقل البيانات بين النسختين استخدم النسخة الاحتياطية.</p>
   <button class="btn" data-act="dlApp">${ic('down')}تنزيل البرنامج</button></div>`}
   <div class="box" style="padding:14px;margin-top:12px"><b>التقارير</b><p class="muted" style="margin:4px 0 10px">طلّع كشف بحساباتك ومصاريفك.</p><button class="btn ghost" data-act="export">${ic('sheet')}تصدير PDF / Excel</button></div>`;
@@ -1674,6 +1674,7 @@ document.addEventListener('click',async e=>{
   const used=S.tx.some(t=>t.w===id)||S.exp.some(x=>x.w===id)||S.mv.some(m=>(m.w===id||m.to===id)&&!(m.start&&!m.amt));
   if(used)return toast('المحفظة دي عليها حركات، مقدرش أمسحها. ممكن تغيّر اسمها');
   S.mv=S.mv.filter(m=>m.w!==id);S.wallets=S.wallets.filter(w=>w.id!==id);save();show({kind:'wallets'});return toast('اتمسحت')}
+ if(a==='updPrev'){e.preventDefault();try{NAT.previewUpdate()}catch(x){}return}
  if(a==='setPin')return show({kind:'pin'});
  if(a==='bioOn'){if(!LS.get('daftar_pin')){toast('حط رقم سري الأول، وبعده هنفعّل البصمة على طول');return show({kind:'pin',bio:1})}if(!(await bioAvail()))return toast('البصمة بتشتغل في تطبيق الموبايل بس، ولازم تكون متسجّلة على الموبايل');const ok=await bioEnable();renderSheet();return toast(ok?'تمام، تقدر تفتح البرنامج بالبصمة':'البصمة ماتفعّلتش')}
  if(a==='bioOff'){LS.set('daftar_bio',null);renderSheet();return toast('اتشال الفتح بالبصمة')}
