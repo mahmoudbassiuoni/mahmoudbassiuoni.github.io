@@ -312,7 +312,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٥ نوفمبر - ٦';
+const VER='٢٦ نوفمبر - ١';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -438,11 +438,13 @@ const noteSugs=sp=>{const m=new Map(),src=sp?(S.exp||[]).filter(x=>!x.fee&&!x.ga
 const splitSugs=()=>{const m=new Map(),add=(n,d)=>{n=String(n||'').trim();if(!n||n.length>40||n==='فاتورة')return;const o=m.get(n)||{n,c:0,d:''};o.c++;if((d||'')>o.d)o.d=d||'';m.set(n,o)};
  const seen=new Set();for(const t of S.tx||[]){const x=/^تقسيم: (.*?)(?: \((?:اداني كاش|حوّلي|دفعها عني|اديته كاش|حوّلتله)\))?$/.exec(t.note||'');if(x&&t.type==='took'||x&&t.type==='lent'){const k=t.date+'|'+x[1];if(!seen.has(k)){seen.add(k);add(x[1],t.date)}}}
  return [...m.values()].sort((a,b)=>b.c-a.c||b.d.localeCompare(a.d)).map(o=>o.n)};
-const feeOf=(a,r)=>r>0?Math.round(a*r/1000*100)/100:0;
-const maxSend=(bal,r)=>r>0?Math.floor(bal*100000/(1000+r))/100:bal;
+/* InstaPay: 1 per 1000, at least 0.5 EGP, at most 20 EGP */
+const FEE_MIN=0.5,FEE_MAX=20;
+const feeOf=(a,r)=>r>0&&a>0?Math.min(FEE_MAX,Math.max(FEE_MIN,Math.round(a*r/1000*100)/100)):0;
+const maxSend=(bal,r)=>{if(!(r>0))return bal;let s=Math.floor(bal*100000/(1000+r))/100;if(s*r/1000<FEE_MIN)s=Math.floor((bal-FEE_MIN)*100)/100;else if(s*r/1000>FEE_MAX)s=Math.floor((bal-FEE_MAX)*100)/100;return Math.max(0,s)};
 function doTransfer(w,to,amt,date,feeR,note,recv){const sent=recv>0?recv:amt,fee=recv>0?Math.max(0,Math.round((amt-recv)*100)/100):feeOf(amt,feeR);
  S.mv.push({id:uid(),k:'tr',w,to,amt:Math.round(sent*100)/100,date,note:note||''});if(fee>0)S.exp.push({id:uid(),fid:'',amt:fee,date,note:'عمولة تحويل',w,fee:1});return fee}
-const feeBox=(on,r)=>`<label class="fee"><input type="checkbox" id="feeOn" ${on?'checked':''}> فيه عمولة تحويل <input id="feeR" type="text" inputmode="decimal" value="${r}" style="width:56px;text-align:center"> في الألف</label><div class="muted" id="feeInfo" style="font-size:13px;margin:-2px 0 10px"></div>`;
+const feeBox=(on,r)=>`<label class="fee"><input type="checkbox" id="feeOn" ${on?'checked':''}> فيه عمولة تحويل <input id="feeR" type="text" inputmode="decimal" value="${r}" style="width:56px;text-align:center"> في الألف <small class="muted">(أقل حاجة نص جنيه وأقصى ٢٠)</small></label><div class="muted" id="feeInfo" style="font-size:13px;margin:-2px 0 10px"></div>`;
 function feeBind(amtId){const up=()=>{const a=pn($(amtId).value)||0,rv=$('trRecv')?pn($('trRecv').value)||0:0,on=$('feeOn').checked,r=pn($('feeR').value)||0,f=rv>0?Math.max(0,a-rv):on?feeOf(a,r):0;$('feeInfo').innerHTML=a>0?(rv>0?`وصل <b>${fmt(rv)}</b> · العمولة اللي اتخصمت <b>${fmt(f)}</b>`:on?`هيوصل <b>${fmt(a)}</b> كامل · العمولة <b>${fmt(f)}</b> بتتخصم زيادة من الكارت اللي بتحوّل منه (إجمالي <b>${fmt(a+f)}</b>)`:'من غير عمولة · هيوصل <b>'+fmt(a)+'</b>'):''};[amtId,'feeR','trRecv'].filter(i=>$(i)).forEach(i=>$(i).addEventListener('input',up));$('feeOn').addEventListener('change',up);up()}
 const feeVal=()=>{const on=$('feeOn').checked,r=pn($('feeR').value)||0;S.trFee=on?1:0;if(r>0)S.trFeeR=r;return on?r:0};
 function salCard(){if(!salDue())return '';const late=+today().slice(8)>=salDay();return `<div class="box salc" data-act="salary"><span class="ti">${ic('coin')}</span><span class="t"><b>${late?'المرتب نزل؟':'المرتب قرّب ينزل'}</b><small>سجّل مرتب ${mLabel(month())} · على ${esc(salWName())}</small></span><span class="btn sm">${ic('plus')}سجّل</span></div>`}
