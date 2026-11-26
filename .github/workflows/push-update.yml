@@ -5,7 +5,7 @@ name: Notify new Daftari version
 on:
   push:
     branches: [main]
-    paths: [version.json]
+    paths: [version.json, push-test.txt]
   workflow_dispatch:
 jobs:
   notify:
@@ -29,7 +29,8 @@ jobs:
               old = json.loads(subprocess.check_output(['git', 'show', 'HEAD~1:version.json']).decode())
           except Exception:
               old = {}
-          if old.get('code') == v.get('code'):
+          test = subprocess.run(['git','diff','--quiet','HEAD~1','HEAD','--','push-test.txt']).returncode != 0
+          if old.get('code') == v.get('code') and not test:
               print('version code unchanged — no notification'); raise SystemExit(0)
           sa = json.loads(os.environ['FCM_SA'])
           cred = service_account.Credentials.from_service_account_info(sa, scopes=['https://www.googleapis.com/auth/firebase.messaging'])
@@ -37,8 +38,8 @@ jobs:
           notes = (v.get('notes') or 'افتح دفتري ونزّل التحديث').replace('• ', '')
           msg = {'message': {
               'topic': 'updates',
-              'notification': {'title': 'تحديث جديد لدفتري (%s)' % v.get('name', ''), 'body': notes},
-              'data': {'code': str(v.get('code', '')), 'name': str(v.get('name', ''))},
+              'notification': {'title': 'تجربة إشعارات دفتري ✅' if test else 'تحديث جديد لدفتري (%s)' % v.get('name', ''), 'body': 'لو الإشعار ده وصلك، يبقى إشعارات التحديث الفورية شغالة' if test else notes},
+              'data': {'code': '0' if test else str(v.get('code', '')), 'name': str(v.get('name', ''))},
               'android': {'priority': 'high', 'notification': {'channel_id': 'daftari_updates', 'color': '#0C3B3A'}}}}
           r = requests.post('https://fcm.googleapis.com/v1/projects/%s/messages:send' % sa['project_id'],
                             headers={'Authorization': 'Bearer ' + cred.token}, json=msg, timeout=30)
