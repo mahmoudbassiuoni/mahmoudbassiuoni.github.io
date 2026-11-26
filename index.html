@@ -328,7 +328,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ١٥';
+const VER='٢٦ نوفمبر - ١٦';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -1261,10 +1261,10 @@ function renderSheet(){
    save();goBack();toast('اتعدّل')};return}
  if(k==='bankq'){const q=bankQ();if(!q.length){close();return}
   const L=S.wallets.filter(w=>!kids(w.id).length&&w.t!=='app'&&!(w.id==='cash'||w.parent==='cash'));
-  c.innerHTML=head('حركات من البنك')+`<p class="muted" style="margin:0 0 10px">قولّي كل حركة من أنهي كارت. هفتكره، والمرة الجاية هتتسجّل لوحدها.</p>`+q.map((x,i)=>{const bw=bankWallet(x),g=bw&&L.some(w=>w.id===bw)?bw:L.find(w=>w.id===lastW)?lastW:(L[0]||{}).id;return `<div class="box" style="padding:12px 14px;margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:8px"><b>${x.dir==='in'?'دخل':x.tr?'تحويل':'دفع'}${x.who?' · '+esc(x.who):''}${x.l4?' <small class="muted">كارت <bdi dir="ltr">••'+esc(x.l4)+'</bdi></small>':''}</b>${amtB(x)}</div>
+  c.innerHTML=head('حركات من البنك')+`<p class="muted" style="margin:0 0 10px">قولّي كل حركة من أنهي كارت. هفتكره، والمرة الجاية هتتسجّل لوحدها.</p>`+q.map((x,i)=>{const bw=bankWallet(x),g=bw||(L.find(w=>w.id===lastW)?lastW:(L[0]||{}).id);return `<div class="box" style="padding:12px 14px;margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:8px"><b>${x.dir==='in'?'دخل':x.tr?'تحويل':'دفع'}${x.who?' · '+esc(x.who):''}${x.l4?' <small class="muted">كارت <bdi dir="ltr">••'+esc(x.l4)+'</bdi></small>':''}</b>${amtB(x)}</div>
    <div class="muted" style="font-size:12px;margin:4px 0 8px;max-height:60px;overflow:hidden">${esc(x.text)}</div>${x.insta&&!x.l4?'<div class="muted" style="font-size:12px;margin:-4px 0 8px">ده إشعار إنستاباي ومش مكتوب فيه الحساب، ورسالة البنك ما جاتش. اختار الحساب للحركة دي بس.</div>':''}
-   <div class="wsel" data-wsel="bq${i}">${L.map(w=>`<button type="button" data-w="${w.id}" class="${w.id===g?'on':''}">${esc(wlabel(w))}</button>`).join('')}</div>
-   <div class="btns" style="margin-top:8px" data-i="${i}"><button class="btn sm" data-act="bqOk">سجّلها</button><button class="btn ghost sm" data-act="bqNo">تجاهل</button></div></div>`}).join('');return}
+   <label style="font-size:13px">الفلوس دي ${x.dir==='in'?'دخلت على':'طلعت من'}:</label><select class="bqs" data-bqs="${i}" data-def="${g||''}">${destOpts('')}</select>
+   <div class="btns" style="margin-top:8px" data-i="${i}"><button class="btn sm" data-act="bqOk">سجّلها</button><button class="btn ghost sm" data-act="bqNo">تجاهل</button></div></div>`}).join('');c.querySelectorAll('select[data-bqs]').forEach(el=>{if(el.dataset.def)el.value=el.dataset.def});return}
  if(k==='admin'){
   c.innerHTML=head('لوحة الأدمن')+(adminData&&!adminData.err?adminHTML(adminData):`<p class="muted" style="text-align:center;padding:30px 0">${adminData&&adminData.err?'مقدرتش أجيب البيانات: '+esc(adminData.err)+'<br><br>اتأكد إن قواعد Firestore اتحطت وإن حسابك أدمن.':'بيجيب البيانات…'}</p>`);
   if(!adminData)adminLoad().then(()=>{if(open&&open.kind==='admin')renderSheet()});return}
@@ -1836,7 +1836,7 @@ document.addEventListener('click',async e=>{
  if(a==='closeS'){close();return}
  if(a==='reconDel'){const H=reconHist().find(h=>h.aud===open.aud);if(!H)return close();if(!confirm('تمسح المراجعة دي؟ الأرصدة هترجع زي ما كانت قبلها.'))return;snap();const ids=new Set(H.L.map(m=>m.id));S.mv=S.mv.filter(m=>!ids.has(m.id));{const R2=reconHist();if(R2.length)S.lastRecon=R2[0].date;else delete S.lastRecon}save();render();show({kind:'recon'});return toast('اتمسحت المراجعة والأرصدة رجعت',true)}
  if(a==='bqOk'||a==='bqNo'){const i=+e.target.closest('[data-i]').dataset.i,q=bankQ(),x=q[i];if(!x)return renderSheet();q.splice(i,1);
-  if(a==='bqOk'){const w=getW($('card'),'bq'+i);snap();const W=S.wallets.find(z=>z.id===w);const mem=!(x.insta&&!x.l4);if(W&&mem){W.bk=[...new Set([...(W.bk||[]),bankKey(x)])].slice(-12)}bankRecord(x,w);
+  if(a==='bqOk'){const sel=$('card').querySelector(`select[data-bqs="${i}"]`),w=destResolve(sel?sel.value:'');if(!w)return toast('اختار الحساب');snap();const W=S.wallets.find(z=>z.id===w);const mem=!(x.insta&&!x.l4);if(W&&mem){W.bk=[...new Set([...(W.bk||[]),bankKey(x)])].slice(-12)}bankRecord(x,w);
    if(mem)for(let j=q.length-1;j>=0;j--)if(bankKey(q[j])===bankKey(x)){bankRecord(q[j],w);q.splice(j,1)}bankPair();bankQset(q);save();render();toast(mem?'اتسجّلت على '+wn(w)+'، واللي بعد كده من الكارت ده هيتسجّل لوحده':'اتسجّلت على '+wn(w),true)}else bankQset(q);
   if(q.length)renderSheet();else close();return}
  if(a==='admAdd'){const em=String($('admEm').value||'').trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))return toast('اكتب إيميل صح');try{const f=await fbReady();await f.fs.setDoc(f.fs.doc(f.db,'admins',em),{by:(acct()||{}).email||'',at:f.fs.serverTimestamp()});toast('اتضاف '+em+' أدمن ✅');adminData=null;renderSheet()}catch(x){toast('مقدرتش أضيفه: '+(x.code||x.message))}return}
