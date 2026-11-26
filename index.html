@@ -323,8 +323,8 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <button type="button" id="gEmT" class="glink">موبايلك مفيهوش خدمات جوجل؟ ادخل بالإيميل</button>
 <form id="gEm" hidden autocomplete="on"><input id="gEmail" type="email" inputmode="email" autocomplete="email" placeholder="الإيميل" dir="ltr"><input id="gPass" type="password" autocomplete="current-password" placeholder="كلمة سر (٦ حروف أو أرقام على الأقل)" dir="ltr"><button id="gEmB" type="submit">ادخل</button><button type="button" id="gForgot" class="glink">نسيت كلمة السر؟</button></form>
 <div id="gMsg" class="gmsg"></div>
-<small>بنحتفظ باسمك وإيميلك (وصورتك لو دخلت بجوجل)، وإمتى بتستخدم التطبيق. حساباتك وفلوسك بتفضل على جهازك وعلى Google Drive بتاعك، ومحدش يقدر يشوفها. <a href="https://mahmoudbassiuoni.github.io/privacy.html" target="_blank" rel="noopener">سياسة الخصوصية</a></small><small style="display:block;margin-top:18px;opacity:.5;letter-spacing:.3px">Powered by محمود نصار</small></div></div>
-<div id="boot" aria-hidden="true"><div class="bwrap"><div class="blogo"><svg viewBox="0 0 512 512" width="112" height="112" aria-hidden="true"><rect x="128" y="110" width="256" height="305" rx="30" fill="#e8f4f0"/><rect x="185" y="187" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="250" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="313" width="87" height="26" rx="13" fill="#0c3b3a"/><circle cx="368" cy="368" r="74" fill="#0c3b3a"/><circle cx="368" cy="368" r="57" fill="#ffcf5a"/></svg></div><div class="bname">دفتري</div><div class="bsub">حساباتك ومصاريفك في مكان واحد</div><div class="bbar"><i></i></div></div><div class="bpw">Powered by محمود نصار</div></div>
+<small>بنحتفظ باسمك وإيميلك (وصورتك لو دخلت بجوجل)، وإمتى بتستخدم التطبيق. حساباتك وفلوسك بتفضل على جهازك وعلى Google Drive بتاعك، ومحدش يقدر يشوفها. <a href="https://mahmoudbassiuoni.github.io/privacy.html" target="_blank" rel="noopener">سياسة الخصوصية</a></small><small dir="ltr" style="display:block;margin-top:18px;opacity:.5;letter-spacing:.3px">Powered by Mahmoud Nassar</small></div></div>
+<div id="boot" aria-hidden="true"><div class="bwrap"><div class="blogo"><svg viewBox="0 0 512 512" width="112" height="112" aria-hidden="true"><rect x="128" y="110" width="256" height="305" rx="30" fill="#e8f4f0"/><rect x="185" y="187" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="250" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="313" width="87" height="26" rx="13" fill="#0c3b3a"/><circle cx="368" cy="368" r="74" fill="#0c3b3a"/><circle cx="368" cy="368" r="57" fill="#ffcf5a"/></svg></div><div class="bname">دفتري</div><div class="bsub">حساباتك ومصاريفك في مكان واحد</div><div class="bbar"><i></i></div></div><div class="bpw" dir="ltr">Powered by Mahmoud Nassar</div></div>
 <script>document.body.classList.add('booting');setTimeout(function(){var b=document.getElementById('boot');if(b)b.classList.add('long')},1900);setTimeout(function(){var b=document.getElementById('boot');if(b&&!/access_token=/.test(location.hash)){b.classList.add('gone');document.body.classList.replace('booting','booted');setTimeout(function(){b.remove()},460)}},6000)</script>
 <div id="root">
 <div class="app">
@@ -357,7 +357,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ٢٠';
+const VER='٢٧ نوفمبر - ١';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -658,7 +658,7 @@ function searchHTML(q){const qn=pn(q);
 function runSearch(){const i=$('hq');if(!i)return;const q=i.value.trim();$('hqx').hidden=!i.value;const r=$('sres'),v=$('view');
  if(!q){r.hidden=true;r.innerHTML='';v.hidden=false;return}v.hidden=true;r.hidden=false;r.innerHTML='<div class="box">'+searchHTML(q)+'</div>'}
 function clearSearch(){const i=$('hq');if(i&&i.value){i.value='';runSearch()}}
-const PWR='<div class="pwr">Powered by <b>محمود نصار</b><span class="pl"></span>دفتري</div>';
+const PWR='<div class="pwr" dir="ltr">Daftari<span class="pl"></span>Powered by <b>Mahmoud Nassar</b></div>';
 function render(nodes){
  ensureW();{const n=reminders().filter(r=>r.u).length,bn=$('bellN');if(bn){bn.hidden=!n;bn.textContent=n.toLocaleString('ar-EG')}}const eb=$('eye');if(eb)eb.innerHTML=ic(HIDE?'eyeoff':'eye');
  document.querySelectorAll('nav [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
@@ -1026,7 +1026,7 @@ table.rtx tfoot td{border-top:2px solid #0c3b3a;font-weight:700;padding-top:10px
 async function makePdf(R,owner){
  toast('بيجهّز الـ PDF…');try{await loadJs(LIBS.h2c);await loadJs(LIBS.pdf)}catch(e){return toast('محتاج نت أول مرة عشان يعمل PDF')}
  const pages=repHTML(R,owner),host=document.createElement('div');host.style.cssText='position:fixed;left:-12000px;top:0;width:794px;z-index:-1;pointer-events:none';
- host.innerHTML=`<style>${REPCSS}</style>`+pages.map((h,i)=>`<div class="pg">${h}<div class="ft"><span>دفتري — Powered by محمود نصار</span><span>صفحة ${(i+1).toLocaleString('ar-EG')} من ${pages.length.toLocaleString('ar-EG')}</span></div></div>`).join('');document.body.appendChild(host);
+ host.innerHTML=`<style>${REPCSS}</style>`+pages.map((h,i)=>`<div class="pg">${h}<div class="ft"><span dir="ltr">Daftari — Powered by Mahmoud Nassar</span><span>صفحة ${(i+1).toLocaleString('ar-EG')} من ${pages.length.toLocaleString('ar-EG')}</span></div></div>`).join('');document.body.appendChild(host);
  try{await document.fonts.ready}catch(e){}
  try{const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'pt',format:'a4',compress:true});const els=host.querySelectorAll('.pg');
   for(let i=0;i<els.length;i++){const cv=await html2canvas(els[i],{scale:2,backgroundColor:'#ffffff',logging:false});if(i)doc.addPage();doc.addImage(cv.toDataURL('image/jpeg',0.9),'JPEG',0,0,595.28,841.89)}
@@ -1583,7 +1583,7 @@ function renderSheet(){
    ${pk==='custom'?`<div class="g2"><div><label>من</label><input id="exF" type="date" value="${month()}-01"></div><div><label>لـ</label><input id="exT" type="date" value="${today()}"></div></div>`:''}
    <label>المحفظة</label><select id="exW"><option value="all">كل المحافظ</option>${S.wallets.filter(w=>!w.parent).map(w=>`<option value="${w.id}">${esc(w.name)}${kids(w.id).length?' (كلها)':''}</option>`+kids(w.id).map(k=>`<option value="${k.id}">— ${esc(k.name)}</option>`).join('')).join('')}</select>
    <label style="margin-top:8px">يطلع في الـ PDF</label><div class="chips exo" style="flex-wrap:wrap">${[['sum','الملخص والمحافظ'],['ppl','حسابات الناس والأهداف'],['obl','القروض والجمعيات والمرتب'],['tx','تفاصيل الحركات']].map(([k,l])=>`<button type="button" class="chip on" data-exo="${k}">✓ ${l}</button>`).join('')}</div>
-   <label>اسمك على التقرير (اختياري)</label><input id="exN" value="${esc(S.owner||'')}" placeholder="مثلاً: محمود نصار">
+   <label>اسمك على التقرير (اختياري)</label><input id="exN" value="${esc(S.owner||'')}" placeholder="مثلاً: Mahmoud Nassar">
    <div class="btns" style="margin-top:14px"><button class="btn" data-act="doPdf" style="background:#c2334d">${ic('down')}PDF</button><button class="btn ghost" data-act="doCsv">${ic('sheet')}Excel</button></div>
    <p class="muted" style="margin:10px 0 0">الـ PDF: ملخص (معاك، المفروض معاك، ليك وعليك)، المحافظ والكروت جوّه كل واحدة، باي بيت لوحده بالدولار، المصاريف، الناس، القروض والجمعيات والمرتب، وبعدين كل الحركات. الـ Excel فيه كل الحركات وأرصدة المحافظ. أول مرة محتاج نت.</p></div>`;return}
  if(k==='calList'){
@@ -1636,7 +1636,7 @@ function renderSheet(){
   <div class="box" style="padding:14px;margin-bottom:12px"><b>سجّل من رسالة البنك</b><p class="muted" style="margin:4px 0 10px">${isNative?'من تطبيق الرسايل: دوس مطوّل على رسالة البنك ← مشاركة ← <b>دفتري</b>. أو انسخها والصقها هنا:':'انسخ رسالة البنك أو إنستاباي والصقها هنا:'}</p>
    <textarea id="bkPaste" rows="3" style="width:100%;box-sizing:border-box" placeholder="مثلًا: تم خصم مبلغ 250 جنيه من بطاقتكم 1234 لدى ..."></textarea><div class="btns" style="margin-top:8px"><button class="btn" data-act="bkPaste">اقرأها وسجّلها</button></div></div>
   <div class="box" style="padding:14px;margin-bottom:12px"><b>المحافظ</b><p class="muted" style="margin:4px 0 10px">${S.wallets.map(w=>esc(w.name)).join('، ')}</p><button class="btn ghost" data-act="wallets">${ic('wallet')}إدارة المحافظ</button></div>
-<p class="muted" style="margin:0 0 4px;font-size:13px">Powered by <b>محمود نصار</b></p><p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}${isNative?` · <a href="#" data-act="updPrev" style="color:inherit">شكل رسالة التحديث</a>`:''}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
+<p class="muted" dir="ltr" style="margin:0 0 4px;font-size:13px;text-align:right">Powered by <b>Mahmoud Nassar</b></p><p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}${isNative?` · <a href="#" data-act="updPrev" style="color:inherit">شكل رسالة التحديث</a>`:''}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
   ${STORE?'':`<div class="box" style="padding:14px;margin-bottom:12px"><b>نزّل البرنامج على جهازك</b><p class="muted" style="margin:4px 0 10px">ملف واحد بيفتح في أي متصفح من غير نت. بياناته بتتحفظ على الجهاز نفسه، ولنقل البيانات بين النسختين استخدم النسخة الاحتياطية.</p>
   <button class="btn" data-act="dlApp">${ic('down')}تنزيل البرنامج</button></div>`}
   <div class="box" style="padding:14px;margin-top:12px"><b>التقارير</b><p class="muted" style="margin:4px 0 10px">طلّع كشف بحساباتك ومصاريفك.</p><button class="btn ghost" data-act="export">${ic('sheet')}تصدير PDF / Excel</button></div>`;
