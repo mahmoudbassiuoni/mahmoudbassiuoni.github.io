@@ -63,6 +63,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans
 .track{height:8px;border-radius:6px;background:var(--soft);overflow:hidden}.track i{display:block;height:100%;border-radius:6px}
 .wsel button .i{width:16px;height:16px;vertical-align:-3px;margin-inline-end:4px}
 .bdg{display:inline-grid;place-items:center;min-width:44px;height:26px;padding:0 7px;border-radius:9px;color:#fff;font:700 11px/1 inherit;letter-spacing:0;white-space:nowrap;vertical-align:middle;box-shadow:inset 0 0 0 1px rgb(255 255 255/.18)}.wcard small .bdg{height:22px;min-width:38px;font-size:10px;margin-inline-end:4px}.av .bdg{min-width:0;width:100%;height:100%;border-radius:inherit;padding:0 2px;font-size:10px}#wfPrev{margin-top:8px}
+.rcs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.rcs small{display:block;color:var(--mute);font-size:12px}.rcs b{font-size:16px}
 .amtc{display:flex;flex-direction:column;align-items:flex-end;white-space:nowrap;line-height:1.25}.feel{font-size:11.5px;color:var(--minus);font-weight:600;opacity:.85}
 .fee{display:flex;align-items:center;gap:6px;font-size:14px;margin:4px 0 6px;flex-wrap:wrap}.fee input[type=checkbox]{width:18px;height:18px}.fee input[type=text]{padding:4px 6px;border-radius:8px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:inherit}
 .salc{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:0 0 12px;cursor:pointer;border-inline-start:5px solid #0a7a6c}.salc .ti{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#0a7a6c;color:#fff;flex:none}.salc .t{flex:1;display:flex;flex-direction:column}.salc small{color:var(--mute)}.salc .btn{background:#0a7a6c;pointer-events:none}
@@ -323,7 +324,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ٤';
+const VER='٢٦ نوفمبر - ٥';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -685,6 +686,8 @@ window.__bankPull=()=>{if(bankSt()!=='on')return;let raw=[];try{raw=JSON.parse(N
  if(n||ch){save();render();if(n)toast(`دفتري سجّل ${n.toLocaleString('ar-EG')} حركة من رسائل البنك تلقائي ✅`,true)}else if(raw.length)render();
  if(q.length&&!n&&raw.length)toast('فيه حركة جديدة من البنك محتاجة تختار الكارت بتاعها')};
 let bankBack=0;const amtB=x=>`<b class="${x.dir==='in'?'pl':'mi'}" style="white-space:nowrap">${x.dir==='in'?'+':'−'} ${fmt(x.amt||x.fee)}${x.fee&&x.amt?'<small class="feel" style="display:block">+ '+fmt(x.fee)+' عمولة</small>':''}</b>`;
+function reconHist(){const g=new Map();for(const m of S.mv){if(m.k!=='adj'||m.note!=='مراجعة رصيد')continue;const k=m.aud||('d'+m.date);if(!g.has(k))g.set(k,{aud:k,date:m.date,L:[]});const h=g.get(k);h.L.push(m);if(m.rt!=null){h.rt=m.rt;h.sp=m.sp;h.since=m.since}}
+ return [...g.values()].map(h=>{h.d=Math.round(h.L.reduce((a,m)=>a+(isUSD(m.w)?m.amt*urate():m.amt),0)*100)/100;h.pct=h.rt>0?Math.abs(h.d)/h.rt*100:null;return h}).sort((a,b)=>b.date.localeCompare(a.date))}
 const bankCard=()=>{const q=bankQ();return q.length?`<div class="box" data-act="bankq" style="padding:12px 14px;margin:10px 0;cursor:pointer;border-inline-start:5px solid var(--gold)"><b>${q.length.toLocaleString('ar-EG')} حركة من البنك مستنياك</b><div class="muted" style="font-size:13px">اختار الكارت بتاعها مرة واحدة، وبعد كده هتتسجّل لوحدها.</div></div>`:''};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){setTimeout(()=>window.__bankPull&&window.__bankPull(),400);if(bankBack&&open&&open.kind==='settings'){bankBack=0;setTimeout(renderSheet,500)}}});setTimeout(()=>window.__bankPull&&window.__bankPull(),2500);
 function vHome(){
@@ -736,7 +739,7 @@ function expRow(e,del){const f=S.funds.find(q=>q.id===e.fid);
  return `<div class="tx" data-edit="e:${e.id}" style="cursor:pointer"><span class="ti" style="background:color-mix(in srgb,var(--minus) 14%,transparent);color:var(--minus)">−</span><span class="t"><b>${e.note?esc(e.note):'مصروف'}</b>${f?`<span class="tag">${esc(f.name)}</span>`:''}<small>${del?'':dstr(e.date)+' · '}${e.w?wn(e.w):'مش من المحفظة'}</small></span>${amtCell('mi',fmt(e.amt),e.id)}${del?`<button class="del" data-del="${e.id}" aria-label="مسح">${ic('trash')}</button>`:''}</div>`}
 function mvRow(m,del){let sign,label,col,sub;
  if(m.k==='in'){sign='+';label=m.note||'فلوس دخلت';col='plus';sub=wn(m.w)}
- else if(m.k==='adj'){sign=m.amt>=0?'+':'−';label='تعديل رصيد';col=m.amt>=0?'plus':'minus';sub=wn(m.w)}
+ else if(m.k==='adj'){sign=m.amt>=0?'+':'−';label=m.note==='مراجعة رصيد'?(m.amt<0?'نقص (مراجعة رصيد)':'زيادة (مراجعة رصيد)'):'تعديل رصيد';col=m.amt>=0?'plus':'minus';sub=wn(m.w)}
  else if(m.k==='gl'){const g=S.goals.find(x=>x.id===m.goal);sign=m.amt>=0?'↗':'↙';label=(m.amt>=0?'حطيت في هدف ':'سحبت من هدف ')+(g?g.name:'');col=m.amt>=0?'minus':'plus';sub=wn(m.w)}
  else{sign='⇄';label='تحويل';col='ink';sub=wn(m.w)+' ← '+wn(m.to)}
  return `<div class="tx" data-edit="m:${m.id}" style="cursor:pointer"><span class="ti" style="background:var(--soft);color:var(--${col})">${sign}</span><span class="t"><b>${esc(label)}</b><small>${del?'':dstr(m.date)+' · '}${sub}${m.note&&m.k!=='in'?' · '+esc(m.note):''}</small></span>${amtCell(col==='plus'?'pl':col==='minus'?'mi':'',fmt(Math.abs(m.amt)),m.id)}${del?`<button class="del" data-del="${m.id}" aria-label="مسح">${ic('trash')}</button>`:''}</div>`}
@@ -1481,12 +1484,27 @@ function renderSheet(){
   c.innerHTML=head(ic('scale')+' مراجعة الأرصدة')+`<p class="muted" style="margin:0 0 10px">اكتب الموجود معاك فعلًا في كل محفظة (اللي تعرفه بس)، وهقولك الفرق وأظبطه لو عايز.${S.lastRecon?' آخر مراجعة: '+dstr(S.lastRecon)+'.':''}</p>
   <form id="fRc"><div class="box">${W.map(w=>{const P=S.wallets.find(x=>x.id===w.parent);return `<div class="rcr"><span class="nm"><b>${esc(w.name)}</b><small>${P?esc(P.name)+' · ':''}البرنامج: ${wfmt(w.id)}</small></span><input data-rc="${w.id}" inputmode="decimal" placeholder="${isUSD(w.id)?'$ الموجود':'الموجود'}" autocomplete="off"><em data-rd="${w.id}"></em></div>`}).join('')}</div>
   <div class="box" id="rcSum" style="padding:12px 14px;margin:12px 0" hidden></div>
-  <div class="btns"><button class="btn">${ic('scale')}ظبّط الفروقات</button></div></form>`;
-  const upd=()=>{let n=0,t=0;c.querySelectorAll('[data-rc]').forEach(i=>{const id=i.dataset.rc,v=i.value.trim(),em=c.querySelector(`[data-rd="${id}"]`);if(!v){em.textContent='';return}const d=Math.round((pn(v)-wbal(id))*100)/100;em.textContent=Math.abs(d)<0.005?'✓ مظبوط':(d>0?'+':'−')+(isUSD(id)?ufmt(Math.abs(d)):fmt(Math.abs(d)));em.className=Math.abs(d)<0.005?'ok':d>0?'pl':'mi';if(Math.abs(d)>=0.005){n++;t+=isUSD(id)?d*urate():d}});
-   const sm=$('rcSum');sm.hidden=!n;sm.innerHTML=n?`فيه فرق في <b>${n.toLocaleString('ar-EG')}</b> محفظة · الفرق الكلي <b class="${t<0?'mi':'pl'}">${t<0?'−':'+'}${fmt(Math.abs(t))}</b><br><small class="muted">${t<0?'يعني فيه فلوس اتصرفت ومتسجلتش':'يعني فيه فلوس دخلت ومتسجلتش'}</small>`:''};
+  <div class="btns"><button class="btn">${ic('scale')}ظبّط الفروقات</button></div></form>${(()=>{const H=reconHist();return H.length?`<div class="sec"><h3>المراجعات اللي فاتت</h3><div class="box">${H.map(h=>`<div class="tx" data-act="reconOne" data-aud="${h.aud}" style="cursor:pointer"><span class="ti" style="background:var(--soft);color:var(--${h.d<0?'minus':'plus'})">${h.d<0?'−':'+'}</span><span class="t"><b>${h.d<0?'نقص':'زيادة'} ${fmt(Math.abs(h.d))}</b><small>${dstr(h.date)}${h.pct!=null?' · '+h.pct.toLocaleString('ar-EG',{maximumFractionDigits:1})+'٪ من المتسجل':''}</small></span></div>`).join('')}</div></div>`:''})()}`;
+  const eg=(id,v)=>isUSD(id)?v*urate():v,since=S.lastRecon||([...S.exp,...S.mv].map(x=>x.date).sort()[0]||today()),spent=S.exp.filter(e=>e.date>since&&e.date<=today()).reduce((a,e)=>a+(+e.amt||0),0);
+  const calc=()=>{const L=[];c.querySelectorAll('[data-rc]').forEach(i=>{const v=i.value.trim();if(!v)return;const id=i.dataset.rc,r=wbal(id),a=pn(v);if(isNaN(a))return;L.push({id,r,a,d:Math.round((a-r)*100)/100})});
+   const R=L.reduce((s,x)=>s+eg(x.id,x.r),0),A=L.reduce((s,x)=>s+eg(x.id,x.a),0),D=Math.round((A-R)*100)/100;return {L,R,A,D,pct:R>0?Math.abs(D)/R*100:0,sp:spent>0?Math.abs(D)/spent*100:0}};
+  const pf=x=>(x<0.05&&x>0?'أقل من ٠٫١':x.toLocaleString('ar-EG',{maximumFractionDigits:x<10?1:0}))+'٪';
+  const upd=()=>{c.querySelectorAll('[data-rc]').forEach(i=>{const id=i.dataset.rc,v=i.value.trim(),em=c.querySelector(`[data-rd="${id}"]`);if(!v){em.textContent='';return}const d=Math.round((pn(v)-wbal(id))*100)/100,am=isUSD(id)?ufmt(Math.abs(d)):fmt(Math.abs(d));em.textContent=Math.abs(d)<0.005?'✓ مظبوط':d>0?'زيادة '+am:'نقص '+am;em.className=Math.abs(d)<0.005?'ok':d>0?'pl':'mi'});
+   const X=calc(),sm=$('rcSum');sm.hidden=!X.L.length;if(!X.L.length)return;const neg=X.D<0,z=Math.abs(X.D)<0.005;
+   sm.innerHTML=`<div class="rcs"><div><small>المتسجل</small><b>${fmt(X.R)}</b></div><div><small>الموجود فعلًا</small><b>${fmt(X.A)}</b></div><div><small>${z?'الفرق':neg?'نقص':'زيادة'}</small><b class="${z?'':neg?'mi':'pl'}">${fmt(Math.abs(X.D))}</b></div></div>`+
+    (z?'<p style="margin:8px 0 0">كله مظبوط ✓</p>':`<p style="margin:8px 0 0">${neg?'النقص':'الزيادة'} = <b>${pf(X.pct)}</b> من الفلوس المتسجلة${spent>0&&neg?` · و<b>${pf(X.sp)}</b> من اللي صرفته من ${dstr(since)} (${fmt(spent)})`:''}</p><small class="muted">${neg?'يعني فيه فلوس ضاعت أو اتخصمت ومتسجلتش':'يعني فيه فلوس دخلت ومتسجلتش'}</small>`)};
   c.querySelectorAll('[data-rc]').forEach(i=>i.addEventListener('input',upd));
-  $('fRc').onsubmit=e=>{e.preventDefault();const A=[];c.querySelectorAll('[data-rc]').forEach(i=>{if(!i.value.trim())return;const d=Math.round((pn(i.value)-wbal(i.dataset.rc))*100)/100;if(Math.abs(d)>=0.005)A.push([i.dataset.rc,d])});
-   if(!A.length){S.lastRecon=today();save();close();return toast('كله مظبوط ✓')}snap();for(const[w,d]of A)S.mv.push({id:uid(),k:'adj',w,amt:d,date:today(),note:'مراجعة رصيد'});S.lastRecon=today();save();close();render();toast('اتظبطت '+A.length.toLocaleString('ar-EG')+' محفظة',true)};return}
+  $('fRc').onsubmit=e=>{e.preventDefault();const X=calc(),A=X.L.filter(x=>Math.abs(x.d)>=0.005);
+   if(!A.length){S.lastRecon=today();save();close();return toast('كله مظبوط ✓')}snap();const aud=uid();
+   A.forEach((x,i)=>{const m={id:uid()+i,k:'adj',w:x.id,amt:x.d,date:today(),note:'مراجعة رصيد',aud};if(!i){m.rt=Math.round(X.R*100)/100;m.at=Math.round(X.A*100)/100;m.sp=Math.round(spent*100)/100;m.since=since}S.mv.push(m)});
+   S.lastRecon=today();save();render();show({kind:'reconDone',aud});};
+  return}
+ if(k==='reconDone'){const H=reconHist().find(h=>h.aud===open.aud);if(!H){close();return}const neg=H.d<0;
+  c.innerHTML=head(ic('scale')+' نتيجة المراجعة')+`<div class="pbal" style="background:${neg?'var(--minus)':'var(--plus)'}"><small>${neg?'نقص':'زيادة'} في فلوسك</small><div class="big">${fmt(Math.abs(H.d))}</div><small>${H.pct!=null?(neg?'النقص':'الزيادة')+' = '+H.pct.toLocaleString('ar-EG',{maximumFractionDigits:1})+'٪ من المتسجل':''}</small></div>
+   <div class="box">${H.L.map(m=>`<div class="tx"><span class="t"><b>${esc(wn(m.w))}</b></span><b class="${m.amt<0?'mi':'pl'}">${m.amt<0?'نقص ':'زيادة '}${isUSD(m.w)?ufmt(Math.abs(m.amt)):fmt(Math.abs(m.amt))}</b></div>`).join('')}</div>
+   ${H.sp>0&&neg?`<p class="muted" style="margin:10px 2px">من ${dstr(H.since)} لحد النهارده صرفت ${fmt(H.sp)}، يعني النقص ده حوالي <b>${(Math.abs(H.d)/H.sp*100).toLocaleString('ar-EG',{maximumFractionDigits:1})}٪</b> من مصروفك.</p>`:''}
+   <p class="muted" style="margin:10px 2px">الأرصدة في البرنامج اتظبطت على الموجود فعلًا. المرة الجاية هقارن بيها.</p>
+   <div class="btns"><button class="btn" data-act="recon">كل المراجعات</button><button class="btn ghost" data-act="closeS">تمام</button></div>`;return}
  if(k==='fileReady'){if(!pendFile){close();return}const isP=/pdf/.test(pendFile.mime);
   c.innerHTML=head((isP?'📄':'📊')+' الملف جاهز')+`<div class="box" style="padding:14px;margin-bottom:12px"><b>${esc(pendFile.name)}</b><small class="muted" style="display:block">${Math.max(1,Math.round(pendFile.blob.size/1024)).toLocaleString('ar-EG')} ك.ب</small></div>
   <p class="muted" style="margin:0 0 12px">دوس «احفظ أو ابعت» واختار: «الملفات» عشان يتحفظ على الموبايل، أو Drive، أو واتساب…</p>
@@ -1773,6 +1791,8 @@ document.addEventListener('click',async e=>{
  if(a==='bankOff'){try{NAT.bankSet(false)}catch(e){}renderSheet();return toast('اتوقّف')}
  if(a==='appInfo'){e.preventDefault();try{NAT.openAppInfo()}catch(x){}bankBack=1;return}
  if(a==='bankq')return show({kind:'bankq'});
+ if(a==='reconOne')return show({kind:'reconDone',aud:e.target.closest('[data-aud]').dataset.aud});
+ if(a==='closeS'){close();return}
  if(a==='bqOk'||a==='bqNo'){const i=+e.target.closest('[data-i]').dataset.i,q=bankQ(),x=q[i];if(!x)return renderSheet();q.splice(i,1);
   if(a==='bqOk'){const w=getW($('card'),'bq'+i);snap();const W=S.wallets.find(z=>z.id===w);const mem=!(x.insta&&!x.l4);if(W&&mem){W.bk=[...new Set([...(W.bk||[]),bankKey(x)])].slice(-12)}bankRecord(x,w);
    if(mem)for(let j=q.length-1;j>=0;j--)if(bankKey(q[j])===bankKey(x)){bankRecord(q[j],w);q.splice(j,1)}bankPair();bankQset(q);save();render();toast(mem?'اتسجّلت على '+wn(w)+'، واللي بعد كده من الكارت ده هيتسجّل لوحده':'اتسجّلت على '+wn(w),true)}else bankQset(q);
