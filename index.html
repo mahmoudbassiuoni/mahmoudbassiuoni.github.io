@@ -324,7 +324,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ٥';
+const VER='٢٦ نوفمبر - ٦';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -459,18 +459,21 @@ function doTransfer(w,to,amt,date,feeR,note,recv){const sent=recv>0?recv:amt,fee
 const feeBox=(on,r)=>`<label class="fee"><input type="checkbox" id="feeOn" ${on?'checked':''}> فيه عمولة تحويل <input id="feeR" type="text" inputmode="decimal" value="${r}" style="width:56px;text-align:center"> في الألف <small class="muted">(أقل حاجة نص جنيه وأقصى ٢٠)</small></label><div class="muted" id="feeInfo" style="font-size:13px;margin:-2px 0 10px"></div>`;
 function feeBind(amtId){const up=()=>{const a=pn($(amtId).value)||0,rv=$('trRecv')?pn($('trRecv').value)||0:0,on=$('feeOn').checked,r=pn($('feeR').value)||0,f=rv>0?Math.max(0,a-rv):on?feeOf(a,r):0;$('feeInfo').innerHTML=a>0?(rv>0?`وصل <b>${fmt(rv)}</b> · العمولة اللي اتخصمت <b>${fmt(f)}</b>`:on?`هيوصل <b>${fmt(a)}</b> كامل · العمولة <b>${fmt(f)}</b> بتتخصم زيادة من الكارت اللي بتحوّل منه (إجمالي <b>${fmt(a+f)}</b>)`:'من غير عمولة · هيوصل <b>'+fmt(a)+'</b>'):''};[amtId,'feeR','trRecv'].filter(i=>$(i)).forEach(i=>$(i).addEventListener('input',up));$('feeOn').addEventListener('change',up);up()}
 const isBankW=id=>{const w=(S.wallets||[]).find(x=>x.id===id);return !!w&&(w.t==='bank'||w.t==='ew'||w.id==='visa'||w.parent==='visa'||w.parent==='mob')};
+const tmStr=t=>{try{return new Date(+t).toLocaleTimeString('ar-EG',{hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
+const rmeta=r=>(r.tm?' · '+tmStr(r.tm):'')+(r.ref?' · مرجعي <bdi dir="ltr">'+esc(r.ref)+'</bdi>':'');
+const refIn=(id,v)=>`<label>الرقم المرجعي <small class="muted">(اختياري)</small></label><input id="${id}" type="text" autocomplete="off" inputmode="text" dir="ltr" style="text-align:right" placeholder="من رسالة البنك أو إنستاباي" value="${esc(v||'')}">`;
 const feeKids=id=>(S.exp||[]).filter(e=>e.of===id),feeSum=id=>Math.round(feeKids(id).reduce((a,e)=>a+(+e.amt||0),0)*100)/100;
 function setFee(o,f,note){const old=feeKids(o.id)[0];S.exp=S.exp.filter(e=>e.of!==o.id);f=Math.round((+f||0)*100)/100;if(f>0&&o.w&&o.w!=='none')S.exp.push({id:old?old.id:uid(),fid:'',amt:f,date:o.date,note:note||(old&&old.note)||'عمولة تحويل',w:o.w,fee:1,of:o.id});return f}
 const parIds=()=>new Set([...S.mv,...S.tx,...S.exp].map(x=>x.id));
 const amtCell=(cls,txt,id)=>{const f=feeSum(id);return f>0?`<span class="amtc"><b class="${cls}">${txt}</b><small class="feel">+ ${fmt(f)} عمولة</small></span>`:`<b class="${cls}" style="white-space:nowrap">${txt}</b>`};
-const idT=id=>parseInt(String(id).slice(0,-4),36)||0;
+const idT=id=>parseInt(String(id).slice(0,8),36)||0;
 function linkFees(){const used=new Set(S.exp.filter(e=>e.of).map(e=>e.of));let ch=0;for(const e of S.exp){if(!e.fee||e.of)continue;const atm=/ماكينة/.test(e.note||''),t=idT(e.id);
  const c=S.mv.filter(m=>m.k==='tr'&&m.w===e.w&&m.date===e.date&&!used.has(m.id)&&atm===/ماكينة/.test(m.note||'')).sort((a,b)=>Math.abs(idT(a.id)-t)-Math.abs(idT(b.id)-t))[0];if(c){e.of=c.id;used.add(c.id);ch=1}}return ch}
-const payBox=def=>`<div id="payW" hidden><label>اتدفعت إزاي؟</label><div class="wsel" data-wsel="pay"><button type="button" data-w="card" class="${def==='card'?'on':''}">بالكارت / فاتورة / شحن</button><button type="button" data-w="ipa" class="${def==='ipa'?'on':''}">تحويل لحد (إنستاباي)</button></div><div class="muted" id="payInfo" style="font-size:13px;margin:-2px 0 10px"></div></div>`;
+const payBox=def=>`<div id="payW" hidden><label>اتدفعت إزاي؟</label><div class="wsel" data-wsel="pay"><button type="button" data-w="card" class="${def==='card'?'on':''}">بالكارت / فاتورة / شحن</button><button type="button" data-w="ipa" class="${def==='ipa'?'on':''}">تحويل لحد (إنستاباي)</button></div><div class="muted" id="payInfo" style="font-size:13px;margin:-2px 0 10px"></div>${refIn('payRef')}<div style="height:10px"></div></div>`;
 function payBind(c,amtId,cond){const up=()=>{const w=getW(c),on=isBankW(w)&&(!cond||cond());$('payW').hidden=!on;if(!on)return;const a=pn($(amtId).value)||0,r=S.trFeeR||1,f=feeOf(a,r);
  $('payInfo').innerHTML=getW(c,'pay')==='card'?'المبلغ ده هو اللي اتسحب كله، من غير عمولة زيادة.':a>0?`هيوصل <b>${fmt(a)}</b> · العمولة <b>${fmt(f)}</b> بتتخصم معاه (إجمالي <b>${fmt(a+f)}</b>)`:`عمولة ${r.toLocaleString('ar-EG')} في الألف (أقل حاجة نص جنيه وأقصى ٢٠)`};
  c.querySelectorAll('[data-wsel]').forEach(g=>g.addEventListener('click',()=>setTimeout(up)));$(amtId).addEventListener('input',up);up();
- return {up,fee:()=>{const w=getW(c);return isBankW(w)&&(!cond||cond())&&getW(c,'pay')==='ipa'?feeOf(pn($(amtId).value)||0,S.trFeeR||1):0}}}
+ return {up,ref:()=>{const v=($('payRef')||{}).value;return isBankW(getW(c))&&v?v.trim():''},fee:()=>{const w=getW(c);return isBankW(w)&&(!cond||cond())&&getW(c,'pay')==='ipa'?feeOf(pn($(amtId).value)||0,S.trFeeR||1):0}}}
 const feeVal=()=>{const on=$('feeOn').checked,r=pn($('feeR').value)||0;S.trFee=on?1:0;if(r>0)S.trFeeR=r;return on?r:0};
 function salCard(){if(!salDue())return '';const late=+today().slice(8)>=salDay();return `<div class="box salc" data-act="salary"><span class="ti">${ic('coin')}</span><span class="t"><b>${late?'المرتب نزل؟':'المرتب قرّب ينزل'}</b><small>سجّل مرتب ${mLabel(month())} · على ${esc(salWName())}</small></span><span class="btn sm">${ic('plus')}سجّل</span></div>`}
 const wlabel=w=>w.id==='frozen'&&w.name==='مجمد'?'مجمد (ورق)':w.id==='silver'&&w.name==='فضية'?'فضية (معدن)':w.name;
@@ -525,7 +528,7 @@ const hasData=d=>!!d&&((d.people||[]).length||(d.tx||[]).length||(d.exp||[]).len
 function dropVcph(){if(S&&S.vcph){delete S.vcph;return true}return false}
 function save(which='L'){
  if(which==='L'){clearTimeout(timers.snap);timers.snap=setTimeout(remSnap,800);try{if(gAuto())LS.set('daftar_gdirty',1)}catch(e){}gSchedule();try{bkIcon()}catch(e){}}
- let okL=true;if(which==='L'){try{normCur()}catch(e){}track();okL=LS.set('daftar',S);gRev++;if(isNative){clearTimeout(timers.nat);timers.nat=setTimeout(window.__persist,700)}LS.set('daftar_savedAt',okL?Date.now():LS.get('daftar_savedAt'));try{logSchedule()}catch(e){}}else okL=LS.set('daftar_contacts',C);
+ let okL=true;if(which==='L'){try{normCur()}catch(e){}try{const N=Date.now();for(const L of [S.exp,S.mv,S.tx])for(const r of L||[])if(r.tm==null){const t=idT(r.id);if(t>N-6e5&&t<N+6e4)r.tm=t}}catch(e){}track();okL=LS.set('daftar',S);gRev++;if(isNative){clearTimeout(timers.nat);timers.nat=setTimeout(window.__persist,700)}LS.set('daftar_savedAt',okL?Date.now():LS.get('daftar_savedAt'));try{logSchedule()}catch(e){}}else okL=LS.set('daftar_contacts',C);
  if(!okL){status('مقدرتش أحفظ على الجهاز!','off');if(Date.now()-(window._lsWarn||0)>60000){window._lsWarn=Date.now();toast('⚠️ الحفظ على الجهاز فشل (المساحة مليانة؟). اعمل نسخة احتياطية دلوقتي')}return}
  const r=which==='L'?ref:refC;
  if(!r){status(inArtifact?'على الجهاز ده بس':'محفوظ على الجهاز','off');return}
@@ -651,10 +654,10 @@ function parseBank(o){let t=String(o.text||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤
  const tr=dir==='out'&&/(تحويل|حولت|أرسلت|ارسلت|transfer|sent to|instapay|إنستا|انستا|IPN|IPA)/i.test(t)&&!/(فاتورة|شحن|رصيد موبايل|باقة|bill|recharge|top.?up)/i.test(t);
  const l4m=t.match(/(?:\*{2,}|x{2,}|X{2,}|•{2,}|ending(?: with| in)?|المنتهي[ةه]? ب|رقم|No\.?|card\S*|بطاق\S*|حساب\S*)\s*(?:رقم\s*)?[:#]?\s*[*xX•]*\s*(\d{4})\b/i);
  const pms=[...t.matchAll(dir==='in'?/(?:^|\s)(?:من|from)\s+([^\d,.،\n*]{2,28})/gi:tr?/(?:^|\s)(?:إلى|الى|لـ|to)\s+([^\d,.،\n*]{2,28})/gi:/(?:^|\s)(?:لدى|لدي|عند|at|merchant|في)\s+([^\d,.،\n*]{2,28})/gi)],pm=dir==='in'?(()=>{const li=Math.max(t.lastIndexOf(' من '),t.toLowerCase().lastIndexOf(' from '));return li<0?null:t.slice(li).replace(/^\s*(من|from)\s+/i,'').match(/^([^\d,.،\n*]{2,28})/)})():pms[0];
- let who=pm?pm[1].replace(/(?:^|\s)(يوم|بتاريخ|on|في|بنجاح|successfully|رقم|card|بطاقة|عبر|via|using|من|from|الرصيد|Avail|رسوم|عمولة|fees?|بمبلغ|مبلغ).*$/i,'').trim():'';if(/^(حساب|بطاقة|البطاقة|الحساب|كارت|card|account|تحويل)/i.test(who))who='';
+ let who=pm?pm[1].replace(/(?:^|\s)(يوم|بتاريخ|on|في|بنجاح|successfully|was|is|has|الرقم|رقم مرجعي|Ref|reference|رقم|card|بطاقة|عبر|via|using|من|from|الرصيد|Avail|رسوم|عمولة|fees?|بمبلغ|مبلغ).*$/i,'').trim():'';if(/^(حساب|بطاقة|البطاقة|الحساب|كارت|card|account|تحويل)/i.test(who))who='';
  const d=new Date(o.t||Date.now()),date=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
- const bill=/(فاتورة|شحن|باقة|bill|recharge|top.?up)/i.test(t),atm=dir==='out'&&!tr&&/(ATM|ماكينة|ماكينه|صراف|سحب نقد|سحب كاش|cash withdraw)/i.test(t),insta=/instapay/i.test(o.pkg||'')||/insta ?pay|انستا ?باي|إنستا ?باي/i.test(o.from||'');
- return {bill,atm,insta,tm:+o.t||Date.now(),id:o.id,amt:Math.round(amt*100)/100,fee:Math.round(fee*100)/100,dir,tr,l4:l4m?l4m[1]:'',who:who.slice(0,30),date,src:(o.from||'').slice(0,40),pkg:o.pkg||'',text:String(o.text||'').slice(0,400)}}
+ const rfm=t.match(/(?:الرقم المرجعي|رقم مرجعي|الرقم المرجع|مرجعي|مرجع|رقم العملي[ةه]|رقم المعامل[ةه]|رقم الحرك[ةه]|Ref(?:erence)?\.?(?:\s*(?:No|Number|ID|#)\.?)?|Trx\.?\s*(?:ID|No)|Txn\.?\s*(?:ID|No)?|Transaction\s*(?:ID|No|Number))\s*[:.#-]?\s*([A-Za-z0-9][A-Za-z0-9-]{3,34})/i),bill=/(فاتورة|شحن|باقة|bill|recharge|top.?up)/i.test(t),atm=dir==='out'&&!tr&&/(ATM|ماكينة|ماكينه|صراف|سحب نقد|سحب كاش|cash withdraw)/i.test(t),insta=/instapay/i.test(o.pkg||'')||/insta ?pay|انستا ?باي|إنستا ?باي/i.test(o.from||'');
+ return {ref:rfm?rfm[1]:'',bill,atm,insta,tm:+o.t||Date.now(),id:o.id,amt:Math.round(amt*100)/100,fee:Math.round(fee*100)/100,dir,tr,l4:l4m?l4m[1]:'',who:who.slice(0,30),date,src:(o.from||'').slice(0,40),pkg:o.pkg||'',text:String(o.text||'').slice(0,400)}}
 const bankKey=x=>x.l4?'#'+x.l4:'@'+(x.src||x.pkg);
 const bankWallet=x=>{const k=bankKey(x);const w=S.wallets.find(w=>(w.bk||[]).includes(k)||(x.l4&&((w.vc&&w.vc.l4===x.l4)||w.l4===x.l4)));return w&&!kids(w.id).length?w.id:''};
 const BKG=[['الأهلي المصري','الاهلي المصري','NBE','National Bank of Egypt','البنك الأهلي'],['بنك مصر','Banque Misr','BM','Misr','BMISR'],['القاهرة','Banque du Caire','BdC','BDC'],['CIB','COMMERCIAL INTERNATIONAL','التجاري الدولي'],['QNB'],['الإسكندرية','الاسكندرية','AlexBank','Alex Bank'],['قناة السويس','SCB'],['الزراعي','ABE','Agricultural'],['التعمير','HDB'],['العربي الأفريقي','AAIB'],['NBK','الكويت الوطني'],['الإمارات دبي','Emirates NBD','ENBD'],['FAB','أبوظبي الأول'],['ADCB','أبوظبي التجاري'],['ADIB','أبوظبي الإسلامي'],['فيصل','Faisal'],['البركة','Baraka'],['HSBC'],['كريدي','Credit Agricole'],['EG Bank','المصري الخليجي'],['المشرق','Mashreq'],['aiBANK','الاستثمار العربي'],['SAIB','الشركة المصرفية'],['ABK','الأهلي الكويتي'],['Attijari','التجاري وفا'],['Audi','عودة'],['المتحد','United Bank'],['ميد','MIDBANK'],['ABC']];
@@ -666,14 +669,14 @@ function atmFeeFor(x,w){if(x.fee>0)return x.fee;const W=S.wallets.find(z=>z.id==
  const hit=BKG.map((g,i)=>g.some(a=>bkRe(a).test(seg))?i:-1).filter(i=>i>=0);if(own>=0&&hit.includes(own))return 0;return S.atmFee||5}
 const cashLeaf=()=>{if(S.atmTo&&S.wallets.some(w=>w.id===S.atmTo&&!kids(w.id).length))return S.atmTo;const K=kids('cash').filter(w=>!w.frozen&&w.id!=='silver');return K[0]?K[0].id:'cash'};
 function bankRecord(x,w){const note=x.dir==='in'?(x.who?'من '+x.who:'فلوس دخلت'):x.tr?('تحويل'+(x.who?' لـ '+x.who:'')):(x.who||(x.bill?'فاتورة / شحن':'مشتريات بالكارت'));
- if(x.dir==='in'){S.mv.push({id:uid(),k:'in',w,amt:x.amt,date:x.date,note,auto:1,tm:x.tm});return}
+ const rf=x.ref?{ref:x.ref}:{};if(x.dir==='in'){S.mv.push({id:uid(),k:'in',w,amt:x.amt,date:x.date,note,auto:1,tm:x.tm,...rf});return}
  if(!x.amt&&x.fee>0){const last=[...S.exp,...S.tx,...S.mv].filter(r=>r.auto&&r.w===w&&r.date===x.date).sort((a,b)=>b.id.localeCompare(a.id))[0];if(last){setFee(last,feeSum(last.id)+x.fee);return}S.exp.push({id:uid(),fid:'',amt:x.fee,date:x.date,note:'عمولة',w,fee:1,auto:1});return}
- if(x.atm){const m={id:uid(),k:'tr',w,to:cashLeaf(),amt:x.amt,date:x.date,note:'سحب من ماكينة',auto:1};S.mv.push(m);const f=atmFeeFor(x,w);if(f>0)setFee(m,f,'رسوم سحب من ماكينة بنك تاني');return}
- const e={id:uid(),fid:'',amt:x.amt,date:x.date,note,w,auto:1,tm:x.tm};S.exp.push(e);const f=x.fee>0?x.fee:x.tr?feeOf(x.amt,S.trFeeR||1):0;if(f>0)setFee(e,f)}
+ if(x.atm){const m={id:uid(),k:'tr',w,to:cashLeaf(),amt:x.amt,date:x.date,note:'سحب من ماكينة',auto:1,tm:x.tm,...rf};S.mv.push(m);const f=atmFeeFor(x,w);if(f>0)setFee(m,f,'رسوم سحب من ماكينة بنك تاني');return}
+ const e={id:uid(),fid:'',amt:x.amt,date:x.date,note,w,auto:1,tm:x.tm,...rf};S.exp.push(e);const f=x.fee>0?x.fee:x.tr?feeOf(x.amt,S.trFeeR||1):0;if(f>0)setFee(e,f)}
 // own-card to own-card transfer: an outgoing transfer + an incoming of the same amount on another card → one transfer
 function bankPair(){let ch=0;const T=Date.now()-3*864e5;const outs=S.exp.filter(e=>e.auto&&/^تحويل/.test(e.note||'')&&idT(e.id)>T),ins=S.mv.filter(m=>m.auto&&m.k==='in'&&idT(m.id)>T);
  for(const o of outs){const i=ins.find(m=>m.w!==o.w&&Math.abs(m.amt-o.amt)<0.01&&Math.abs((m.tm||idT(m.id))-(o.tm||idT(o.id)))<6*36e5&&S.mv.includes(m));if(!i)continue;
-  const f=feeSum(o.id),m={id:uid(),k:'tr',w:o.w,to:i.w,amt:o.amt,date:o.date,note:'تحويل بين كروتك',auto:1};S.exp=S.exp.filter(e=>e.id!==o.id&&e.of!==o.id);S.mv=S.mv.filter(x=>x!==i);S.mv.push(m);if(f>0)setFee(m,f);ch=1}return ch}
+  const f=feeSum(o.id),m={id:uid(),k:'tr',w:o.w,to:i.w,amt:o.amt,date:o.date,note:'تحويل بين كروتك',auto:1,tm:o.tm||i.tm,...((o.ref||i.ref)?{ref:o.ref||i.ref}:{})};S.exp=S.exp.filter(e=>e.id!==o.id&&e.of!==o.id);S.mv=S.mv.filter(x=>x!==i);S.mv.push(m);if(f>0)setFee(m,f);ch=1}return ch}
 window.__bankPull=()=>{if(bankSt()!=='on')return;let raw=[];try{raw=JSON.parse(NAT.bankTake()||'[]')}catch(e){}
  const q=bankQ();let hold=LS.get('daftar_bankhold');if(!Array.isArray(hold))hold=[];let n=0,ch=0;snap();
  const X=raw.map(parseBank).filter(x=>x.dir&&(x.amt>0||x.fee>0));
@@ -736,15 +739,15 @@ function feedRow(x){
  return `<div class="tx" data-open="f:${f.id}" style="cursor:pointer"><span class="ti" style="background:${f.color||colorOf(f.name)};color:#fff">${esc(f.name.trim()[0])}</span><span class="t"><b>${esc(f.name)}</b>${x.note?' · '+esc(x.note):''}<small>${dstr(x.date)}</small></span><b style="white-space:nowrap">${fmt(x.amt)}</b></div>`}
 function stmtP(o){const hd=HIDE;HIDE=false;const b=bal(o.id);const t=`كشف حساب: ${o.name}\n`+S.tx.filter(t=>t.pid===o.id).sort((x,y)=>x.date.localeCompare(y.date)).map(t=>`${t.date} | ${TYPES[t.type].l} | ${num(t.amt)}${t.note?' | '+t.note:''}`).join('\n')+`\nالرصيد: ${b===0?'خالصين':fmt(b)+(b>0?' ليا عندك':' ليك عندي')}`;HIDE=hd;return t}
 function expRow(e,del){const f=S.funds.find(q=>q.id===e.fid);
- return `<div class="tx" data-edit="e:${e.id}" style="cursor:pointer"><span class="ti" style="background:color-mix(in srgb,var(--minus) 14%,transparent);color:var(--minus)">−</span><span class="t"><b>${e.note?esc(e.note):'مصروف'}</b>${f?`<span class="tag">${esc(f.name)}</span>`:''}<small>${del?'':dstr(e.date)+' · '}${e.w?wn(e.w):'مش من المحفظة'}</small></span>${amtCell('mi',fmt(e.amt),e.id)}${del?`<button class="del" data-del="${e.id}" aria-label="مسح">${ic('trash')}</button>`:''}</div>`}
+ return `<div class="tx" data-edit="e:${e.id}" style="cursor:pointer"><span class="ti" style="background:color-mix(in srgb,var(--minus) 14%,transparent);color:var(--minus)">−</span><span class="t"><b>${e.note?esc(e.note):'مصروف'}</b>${f?`<span class="tag">${esc(f.name)}</span>`:''}<small>${del?'':dstr(e.date)+' · '}${e.w?wn(e.w):'مش من المحفظة'}${rmeta(e)}</small></span>${amtCell('mi',fmt(e.amt),e.id)}${del?`<button class="del" data-del="${e.id}" aria-label="مسح">${ic('trash')}</button>`:''}</div>`}
 function mvRow(m,del){let sign,label,col,sub;
  if(m.k==='in'){sign='+';label=m.note||'فلوس دخلت';col='plus';sub=wn(m.w)}
  else if(m.k==='adj'){sign=m.amt>=0?'+':'−';label=m.note==='مراجعة رصيد'?(m.amt<0?'نقص (مراجعة رصيد)':'زيادة (مراجعة رصيد)'):'تعديل رصيد';col=m.amt>=0?'plus':'minus';sub=wn(m.w)}
  else if(m.k==='gl'){const g=S.goals.find(x=>x.id===m.goal);sign=m.amt>=0?'↗':'↙';label=(m.amt>=0?'حطيت في هدف ':'سحبت من هدف ')+(g?g.name:'');col=m.amt>=0?'minus':'plus';sub=wn(m.w)}
  else{sign='⇄';label='تحويل';col='ink';sub=wn(m.w)+' ← '+wn(m.to)}
- return `<div class="tx" data-edit="m:${m.id}" style="cursor:pointer"><span class="ti" style="background:var(--soft);color:var(--${col})">${sign}</span><span class="t"><b>${esc(label)}</b><small>${del?'':dstr(m.date)+' · '}${sub}${m.note&&m.k!=='in'?' · '+esc(m.note):''}</small></span>${amtCell(col==='plus'?'pl':col==='minus'?'mi':'',fmt(Math.abs(m.amt)),m.id)}${del?`<button class="del" data-del="${m.id}" aria-label="مسح">${ic('trash')}</button>`:''}</div>`}
+ return `<div class="tx" data-edit="m:${m.id}" style="cursor:pointer"><span class="ti" style="background:var(--soft);color:var(--${col})">${sign}</span><span class="t"><b>${esc(label)}</b><small>${del?'':dstr(m.date)+' · '}${sub}${m.note&&m.k!=='in'?' · '+esc(m.note):''}${rmeta(m)}</small></span>${amtCell(col==='plus'?'pl':col==='minus'?'mi':'',fmt(Math.abs(m.amt)),m.id)}${del?`<button class="del" data-del="${m.id}" aria-label="مسح">${ic('trash')}</button>`:''}</div>`}
 function txWRow(t){const p=S.people.find(q=>q.id===t.pid),T=TYPES[t.type],sg=TXW[t.type];
- return `<div class="tx" data-open="p:${t.pid}" style="cursor:pointer"><span class="ti" style="background:var(--soft);color:var(--${sg>0?'plus':'minus'})">${sg>0?'+':'−'}</span><span class="t"><b>${esc(p?p.name:'؟')}</b> · ${T.l}<small>${wn(t.w)}${t.note?' · '+esc(t.note):''}</small></span>${amtCell(sg>0?'pl':'mi',fmt(t.amt),t.id)}</div>`}
+ return `<div class="tx" data-open="p:${t.pid}" style="cursor:pointer"><span class="ti" style="background:var(--soft);color:var(--${sg>0?'plus':'minus'})">${sg>0?'+':'−'}</span><span class="t"><b>${esc(p?p.name:'؟')}</b> · ${T.l}<small>${wn(t.w)}${t.note?' · '+esc(t.note):''}${rmeta(t)}</small></span>${amtCell(sg>0?'pl':'mi',fmt(t.amt),t.id)}</div>`}
 function vDaily(){
  if(!walletsSet())return `<div class="box" style="padding:18px"><b style="font-size:19px">معاك كام دلوقتي؟</b><p class="muted" style="margin:4px 0 14px">اكتب الفلوس اللي معاك النهارده، ومن هنا ورايح كل مصروف أو فلوس داخلة هتتحسب لوحدها.</p>
   <form id="fSetW">${S.wallets.map(w=>`<label class="muted">${esc(wlabel(w))}${w.parent?' — جزء من الكاش':''}${w.id==='cash'&&kids('cash').length?' — كاش مش مقسّم (سيبها فاضية لو هتكتب الورق والفضة تحت)':''}${w.frozen?' (تحويش مش بتصرف منه)':''}</label><input data-ws="${w.id}" type="text" autocomplete="off" inputmode="decimal" placeholder="0"><div style="height:10px"></div>`).join('')}
@@ -1089,7 +1092,7 @@ function renderSheet(){
   const PB=sp?payBind(c,'mAmt'):null;$('mAmt').focus();{const sy=()=>{$('mAmtL').textContent=isUSD(getW(c))?'المبلغ بالدولار $':'المبلغ'};c.querySelector('[data-wsel=w]').addEventListener('click',()=>setTimeout(sy));sy()}
   c.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{$('mNote').value=b.dataset.q;if(!sp&&b.dataset.q==='مرتب'){const sw=salW();c.querySelectorAll('[data-wsel=w] button').forEach(x=>x.classList.toggle('on',x.dataset.w===sw))}});
   $('fM').onsubmit=e=>{e.preventDefault();const amt=pn($('mAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');const w=getW(c);lastW=w;const date=$('mDate').value||today(),note=$('mNote').value.trim();
-   let fe=0;if(sp){const x={id:uid(),fid:$('mFund')?.value||'',amt,date,note,w};S.exp.push(x);fe=setFee(x,PB.fee())}else{const x={id:uid(),k:'in',w,amt,date,note};if(/^مرتب/.test(note)&&!salGot(date.slice(0,7))){x.sal=1;x.salM=date.slice(0,7);if(!S.sal)S.sal={amt,day:+date.slice(8),w};}S.mv.push(x)}
+   let fe=0;if(sp){const x={id:uid(),fid:$('mFund')?.value||'',amt,date,note,w};if(PB.ref())x.ref=PB.ref();S.exp.push(x);fe=setFee(x,PB.fee())}else{const x={id:uid(),k:'in',w,amt,date,note};if(/^مرتب/.test(note)&&!salGot(date.slice(0,7))){x.sal=1;x.salM=date.slice(0,7);if(!S.sal)S.sal={amt,day:+date.slice(8),w};}S.mv.push(x)}
    dayV=date;save();close();toast(sp?`اتخصم ${fmt(amt+fe)} من ${wn(w)}${fe?' (منهم '+fmt(fe)+' عمولة)':''}`:`اتضاف ${fmt(amt)} على ${wn(w)}`)};return}
  if(k==='transfer'){
   c.innerHTML=head('تحويل بين المحافظ')+`<form class="form" id="fT"><label>من</label>${wsel(open.from||'visa',false,'from')}<label>إلى</label>${wsel(open.to||'cash',false,'to')}
@@ -1098,14 +1101,14 @@ function renderSheet(){
    <div id="atmBox" hidden><label>سحبتها من ماكينة</label><div class="wsel" data-wsel="atm"><button type="button" data-w="own" class="on" id="atmOwn">بنك الكارت (من غير رسوم)</button><button type="button" data-w="other">بنك تاني</button></div>
     <div id="atmFW" hidden><label>رسوم السحب</label><input id="atmF" type="text" inputmode="decimal" value="${S.atmFee||5}" autocomplete="off"></div><div class="muted" id="atmInfo" style="font-size:13px;margin:-2px 0 10px"></div></div>
    <div id="trFeeW"><label>اللي وصل للمحفظة التانية (اختياري)</label><input id="trRecv" type="text" inputmode="decimal" placeholder="لو مختلف عن اللي اتحوّل" autocomplete="off">
-   ${feeBox(open.fee!=null?open.fee:!!S.trFee,S.trFeeR||1)}</div>
+   ${feeBox(open.fee!=null?open.fee:!!S.trFee,S.trFeeR||1)}</div>${refIn('trRef')}<div style="height:10px"></div>
    <label>التاريخ</label><input id="trDate" type="date" value="${dayV||today()}">
    <div class="btns" style="margin-top:12px"><button class="btn">حوّل</button></div></form>`;
   $('fT').onsubmit=e=>{e.preventDefault();const amt=pn($('trAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');const w=getW(c,'from'),to=getW(c,'to');if(w===to)return toast('اختار محفظتين مختلفين');
    const dt=$('trDate').value||today();
-   if(isAtm()){const other=getW(c,'atm')==='other',fa=other?pn($('atmF').value)||0:0;snap();if(other&&fa>0)S.atmFee=fa;const m={id:uid(),k:'tr',w,to,amt,date:dt,note:'سحب من ماكينة'};S.mv.push(m);if(fa>0)setFee(m,fa,'رسوم سحب من ماكينة بنك تاني');
+   if(isAtm()){const other=getW(c,'atm')==='other',fa=other?pn($('atmF').value)||0:0;snap();if(other&&fa>0)S.atmFee=fa;const m={id:uid(),k:'tr',w,to,amt,date:dt,note:'سحب من ماكينة'};{const rf=$('trRef').value.trim();if(rf)m.ref=rf}S.mv.push(m);if(fa>0)setFee(m,fa,'رسوم سحب من ماكينة بنك تاني');
     save();close();render();return toast(`اتسحب ${fmt(amt)} لـ ${wn(to)}${fa?' واتخصم '+fmt(amt+fa)+' من '+wn(w)+' (رسوم '+fmt(fa)+')':''}`,true)}
-   const rv=pn($('trRecv').value)||0;if(rv>amt)return toast('اللي وصل أكبر من اللي اتحوّل؟');snap();const f=doTransfer(w,to,amt,dt,feeVal(),'',rv);save();close();render();toast(`اتحوّل ${fmt(rv>0?rv:amt)} لـ ${wn(to)}${f?' (عمولة '+fmt(f)+' اتخصمت من '+wn(w)+')':''}`,true)};feeBind('trAmt');
+   const rv=pn($('trRecv').value)||0;if(rv>amt)return toast('اللي وصل أكبر من اللي اتحوّل؟');snap();const f=doTransfer(w,to,amt,dt,feeVal(),'',rv);{const rf=$('trRef').value.trim(),lm=S.mv[S.mv.length-1];if(rf&&lm&&lm.k==='tr')lm.ref=rf}save();close();render();toast(`اتحوّل ${fmt(rv>0?rv:amt)} لـ ${wn(to)}${f?' (عمولة '+fmt(f)+' اتخصمت من '+wn(w)+')':''}`,true)};feeBind('trAmt');
   const wObj=id=>S.wallets.find(x=>x.id===id)||{},inCash=id=>id==='cash'||wObj(id).parent==='cash';
   const isAtm=()=>{const f=wObj(getW(c,'from'));return (f.t==='bank'||f.t==='ew')&&inCash(getW(c,'to'))};
   const atmUp=()=>{const on=isAtm();$('atmBox').hidden=!on;$('trFeeW').hidden=on;if(!on)return;const f=wObj(getW(c,'from'));$('atmOwn').textContent=(f.bank?'ماكينة '+f.bank:'بنك الكارت')+' (من غير رسوم)';const other=getW(c,'atm')==='other';$('atmFW').hidden=!other;
@@ -1213,6 +1216,7 @@ function renderSheet(){
    ${isE&&S.funds.length?`<label>الباب</label><select id="edFund"><option value="">مصروف يومي</option>${S.funds.map(f=>`<option value="${f.id}" ${o.fid===f.id?'selected':''}>${esc(f.name)}</option>`).join('')}</select><div style="height:10px"></div>`:''}
    ${isTr||isAdj||isGl?'':`<label>ملاحظة</label><input id="edNote" value="${esc(o.note||'')}"><div style="height:10px"></div>`}
    ${(isE||isT||isTr)&&!o.fee&&(feeSum(o.id)||isBankW(o.w))?`<label>العمولة اللي اتخصمت معاها</label><input id="edFee" type="text" inputmode="decimal" autocomplete="off" value="${feeSum(o.id)||''}" placeholder="مفيش"><div style="height:10px"></div>`:''}
+   ${o.fee?'':`<div class="g2"><div><label>الساعة</label><input id="edTm" type="time" value="${o.tm?(d=>String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'))(new Date(o.tm)):''}"></div><div>${refIn('edRef',o.ref)}</div></div><div style="height:10px"></div>`}
    <div class="g2"><div><label>التاريخ</label><input id="edDate" type="date" value="${o.date}"></div>${isT?`<div><label>ميعاد السداد</label><input id="edDue" type="date" value="${o.due||''}"></div>`:''}</div>
    <div class="btns" style="margin-top:6px"><button class="btn">حفظ</button><button type="button" class="btn danger" data-act="edDel">${ic('trash')}مسح</button></div></form>`;
   let et=o.type;c.querySelectorAll('[data-et]').forEach(b=>b.onclick=()=>{et=b.dataset.et;c.querySelectorAll('[data-et]').forEach(x=>x.classList.toggle('on',x===b))});
@@ -1221,6 +1225,7 @@ function renderSheet(){
    else if(!isGl){const w=getW(c);if(w==='none')delete o.w;else o.w=w}
    o.amt=a;o.date=$('edDate').value||o.date;if($('edNote'))o.note=$('edNote').value.trim();if($('edFund'))o.fid=$('edFund').value;
    if(isT){o.type=et;const du=$('edDue').value;if(du&&et==='took')o.due=du;else delete o.due}
+   if($('edTm')){const v=$('edTm').value;if(v){const t=new Date(o.date+'T'+v).getTime();if(t)o.tm=t}else delete o.tm;const rf=$('edRef').value.trim();if(rf)o.ref=rf;else delete o.ref}
    if($('edFee'))setFee(o,pn($('edFee').value)||0);else if(feeSum(o.id))setFee(o,feeSum(o.id));
    save();goBack();toast('اتعدّل')};return}
  if(k==='bankq'){const q=bankQ();if(!q.length){close();return}
@@ -1590,7 +1595,7 @@ function renderSheet(){
   if(open.focus){$('tAmt').focus();open.focus=false}
   $('fTx').onsubmit=e=>{e.preventDefault();const amt=pn($('tAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');
    const t={id:uid(),pid:p.id,type:ttype,amt,date:$('tDate').value||today(),note:$('tNote').value.trim()};const w=getW($('fTx'));lastW=w;if(w!=='none')t.w=w;if(ttype==='took'&&$('tDue').value)t.due=$('tDue').value;
-   S.tx.push(t);const fe=t.w?setFee(t,PB.fee()):0;save();render();toast(t.w?`اتسجّل، و${TXW[t.type]>0?'اتضاف على':'اتخصم من'} ${wn(t.w)}${fe?' (+ '+fmt(fe)+' عمولة)':''}`:'اتسجّل')};return}
+   if(t.w&&PB.ref())t.ref=PB.ref();S.tx.push(t);const fe=t.w?setFee(t,PB.fee()):0;save();render();toast(t.w?`اتسجّل، و${TXW[t.type]>0?'اتضاف على':'اتخصم من'} ${wn(t.w)}${fe?' (+ '+fmt(fe)+' عمولة)':''}`:'اتسجّل')};return}
  if(k==='f'){
   const f=S.funds.find(x=>x.id===open.id);if(!f){close();return}
   const col=f.color||colorOf(f.name),t=ftot(f.id),ex=S.exp.filter(e=>e.fid===f.id).sort((a,z)=>z.date.localeCompare(a.date)||z.id.localeCompare(a.id));
