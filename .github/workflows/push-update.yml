@@ -32,6 +32,20 @@ jobs:
           test = os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch' or subprocess.run(['git','diff','--quiet','HEAD~1','HEAD','--','push-test.txt']).returncode != 0
           if old.get('code') == v.get('code') and not test:
               print('version code unchanged — no notification'); raise SystemExit(0)
+          # wait until the new version is really live on the site (GitHub Pages takes a minute or two)
+          import time
+          if not test:
+              size = os.path.getsize('daftari.apk')
+              for i in range(60):
+                  try:
+                      live = requests.get('https://mahmoudbassiuoni.github.io/version.json?t=%d' % time.time(), timeout=15).json()
+                      h = requests.head('https://mahmoudbassiuoni.github.io/daftari.apk?t=%d' % time.time(), timeout=15, allow_redirects=True)
+                      if live.get('code') == v.get('code') and int(h.headers.get('Content-Length', 0)) == size:
+                          print('live after', i * 15, 's'); break
+                  except Exception as e:
+                      print('wait:', e)
+                  time.sleep(15)
+              time.sleep(20)
           sa = json.loads(os.environ['FCM_SA'])
           cred = service_account.Credentials.from_service_account_info(sa, scopes=['https://www.googleapis.com/auth/firebase.messaging'])
           cred.refresh(Request())
