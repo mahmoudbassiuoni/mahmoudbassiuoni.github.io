@@ -63,6 +63,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans
 .track{height:8px;border-radius:6px;background:var(--soft);overflow:hidden}.track i{display:block;height:100%;border-radius:6px}
 .wsel button .i{width:16px;height:16px;vertical-align:-3px;margin-inline-end:4px}
 .bdg{display:inline-grid;place-items:center;min-width:44px;height:26px;padding:0 7px;border-radius:9px;color:#fff;font:700 11px/1 inherit;letter-spacing:0;white-space:nowrap;vertical-align:middle;box-shadow:inset 0 0 0 1px rgb(255 255 255/.18)}.wcard small .bdg{height:22px;min-width:38px;font-size:10px;margin-inline-end:4px}.av .bdg{min-width:0;width:100%;height:100%;border-radius:inherit;padding:0 2px;font-size:10px}#wfPrev{margin-top:8px}
+.amtc{display:flex;flex-direction:column;align-items:flex-end;white-space:nowrap;line-height:1.25}.feel{font-size:11.5px;color:var(--minus);font-weight:600;opacity:.85}
 .fee{display:flex;align-items:center;gap:6px;font-size:14px;margin:4px 0 6px;flex-wrap:wrap}.fee input[type=checkbox]{width:18px;height:18px}.fee input[type=text]{padding:4px 6px;border-radius:8px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:inherit}
 .salc{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:0 0 12px;cursor:pointer;border-inline-start:5px solid #0a7a6c}.salc .ti{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#0a7a6c;color:#fff;flex:none}.salc .t{flex:1;display:flex;flex-direction:column}.salc small{color:var(--mute)}.salc .btn{background:#0a7a6c;pointer-events:none}
 .happ{margin-top:10px;display:flex;justify-content:space-between;align-items:baseline;font-size:14px;opacity:.85;border-top:1px dashed rgb(255 255 255/.25);padding-top:8px}.happ small{opacity:.7}
@@ -322,7 +323,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ٢';
+const VER='٢٦ نوفمبر - ٣';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -397,7 +398,7 @@ const DEFW=[{id:'cash',name:'نقدي',ic:'wallet'},{id:'visa',name:'الفيز�
 const wn=id=>id==='none'?'مش من محفظتي':((S.wallets||[]).find(w=>w.id===id)||{name:id}).name;
 const ensureW=()=>{if(!Array.isArray(S.wallets)||!S.wallets.length)S.wallets=JSON.parse(JSON.stringify(DEFW));
  if(!Array.isArray(S.rec))S.rec=[];if(!Array.isArray(S.gam))S.gam=[];if(!Array.isArray(S.loans))S.loans=[];if(!Array.isArray(S.nDays))S.nDays=[3,2];if(!Array.isArray(S.goals))S.goals=[];if(typeof S.budget!=='number')S.budget=0;
- wMig28();wMig30();
+ wMig28();wMig30();try{if(linkFees())setTimeout(()=>{try{save()}catch(e){}},0)}catch(e){}
  if(!S.wMig8){S.wMig8=1;S.wallets.forEach(w=>{if(w.id==='frozen'&&w.frozen){delete w.frozen;if(w.ic==='lock')w.ic='wallet';w.parent='cash'}if(w.id==='silver'&&!w.parent)w.parent='cash'})}};
 const GRPS={cash:'نقدي',visa:'الفيزا والبنوك',mob:'محافظ الموبايل'};const isGrp=w=>!!w&&w.id in GRPS;
 function ensureGrp(id){if(!S.wallets.some(w=>w.id===id)){const i=S.wallets.findIndex(w=>w.id==='visa');const g=id==='visa'?{id:'visa',name:'الفيزا',ic:'card'}:id==='mob'?{id:'mob',name:'محافظ الموبايل',ic:'mobile'}:{id:'cash',name:'نقدي',ic:'wallet'};S.wallets.splice(i<0?S.wallets.length:i+1,0,g)}}
@@ -453,9 +454,22 @@ const FEE_MIN=0.5,FEE_MAX=20;
 const feeOf=(a,r)=>r>0&&a>0?Math.min(FEE_MAX,Math.max(FEE_MIN,Math.round(a*r/1000*100)/100)):0;
 const maxSend=(bal,r)=>{if(!(r>0))return bal;let s=Math.floor(bal*100000/(1000+r))/100;if(s*r/1000<FEE_MIN)s=Math.floor((bal-FEE_MIN)*100)/100;else if(s*r/1000>FEE_MAX)s=Math.floor((bal-FEE_MAX)*100)/100;return Math.max(0,s)};
 function doTransfer(w,to,amt,date,feeR,note,recv){const sent=recv>0?recv:amt,fee=recv>0?Math.max(0,Math.round((amt-recv)*100)/100):feeOf(amt,feeR);
- S.mv.push({id:uid(),k:'tr',w,to,amt:Math.round(sent*100)/100,date,note:note||''});if(fee>0)S.exp.push({id:uid(),fid:'',amt:fee,date,note:'عمولة تحويل',w,fee:1});return fee}
+ const m={id:uid(),k:'tr',w,to,amt:Math.round(sent*100)/100,date,note:note||''};S.mv.push(m);if(fee>0)setFee(m,fee,'عمولة تحويل');return fee}
 const feeBox=(on,r)=>`<label class="fee"><input type="checkbox" id="feeOn" ${on?'checked':''}> فيه عمولة تحويل <input id="feeR" type="text" inputmode="decimal" value="${r}" style="width:56px;text-align:center"> في الألف <small class="muted">(أقل حاجة نص جنيه وأقصى ٢٠)</small></label><div class="muted" id="feeInfo" style="font-size:13px;margin:-2px 0 10px"></div>`;
 function feeBind(amtId){const up=()=>{const a=pn($(amtId).value)||0,rv=$('trRecv')?pn($('trRecv').value)||0:0,on=$('feeOn').checked,r=pn($('feeR').value)||0,f=rv>0?Math.max(0,a-rv):on?feeOf(a,r):0;$('feeInfo').innerHTML=a>0?(rv>0?`وصل <b>${fmt(rv)}</b> · العمولة اللي اتخصمت <b>${fmt(f)}</b>`:on?`هيوصل <b>${fmt(a)}</b> كامل · العمولة <b>${fmt(f)}</b> بتتخصم زيادة من الكارت اللي بتحوّل منه (إجمالي <b>${fmt(a+f)}</b>)`:'من غير عمولة · هيوصل <b>'+fmt(a)+'</b>'):''};[amtId,'feeR','trRecv'].filter(i=>$(i)).forEach(i=>$(i).addEventListener('input',up));$('feeOn').addEventListener('change',up);up()}
+const isBankW=id=>{const w=(S.wallets||[]).find(x=>x.id===id);return !!w&&(w.t==='bank'||w.t==='ew'||w.id==='visa'||w.parent==='visa'||w.parent==='mob')};
+const feeKids=id=>(S.exp||[]).filter(e=>e.of===id),feeSum=id=>Math.round(feeKids(id).reduce((a,e)=>a+(+e.amt||0),0)*100)/100;
+function setFee(o,f,note){const old=feeKids(o.id)[0];S.exp=S.exp.filter(e=>e.of!==o.id);f=Math.round((+f||0)*100)/100;if(f>0&&o.w&&o.w!=='none')S.exp.push({id:old?old.id:uid(),fid:'',amt:f,date:o.date,note:note||(old&&old.note)||'عمولة تحويل',w:o.w,fee:1,of:o.id});return f}
+const parIds=()=>new Set([...S.mv,...S.tx,...S.exp].map(x=>x.id));
+const amtCell=(cls,txt,id)=>{const f=feeSum(id);return f>0?`<span class="amtc"><b class="${cls}">${txt}</b><small class="feel">+ ${fmt(f)} عمولة</small></span>`:`<b class="${cls}" style="white-space:nowrap">${txt}</b>`};
+const idT=id=>parseInt(String(id).slice(0,-4),36)||0;
+function linkFees(){const used=new Set(S.exp.filter(e=>e.of).map(e=>e.of));let ch=0;for(const e of S.exp){if(!e.fee||e.of)continue;const atm=/ماكينة/.test(e.note||''),t=idT(e.id);
+ const c=S.mv.filter(m=>m.k==='tr'&&m.w===e.w&&m.date===e.date&&!used.has(m.id)&&atm===/ماكينة/.test(m.note||'')).sort((a,b)=>Math.abs(idT(a.id)-t)-Math.abs(idT(b.id)-t))[0];if(c){e.of=c.id;used.add(c.id);ch=1}}return ch}
+const payBox=def=>`<div id="payW" hidden><label>اتدفعت إزاي؟</label><div class="wsel" data-wsel="pay"><button type="button" data-w="card" class="${def==='card'?'on':''}">بالكارت / فاتورة / شحن</button><button type="button" data-w="ipa" class="${def==='ipa'?'on':''}">تحويل لحد (إنستاباي)</button></div><div class="muted" id="payInfo" style="font-size:13px;margin:-2px 0 10px"></div></div>`;
+function payBind(c,amtId,cond){const up=()=>{const w=getW(c),on=isBankW(w)&&(!cond||cond());$('payW').hidden=!on;if(!on)return;const a=pn($(amtId).value)||0,r=S.trFeeR||1,f=feeOf(a,r);
+ $('payInfo').innerHTML=getW(c,'pay')==='card'?'المبلغ ده هو اللي اتسحب كله، من غير عمولة زيادة.':a>0?`هيوصل <b>${fmt(a)}</b> · العمولة <b>${fmt(f)}</b> بتتخصم معاه (إجمالي <b>${fmt(a+f)}</b>)`:`عمولة ${r.toLocaleString('ar-EG')} في الألف (أقل حاجة نص جنيه وأقصى ٢٠)`};
+ c.querySelectorAll('[data-wsel]').forEach(g=>g.addEventListener('click',()=>setTimeout(up)));$(amtId).addEventListener('input',up);up();
+ return {up,fee:()=>{const w=getW(c);return isBankW(w)&&(!cond||cond())&&getW(c,'pay')==='ipa'?feeOf(pn($(amtId).value)||0,S.trFeeR||1):0}}}
 const feeVal=()=>{const on=$('feeOn').checked,r=pn($('feeR').value)||0;S.trFee=on?1:0;if(r>0)S.trFeeR=r;return on?r:0};
 function salCard(){if(!salDue())return '';const late=+today().slice(8)>=salDay();return `<div class="box salc" data-act="salary"><span class="ti">${ic('coin')}</span><span class="t"><b>${late?'المرتب نزل؟':'المرتب قرّب ينزل'}</b><small>سجّل مرتب ${mLabel(month())} · على ${esc(salWName())}</small></span><span class="btn sm">${ic('plus')}سجّل</span></div>`}
 const wlabel=w=>w.id==='frozen'&&w.name==='مجمد'?'مجمد (ورق)':w.id==='silver'&&w.name==='فضية'?'فضية (معدن)':w.name;
@@ -620,10 +634,44 @@ function walletHero(){
   ${S.wallets.filter(w=>w.t==='app').map(w=>`<div class="happ"><span>${esc(w.name)} <small>(منفصل)</small></span><b>${wfmt(w.id)}</b></div>`).join('')}
   ${(()=>{const T=totals();if(!T.plus&&!T.minus)return '';const ex=av+T.plus-T.minus;return `<div class="hexp"><div><small>المفروض معاك</small><b>${sfmt(ex)}</b></div><span>معاك ${sfmt(av)}${T.plus?` + ليك ${sfmt(T.plus)}`:''}${T.minus?` − عليك ${sfmt(T.minus)}`:''}</span></div>`})()}
  </section>`}
+
+// ===== auto-record from bank / InstaPay notifications (native only, opt-in, stays on device) =====
+const bankSt=()=>{try{return isNative&&NAT.bankState?NAT.bankState():''}catch(e){return ''}};
+const bankQ=()=>{const q=LS.get('daftar_bankq');return Array.isArray(q)?q:[]},bankQset=q=>LS.set('daftar_bankq',q.length?q.slice(-80):null);
+function parseBank(o){let t=String(o.text||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/٫/g,'.').replace(/(\d)[٬،,](?=\d{3}\b)/g,'$1').replace(/\s+/g,' ');
+ const CUR='(?:EGP|E\\.G\\.P|L\\.?E\\b|جنيه(?:ا|اً|ًا)?|ج\\.?م\\.?|جم\\b|pounds?)',N='(\\d+(?:\\.\\d+)?)';
+ const hits=[];for(const re of [new RegExp(CUR+'\\s*'+N,'gi'),new RegExp(N+'\\s*'+CUR,'gi'),new RegExp('(?:مبلغ|بمبلغ|amount(?: of)?|قيمة|بقيمة)\\s*:?\\s*'+N,'gi')]){let m;while((m=re.exec(t))){const v=+m[1];if(v>0&&!hits.some(h=>Math.abs(h.i-m.index)<12))hits.push({i:m.index,v})}}
+ hits.sort((a,b)=>a.i-b.i);let amt=0,fee=0;
+ for(const h of hits){const pre=t.slice(Math.max(0,h.i-28),h.i);if(/(الرصيد|رصيدك|رصيد حسابك|balance|avail|المتاح|limit)[^\d]{0,22}$/i.test(pre))continue;if(/(رسوم|عمولة|عمولات|\bfees?\b|\bcharges\b)[^\d]{0,14}$/i.test(pre)){if(!fee)fee=h.v;continue}if(!amt)amt=h.v}
+ if(/(OTP|one.?time|verification|password|كود|رمز|كلمة ?(المرور|السر)|التحقق|لا ?تشارك)/i.test(t))return {dir:''};
+ const IN=/(إيداع|ايداع|إضافة|اضافة|أضيف|اضيف|استلام|استلمت|إستلام|وارد|تم تحويل مبلغ .{0,40}(إليك|اليك|لحسابك)|credited|received|deposit|added to|refund|استرداد|reversal)/i;
+ const OUT=/(خصم|سحب|شراء|مشتريات|دفع|سداد|تحويل|حولت|أرسلت|ارسلت|debited|charged|purchase|withdraw|spent|paid|payment|sent|transfer)/i;
+ const dir=IN.test(t)?'in':OUT.test(t)?'out':'';
+ const tr=dir==='out'&&/(تحويل|حولت|أرسلت|ارسلت|transfer|sent to|instapay|إنستا|انستا|IPN|IPA)/i.test(t)&&!/(فاتورة|شحن|رصيد موبايل|باقة|bill|recharge|top.?up)/i.test(t);
+ const l4m=t.match(/(?:\*{2,}|x{2,}|X{2,}|•{2,}|ending(?: with| in)?|المنتهي[ةه]? ب|رقم|No\.?|card|بطاقة|حساب)\s*[:#]?\s*[*xX•]*\s*(\d{4})\b/i);
+ const pms=[...t.matchAll(dir==='in'?/(?:^|\s)(?:من|from)\s+([^\d,.،\n*]{2,28})/gi:tr?/(?:^|\s)(?:إلى|الى|لـ|to)\s+([^\d,.،\n*]{2,28})/gi:/(?:^|\s)(?:لدى|لدي|عند|at|merchant|في)\s+([^\d,.،\n*]{2,28})/gi)],pm=dir==='in'?(()=>{const li=Math.max(t.lastIndexOf(' من '),t.toLowerCase().lastIndexOf(' from '));return li<0?null:t.slice(li).replace(/^\s*(من|from)\s+/i,'').match(/^([^\d,.،\n*]{2,28})/)})():pms[0];
+ let who=pm?pm[1].replace(/(?:^|\s)(يوم|بتاريخ|on|في|بنجاح|successfully|رقم|card|بطاقة|عبر|via|using|من|from|الرصيد|Avail|رسوم|عمولة|fees?|بمبلغ|مبلغ).*$/i,'').trim():'';if(/^(حساب|بطاقة|البطاقة|الحساب|كارت|card|account|تحويل)/i.test(who))who='';
+ const d=new Date(o.t||Date.now()),date=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+ const bill=/(فاتورة|شحن|باقة|bill|recharge|top.?up)/i.test(t);
+ return {bill,id:o.id,amt:Math.round(amt*100)/100,fee:Math.round(fee*100)/100,dir,tr,l4:l4m?l4m[1]:'',who:who.slice(0,30),date,src:(o.from||'').slice(0,40),pkg:o.pkg||'',text:String(o.text||'').slice(0,400)}}
+const bankKey=x=>x.l4?'#'+x.l4:'@'+(x.src||x.pkg);
+const bankWallet=x=>{const k=bankKey(x);const w=S.wallets.find(w=>(w.bk||[]).includes(k)||(x.l4&&w.vc&&w.vc.l4===x.l4));return w&&!kids(w.id).length?w.id:''};
+function bankRecord(x,w){const note=x.dir==='in'?(x.who?'من '+x.who:'فلوس دخلت'):x.tr?('تحويل'+(x.who?' لـ '+x.who:'')):(x.who||(x.bill?'فاتورة / شحن':'مشتريات بالكارت'));
+ if(x.dir==='in'){S.mv.push({id:uid(),k:'in',w,amt:x.amt,date:x.date,note,auto:1});return}
+ if(!x.amt&&x.fee>0){const last=[...S.exp,...S.tx,...S.mv].filter(r=>r.auto&&r.w===w&&r.date===x.date).sort((a,b)=>b.id.localeCompare(a.id))[0];if(last){setFee(last,feeSum(last.id)+x.fee);return}S.exp.push({id:uid(),fid:'',amt:x.fee,date:x.date,note:'عمولة',w,fee:1,auto:1});return}
+ const e={id:uid(),fid:'',amt:x.amt,date:x.date,note,w,auto:1};S.exp.push(e);if(x.fee>0)setFee(e,x.fee)}
+window.__bankPull=()=>{if(bankSt()!=='on')return;let raw=[];try{raw=JSON.parse(NAT.bankTake()||'[]')}catch(e){}
+ if(!raw.length)return;const q=bankQ();let n=0;snap();
+ for(const o of raw){const x=parseBank(o);if(!x.dir||!(x.amt>0||x.fee>0))continue;const w=bankWallet(x);if(w){bankRecord(x,w);n++}else q.push(x)}
+ bankQset(q);if(n){save();render();toast(`دفتري سجّل ${n.toLocaleString('ar-EG')} حركة من رسائل البنك تلقائي ✅`,true)}else render();
+ if(q.length&&!n)toast('فيه حركة جديدة من البنك محتاجة تختار الكارت بتاعها')};
+let bankBack=0;const amtB=x=>`<b class="${x.dir==='in'?'pl':'mi'}" style="white-space:nowrap">${x.dir==='in'?'+':'−'} ${fmt(x.amt||x.fee)}${x.fee&&x.amt?'<small class="feel" style="display:block">+ '+fmt(x.fee)+' عمولة</small>':''}</b>`;
+const bankCard=()=>{const q=bankQ();return q.length?`<div class="box" data-act="bankq" style="padding:12px 14px;margin:10px 0;cursor:pointer;border-inline-start:5px solid var(--gold)"><b>${q.length.toLocaleString('ar-EG')} حركة من البنك مستنياك</b><div class="muted" style="font-size:13px">اختار الكارت بتاعها مرة واحدة، وبعد كده هتتسجّل لوحدها.</div></div>`:''};
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){setTimeout(()=>window.__bankPull&&window.__bankPull(),400);if(bankBack&&open&&open.kind==='settings'){bankBack=0;setTimeout(renderSheet,500)}}});setTimeout(()=>window.__bankPull&&window.__bankPull(),2500);
 function vHome(){
  const T=totals();
  if(walletsSet())return walletHero()+`
- <div class="acts"><button data-act="spend" style="background:#c2334d">${ic('minus')}صرفت</button><button data-act="income" style="background:#0a7a6c">${ic('plus')}دخل فلوس</button><button data-act="quick" style="background:var(--hero)">${ic('users')}شخص</button></div>${salCard()}
+ <div class="acts"><button data-act="spend" style="background:#c2334d">${ic('minus')}صرفت</button><button data-act="income" style="background:#0a7a6c">${ic('plus')}دخل فلوس</button><button data-act="quick" style="background:var(--hero)">${ic('users')}شخص</button></div>${salCard()}${bankCard()}
  <div class="box pcard" data-go="people" style="cursor:pointer"><div><small>ليك عند الناس</small><b class="pl">${fmt(T.plus)}</b></div><div><small>عليك للناس</small><b class="mi">${fmt(T.minus)}</b></div><div><small>صرفت الشهر ده</small><b>${fmt(T.month)}</b></div></div>`+alertsCard()+budgetCard()+monthInsight()+quickRow()+homeRest(T);
  return `<div class="box" style="padding:16px;margin-bottom:14px;border-inline-start:5px solid var(--gold)"><b>جديد: محفظتك</b><p class="muted" style="margin:4px 0 10px">سجّل معاك كام نقدي وكام على الفيزا، وكل ما تصرف أو يدخلك فلوس هتتحسب لوحدها.</p><button class="btn" data-go="daily">ابدأ</button></div>`+`<section class="hero">
   <small>صافي حسابك مع الناس</small>
@@ -652,7 +700,7 @@ function homeRest(T){
  const top=S.people.filter(p=>bal(p.id)!==0).sort((a,b)=>Math.abs(bal(b.id))-Math.abs(bal(a.id))).slice(0,4);
  const daily=S.exp.filter(e=>!e.fid&&e.date.startsWith(month())).reduce((a,e)=>a+e.amt,0);
  const fm=S.funds.map(f=>({f,t:ftot(f.id,month())})).filter(x=>x.t>0);if(daily)fm.push({f:{id:'',name:'مصاريف يومية',color:'var(--minus)'},t:daily});fm.sort((a,b)=>b.t-a.t);const mx=Math.max(1,...fm.map(x=>x.t));
- const feed=[...S.tx.map(t=>({...t,k:'t'})),...S.exp.map(e=>({...e,k:'e'})),...S.mv.filter(m=>!m.start).map(m=>({...m,src:'m'}))].sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)).slice(0,6);
+ const feed=[...S.tx.map(t=>({...t,k:'t'})),...(()=>{const PI=parIds();return S.exp.filter(e=>!(e.of&&PI.has(e.of)))})().map(e=>({...e,k:'e'})),...S.mv.filter(m=>!m.start).map(m=>({...m,src:'m'}))].sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)).slice(0,6);
  return `<div class="sec"><h3>أكبر الحسابات ${S.people.length?'<a data-go="people">الكل</a>':''}</h3><div class="box">${top.length?top.map(personRow).join(''):'<div class="empty">ضيف أول شخص وسجّل عليه، أو استورد أرقامك من «جهات الاتصال».</div>'}</div></div>
  <div class="sec"><h3>مصاريف الشهر ده ${S.funds.length?'<a data-go="funds">الأبواب</a>':''}</h3><div class="box bars">${fm.length?fm.map(x=>`<div class="br" ${x.f.id?`data-open="f:${x.f.id}"`:'data-go="daily"'} style="cursor:pointer"><div class="t"><span>${esc(x.f.name)}</span><b>${fmt(x.t)}</b></div><div class="track"><i style="width:${x.t/mx*100}%;background:${x.f.color||colorOf(x.f.name)}"></i></div></div>`).join(''):'<div class="empty">مفيش مصاريف الشهر ده. افتح باب زي «مصاريف المشروع».</div>'}</div></div>
  <div class="sec"><h3>آخر الحركات</h3><div class="box">${feed.length?feed.map(feedRow).join(''):'<div class="empty">لسه مفيش حركات</div>'}</div></div>`;
@@ -666,23 +714,23 @@ function feedRow(x){
  return `<div class="tx" data-open="f:${f.id}" style="cursor:pointer"><span class="ti" style="background:${f.color||colorOf(f.name)};color:#fff">${esc(f.name.trim()[0])}</span><span class="t"><b>${esc(f.name)}</b>${x.note?' · '+esc(x.note):''}<small>${dstr(x.date)}</small></span><b style="white-space:nowrap">${fmt(x.amt)}</b></div>`}
 function stmtP(o){const hd=HIDE;HIDE=false;const b=bal(o.id);const t=`كشف حساب: ${o.name}\n`+S.tx.filter(t=>t.pid===o.id).sort((x,y)=>x.date.localeCompare(y.date)).map(t=>`${t.date} | ${TYPES[t.type].l} | ${num(t.amt)}${t.note?' | '+t.note:''}`).join('\n')+`\nالرصيد: ${b===0?'خالصين':fmt(b)+(b>0?' ليا عندك':' ليك عندي')}`;HIDE=hd;return t}
 function expRow(e,del){const f=S.funds.find(q=>q.id===e.fid);
- return `<div class="tx" data-edit="e:${e.id}" style="cursor:pointer"><span class="ti" style="background:color-mix(in srgb,var(--minus) 14%,transparent);color:var(--minus)">−</span><span class="t"><b>${e.note?esc(e.note):'مصروف'}</b>${f?`<span class="tag">${esc(f.name)}</span>`:''}<small>${del?'':dstr(e.date)+' · '}${e.w?wn(e.w):'مش من المحفظة'}</small></span><b class="mi" style="white-space:nowrap">${fmt(e.amt)}</b>${del?`<button class="del" data-del="${e.id}" aria-label="مسح">${ic('trash')}</button>`:''}</div>`}
+ return `<div class="tx" data-edit="e:${e.id}" style="cursor:pointer"><span class="ti" style="background:color-mix(in srgb,var(--minus) 14%,transparent);color:var(--minus)">−</span><span class="t"><b>${e.note?esc(e.note):'مصروف'}</b>${f?`<span class="tag">${esc(f.name)}</span>`:''}<small>${del?'':dstr(e.date)+' · '}${e.w?wn(e.w):'مش من المحفظة'}</small></span>${amtCell('mi',fmt(e.amt),e.id)}${del?`<button class="del" data-del="${e.id}" aria-label="مسح">${ic('trash')}</button>`:''}</div>`}
 function mvRow(m,del){let sign,label,col,sub;
  if(m.k==='in'){sign='+';label=m.note||'فلوس دخلت';col='plus';sub=wn(m.w)}
  else if(m.k==='adj'){sign=m.amt>=0?'+':'−';label='تعديل رصيد';col=m.amt>=0?'plus':'minus';sub=wn(m.w)}
  else if(m.k==='gl'){const g=S.goals.find(x=>x.id===m.goal);sign=m.amt>=0?'↗':'↙';label=(m.amt>=0?'حطيت في هدف ':'سحبت من هدف ')+(g?g.name:'');col=m.amt>=0?'minus':'plus';sub=wn(m.w)}
  else{sign='⇄';label='تحويل';col='ink';sub=wn(m.w)+' ← '+wn(m.to)}
- return `<div class="tx" data-edit="m:${m.id}" style="cursor:pointer"><span class="ti" style="background:var(--soft);color:var(--${col})">${sign}</span><span class="t"><b>${esc(label)}</b><small>${del?'':dstr(m.date)+' · '}${sub}${m.note&&m.k!=='in'?' · '+esc(m.note):''}</small></span><b class="${col==='plus'?'pl':col==='minus'?'mi':''}" style="white-space:nowrap">${fmt(Math.abs(m.amt))}</b>${del?`<button class="del" data-del="${m.id}" aria-label="مسح">${ic('trash')}</button>`:''}</div>`}
+ return `<div class="tx" data-edit="m:${m.id}" style="cursor:pointer"><span class="ti" style="background:var(--soft);color:var(--${col})">${sign}</span><span class="t"><b>${esc(label)}</b><small>${del?'':dstr(m.date)+' · '}${sub}${m.note&&m.k!=='in'?' · '+esc(m.note):''}</small></span>${amtCell(col==='plus'?'pl':col==='minus'?'mi':'',fmt(Math.abs(m.amt)),m.id)}${del?`<button class="del" data-del="${m.id}" aria-label="مسح">${ic('trash')}</button>`:''}</div>`}
 function txWRow(t){const p=S.people.find(q=>q.id===t.pid),T=TYPES[t.type],sg=TXW[t.type];
- return `<div class="tx" data-open="p:${t.pid}" style="cursor:pointer"><span class="ti" style="background:var(--soft);color:var(--${sg>0?'plus':'minus'})">${sg>0?'+':'−'}</span><span class="t"><b>${esc(p?p.name:'؟')}</b> · ${T.l}<small>${wn(t.w)}${t.note?' · '+esc(t.note):''}</small></span><b class="${sg>0?'pl':'mi'}" style="white-space:nowrap">${fmt(t.amt)}</b></div>`}
+ return `<div class="tx" data-open="p:${t.pid}" style="cursor:pointer"><span class="ti" style="background:var(--soft);color:var(--${sg>0?'plus':'minus'})">${sg>0?'+':'−'}</span><span class="t"><b>${esc(p?p.name:'؟')}</b> · ${T.l}<small>${wn(t.w)}${t.note?' · '+esc(t.note):''}</small></span>${amtCell(sg>0?'pl':'mi',fmt(t.amt),t.id)}</div>`}
 function vDaily(){
  if(!walletsSet())return `<div class="box" style="padding:18px"><b style="font-size:19px">معاك كام دلوقتي؟</b><p class="muted" style="margin:4px 0 14px">اكتب الفلوس اللي معاك النهارده، ومن هنا ورايح كل مصروف أو فلوس داخلة هتتحسب لوحدها.</p>
   <form id="fSetW">${S.wallets.map(w=>`<label class="muted">${esc(wlabel(w))}${w.parent?' — جزء من الكاش':''}${w.id==='cash'&&kids('cash').length?' — كاش مش مقسّم (سيبها فاضية لو هتكتب الورق والفضة تحت)':''}${w.frozen?' (تحويش مش بتصرف منه)':''}</label><input data-ws="${w.id}" type="text" autocomplete="off" inputmode="decimal" placeholder="0"><div style="height:10px"></div>`).join('')}
   <div class="btns" style="margin-top:14px"><button class="btn">ابدأ</button></div></form></div>`;
  const d=dayV||today(),avl=wsum(w=>!w.frozen),fz=wsum(w=>w.frozen);
- const ex=S.exp.filter(e=>e.date===d),mv=S.mv.filter(m=>m.date===d),tw=S.tx.filter(t=>t.w&&t.date===d);
- const out=ex.reduce((a,e)=>a+e.amt,0),inc=mv.filter(m=>m.k==='in'&&!m.start).reduce((a,m)=>a+m.amt,0)+tw.filter(t=>TXW[t.type]>0).reduce((a,t)=>a+t.amt,0);
- const byW=S.wallets.map(w=>({n:w.name,v:ex.filter(e=>e.w===w.id).reduce((a,e)=>a+e.amt,0)})).filter(x=>x.v>0),other=out-byW.reduce((a,x)=>a+x.v,0);
+ const PI=parIds(),exAll=S.exp.filter(e=>e.date===d),ex=exAll.filter(e=>!(e.of&&PI.has(e.of))),mv=S.mv.filter(m=>m.date===d),tw=S.tx.filter(t=>t.w&&t.date===d);
+ const out=exAll.reduce((a,e)=>a+e.amt,0),inc=mv.filter(m=>m.k==='in'&&!m.start).reduce((a,m)=>a+m.amt,0)+tw.filter(t=>TXW[t.type]>0).reduce((a,t)=>a+t.amt,0);
+ const byW=S.wallets.map(w=>({n:w.name,v:exAll.filter(e=>e.w===w.id).reduce((a,e)=>a+e.amt,0)})).filter(x=>x.v>0),other=out-byW.reduce((a,x)=>a+x.v,0);
  const days=[];for(let i=6;i>=0;i--){const k=addDays(today(),-i);days.push({k,v:spentOn(k),l:i===0?'النهارده':new Date(k+'T12:00').toLocaleDateString('ar-EG',{weekday:'short'})})}
  const mx=Math.max(1,...days.map(x=>x.v));
  return `<div class="wallets">${S.wallets.filter(w=>!w.parent).map(w=>{const b=wbalE(w.id);const K=kids(w.id);const tot=b+K.reduce((a,k)=>a+wbalE(k.id),0),ex=wExp.has(w.id),grp=isGrp(w)||K.length;
@@ -1011,16 +1059,16 @@ function renderSheet(){
   c.innerHTML=head(sp?'صرفت فلوس':'دخل فلوس')+`<form class="form" id="fM">
    <label>${sp?'صرفتها من':'دخلت في'}</label>${wsel(open.w||lastW)}
    <label id="mAmtL">المبلغ</label><input id="mAmt" type="text" autocomplete="off" placeholder="ممكن تكتب 50+30" inputmode="decimal" min="0" step="any">
-   <div style="height:10px"></div><label>${sp?'صرفته في إيه':'منين'}</label><input id="mNote" list="mNoteL" autocomplete="off" placeholder="${sp?'مثلاً: غدا، مواصلات…':'مثلاً: مرتب، شغل…'}"><datalist id="mNoteL">${H.map(q=>`<option value="${esc(q)}">`).join('')}</datalist>
+   <div style="height:10px"></div>${sp?payBox('card'):''}<label>${sp?'صرفته في إيه':'منين'}</label><input id="mNote" list="mNoteL" autocomplete="off" placeholder="${sp?'مثلاً: غدا، مواصلات…':'مثلاً: مرتب، شغل…'}"><datalist id="mNoteL">${H.map(q=>`<option value="${esc(q)}">`).join('')}</datalist>
    <div class="chips" style="flex-wrap:wrap;padding-top:8px">${Q.map(q=>`<button type="button" class="chip" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>
    ${sp&&S.funds.length?`<label>على باب مصاريف؟ (اختياري)</label><select id="mFund"><option value="">لأ، مصروف يومي</option>${S.funds.map(f=>`<option value="${f.id}" ${open.fid===f.id?'selected':''}>${esc(f.name)}</option>`).join('')}</select><div style="height:10px"></div>`:''}
    <label>التاريخ</label><input id="mDate" type="date" value="${d}">
    <div class="btns" style="margin-top:12px"><button class="btn" style="background:${sp?'#c2334d':'#0a7a6c'}">${sp?'سجّل المصروف':'ضيف الفلوس'}</button></div></form>`;
-  $('mAmt').focus();{const sy=()=>{$('mAmtL').textContent=isUSD(getW(c))?'المبلغ بالدولار $':'المبلغ'};c.querySelector('[data-wsel=w]').addEventListener('click',()=>setTimeout(sy));sy()}
+  const PB=sp?payBind(c,'mAmt'):null;$('mAmt').focus();{const sy=()=>{$('mAmtL').textContent=isUSD(getW(c))?'المبلغ بالدولار $':'المبلغ'};c.querySelector('[data-wsel=w]').addEventListener('click',()=>setTimeout(sy));sy()}
   c.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{$('mNote').value=b.dataset.q;if(!sp&&b.dataset.q==='مرتب'){const sw=salW();c.querySelectorAll('[data-wsel=w] button').forEach(x=>x.classList.toggle('on',x.dataset.w===sw))}});
   $('fM').onsubmit=e=>{e.preventDefault();const amt=pn($('mAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');const w=getW(c);lastW=w;const date=$('mDate').value||today(),note=$('mNote').value.trim();
-   if(sp)S.exp.push({id:uid(),fid:$('mFund')?.value||'',amt,date,note,w});else{const x={id:uid(),k:'in',w,amt,date,note};if(/^مرتب/.test(note)&&!salGot(date.slice(0,7))){x.sal=1;x.salM=date.slice(0,7);if(!S.sal)S.sal={amt,day:+date.slice(8),w};}S.mv.push(x)}
-   dayV=date;save();close();toast(sp?`اتخصم ${fmt(amt)} من ${wn(w)}`:`اتضاف ${fmt(amt)} على ${wn(w)}`)};return}
+   let fe=0;if(sp){const x={id:uid(),fid:$('mFund')?.value||'',amt,date,note,w};S.exp.push(x);fe=setFee(x,PB.fee())}else{const x={id:uid(),k:'in',w,amt,date,note};if(/^مرتب/.test(note)&&!salGot(date.slice(0,7))){x.sal=1;x.salM=date.slice(0,7);if(!S.sal)S.sal={amt,day:+date.slice(8),w};}S.mv.push(x)}
+   dayV=date;save();close();toast(sp?`اتخصم ${fmt(amt+fe)} من ${wn(w)}${fe?' (منهم '+fmt(fe)+' عمولة)':''}`:`اتضاف ${fmt(amt)} على ${wn(w)}`)};return}
  if(k==='transfer'){
   c.innerHTML=head('تحويل بين المحافظ')+`<form class="form" id="fT"><label>من</label>${wsel(open.from||'visa',false,'from')}<label>إلى</label>${wsel(open.to||'cash',false,'to')}
    <p class="muted" style="margin:-4px 0 10px">مثلاً: سحبت كاش من الفيزا، أو جمّدت فلوس على جنب.</p>
@@ -1033,7 +1081,7 @@ function renderSheet(){
    <div class="btns" style="margin-top:12px"><button class="btn">حوّل</button></div></form>`;
   $('fT').onsubmit=e=>{e.preventDefault();const amt=pn($('trAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');const w=getW(c,'from'),to=getW(c,'to');if(w===to)return toast('اختار محفظتين مختلفين');
    const dt=$('trDate').value||today();
-   if(isAtm()){const other=getW(c,'atm')==='other',fa=other?pn($('atmF').value)||0:0;snap();if(other&&fa>0)S.atmFee=fa;S.mv.push({id:uid(),k:'tr',w,to,amt,date:dt,note:'سحب من ماكينة'});if(fa>0)S.exp.push({id:uid(),fid:'',amt:fa,date:dt,note:'رسوم سحب من ماكينة بنك تاني',w,fee:1});
+   if(isAtm()){const other=getW(c,'atm')==='other',fa=other?pn($('atmF').value)||0:0;snap();if(other&&fa>0)S.atmFee=fa;const m={id:uid(),k:'tr',w,to,amt,date:dt,note:'سحب من ماكينة'};S.mv.push(m);if(fa>0)setFee(m,fa,'رسوم سحب من ماكينة بنك تاني');
     save();close();render();return toast(`اتسحب ${fmt(amt)} لـ ${wn(to)}${fa?' واتخصم '+fmt(amt+fa)+' من '+wn(w)+' (رسوم '+fmt(fa)+')':''}`,true)}
    const rv=pn($('trRecv').value)||0;if(rv>amt)return toast('اللي وصل أكبر من اللي اتحوّل؟');snap();const f=doTransfer(w,to,amt,dt,feeVal(),'',rv);save();close();render();toast(`اتحوّل ${fmt(rv>0?rv:amt)} لـ ${wn(to)}${f?' (عمولة '+fmt(f)+' اتخصمت من '+wn(w)+')':''}`,true)};feeBind('trAmt');
   const wObj=id=>S.wallets.find(x=>x.id===id)||{},inCash=id=>id==='cash'||wObj(id).parent==='cash';
@@ -1052,7 +1100,7 @@ function renderSheet(){
   ${g.id==='visa'&&own&&K.length?`<p class="muted" style="margin:10px 0 0">عندك ${sfmt(own)} مش متحددة على كارت. دوس عليها وحوّلها للكارت بتاعها من «حوّل».</p>`:''}`;return}
  if(k==='wone'){
   const w=S.wallets.find(x=>x.id===open.w);if(!w){close();return}const b=wbal(w.id),par=S.wallets.find(x=>x.id===w.parent),U=isUSD(w.id);
-  const H=[...S.mv.filter(m=>(m.w===w.id||m.to===w.id)&&!m.start).map(m=>({d:m.date,h:mvRow(m,false)})),...S.exp.filter(e=>e.w===w.id).map(e=>({d:e.date,h:expRow(e,false)}))].sort((a,b)=>b.d.localeCompare(a.d)).slice(0,15);
+  const H=[...S.mv.filter(m=>(m.w===w.id||m.to===w.id)&&!m.start).map(m=>({d:m.date,h:mvRow(m,false)})),...(()=>{const PI=parIds();return S.exp.filter(e=>e.w===w.id&&!(e.of&&PI.has(e.of)))})().map(e=>({d:e.date,h:expRow(e,false)}))].sort((a,b)=>b.d.localeCompare(a.d)).slice(0,15);
   c.innerHTML=head((wbadge(w)||ic(w.ic||'wallet'))+' '+esc(wlabel(w)))+`<div class="pbal" style="background:var(--hero)"><small>${esc(wmeta(w)||(w.frozen?'تحويش':'الرصيد'))}</small><div class="big">${wfmt(w.id)}</div>${U?`<small>≈ ${sfmt(wbalE(w.id))} · الدولار بـ ${urate().toLocaleString('ar-EG')} ج</small>`:''}${par?`<small style="display:block">جوّه ${esc(par.name)}</small>`:''}</div>
   ${U?rateBox():''}
   ${isApp(w)?vcardHTML(w):''}
@@ -1142,6 +1190,7 @@ function renderSheet(){
    ${isTr?`<label style="margin-top:10px">من</label>${wsel(o.w,false,'from')}<label>إلى</label>${wsel(o.to,false,'to')}`:isGl?'':`<label style="margin-top:10px">المحفظة</label>${wsel(o.w||'none',isT||isE)}`}
    ${isE&&S.funds.length?`<label>الباب</label><select id="edFund"><option value="">مصروف يومي</option>${S.funds.map(f=>`<option value="${f.id}" ${o.fid===f.id?'selected':''}>${esc(f.name)}</option>`).join('')}</select><div style="height:10px"></div>`:''}
    ${isTr||isAdj||isGl?'':`<label>ملاحظة</label><input id="edNote" value="${esc(o.note||'')}"><div style="height:10px"></div>`}
+   ${(isE||isT||isTr)&&!o.fee&&(feeSum(o.id)||isBankW(o.w))?`<label>العمولة اللي اتخصمت معاها</label><input id="edFee" type="text" inputmode="decimal" autocomplete="off" value="${feeSum(o.id)||''}" placeholder="مفيش"><div style="height:10px"></div>`:''}
    <div class="g2"><div><label>التاريخ</label><input id="edDate" type="date" value="${o.date}"></div>${isT?`<div><label>ميعاد السداد</label><input id="edDue" type="date" value="${o.due||''}"></div>`:''}</div>
    <div class="btns" style="margin-top:6px"><button class="btn">حفظ</button><button type="button" class="btn danger" data-act="edDel">${ic('trash')}مسح</button></div></form>`;
   let et=o.type;c.querySelectorAll('[data-et]').forEach(b=>b.onclick=()=>{et=b.dataset.et;c.querySelectorAll('[data-et]').forEach(x=>x.classList.toggle('on',x===b))});
@@ -1150,7 +1199,14 @@ function renderSheet(){
    else if(!isGl){const w=getW(c);if(w==='none')delete o.w;else o.w=w}
    o.amt=a;o.date=$('edDate').value||o.date;if($('edNote'))o.note=$('edNote').value.trim();if($('edFund'))o.fid=$('edFund').value;
    if(isT){o.type=et;const du=$('edDue').value;if(du&&et==='took')o.due=du;else delete o.due}
+   if($('edFee'))setFee(o,pn($('edFee').value)||0);else if(feeSum(o.id))setFee(o,feeSum(o.id));
    save();goBack();toast('اتعدّل')};return}
+ if(k==='bankq'){const q=bankQ();if(!q.length){close();return}
+  const L=S.wallets.filter(w=>!kids(w.id).length&&w.t!=='app'&&!(w.id==='cash'||w.parent==='cash'));
+  c.innerHTML=head('حركات من البنك')+`<p class="muted" style="margin:0 0 10px">قولّي كل حركة من أنهي كارت. هفتكره، والمرة الجاية هتتسجّل لوحدها.</p>`+q.map((x,i)=>{const g=L.find(w=>w.id===lastW)?lastW:(L[0]||{}).id;return `<div class="box" style="padding:12px 14px;margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:8px"><b>${x.dir==='in'?'دخل':x.tr?'تحويل':'دفع'}${x.who?' · '+esc(x.who):''}${x.l4?' <small class="muted">كارت <bdi dir="ltr">••'+esc(x.l4)+'</bdi></small>':''}</b>${amtB(x)}</div>
+   <div class="muted" style="font-size:12px;margin:4px 0 8px;max-height:60px;overflow:hidden">${esc(x.text)}</div>
+   <div class="wsel" data-wsel="bq${i}">${L.map(w=>`<button type="button" data-w="${w.id}" class="${w.id===g?'on':''}">${esc(wlabel(w))}</button>`).join('')}</div>
+   <div class="btns" style="margin-top:8px" data-i="${i}"><button class="btn sm" data-act="bqOk">سجّلها</button><button class="btn ghost sm" data-act="bqNo">تجاهل</button></div></div>`}).join('');return}
  if(k==='admin'){
   c.innerHTML=head('لوحة الأدمن')+(adminData&&!adminData.err?adminHTML(adminData):`<p class="muted" style="text-align:center;padding:30px 0">${adminData&&adminData.err?'مقدرتش أجيب البيانات: '+esc(adminData.err)+'<br><br>اتأكد إن قواعد Firestore اتحطت وإن حسابك أدمن.':'بيجيب البيانات…'}</p>`);
   if(!adminData)adminLoad().then(()=>{if(open&&open.kind==='admin')renderSheet()});return}
@@ -1469,6 +1525,8 @@ function renderSheet(){
   <div class="box" style="padding:14px;margin-bottom:12px"><b>الخصوصية</b><p class="muted" style="margin:4px 0 10px">${LS.get('daftar_pin')?'البرنامج مقفول برقم سري على الجهاز ده'+(pinLen()<6?' (٤ أرقام — غيّره لـ ٦ أرقام عشان يبقى أأمن)':'')+(LS.get('daftar_bio')?' وبالبصمة ✅':'')+'.':'اقفل البرنامج برقم سري من ٦ أرقام وبالبصمة عشان محدش يشوف حساباتك.'}</p>
    <div class="btns">${LS.get('daftar_pin')?`<button class="btn ghost" data-act="setPin">${ic('lock')}غيّر الرقم</button>${LS.get('daftar_bio')?`<button class="btn ghost" data-act="bioOff">${ic('finger')}إلغاء البصمة</button>`:`<button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn danger" data-act="noPin">شيل القفل</button>`:`<button class="btn" data-act="setPin">${ic('lock')}حط رقم سري</button><button class="btn ghost" data-act="bioOn" id="bioOnBtn">${ic('finger')}افتح بالبصمة</button>`}<button class="btn ghost" data-act="hideT">${ic(HIDE?'eye':'eyeoff')}${HIDE?'أظهر المبالغ':'خبّي المبالغ'}</button></div>
    ${isNative?`<label class="fee" style="margin-top:12px"><input type="checkbox" id="secOn" ${LS.get('daftar_secure')?'checked':''}> خبّي دفتري في التطبيقات الأخيرة وامنع تصوير الشاشة</label>`:''}</div>
+  ${isNative&&NAT.bankState?(()=>{const st=bankSt();return `<div class="box" style="padding:14px;margin-bottom:12px"><b>التسجيل التلقائي من رسائل البنك</b><p class="muted" style="margin:4px 0 10px">${st==='on'?'شغّال ✅ — أي رسالة أو إشعار من البنك أو إنستاباي بخصم أو إيداع هيتسجّل لوحده في المحفظة بتاعته أول ما تفتح البرنامج.':st==='noperm'?'محتاج تدي دفتري إذن «الوصول للإشعارات» عشان يشتغل.':'دفتري يقرا إشعارات البنك وإنستاباي ورسائل الـ SMS بتاعة الخصم والإيداع، ويسجّلها لوحده. الرسائل بتتقري على موبايلك بس ومش بتتبعت لأي حد.'}</p>
+   <div class="btns">${st==='on'?`<button class="btn danger" data-act="bankOff">وقّفه</button>`:`<button class="btn" data-act="bankOn">${st==='noperm'?'ادّي الإذن':'شغّله'}</button>`}</div>${st==='noperm'?`<p class="muted" style="font-size:13px;margin:10px 0 0">لو الإذن رمادي ومكتوب «إعداد مقيد»: افتح <a href="#" data-act="appInfo" style="color:inherit">معلومات التطبيق</a> ← النقط التلاتة فوق ← «السماح بالإعدادات المقيدة»، وارجع شغّله.</p>`:''}</div>`})():''}
   <div class="box" style="padding:14px;margin-bottom:12px"><b>المحافظ</b><p class="muted" style="margin:4px 0 10px">${S.wallets.map(w=>esc(w.name)).join('، ')}</p><button class="btn ghost" data-act="wallets">${ic('wallet')}إدارة المحافظ</button></div>
   <p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}${isNative?` · <a href="#" data-act="updPrev" style="color:inherit">شكل رسالة التحديث</a>`:''}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
   ${STORE?'':`<div class="box" style="padding:14px;margin-bottom:12px"><b>نزّل البرنامج على جهازك</b><p class="muted" style="margin:4px 0 10px">ملف واحد بيفتح في أي متصفح من غير نت. بياناته بتتحفظ على الجهاز نفسه، ولنقل البيانات بين النسختين استخدم النسخة الاحتياطية.</p>
@@ -1485,17 +1543,17 @@ function renderSheet(){
   <form class="form" id="fTx">
    <div class="seg">${Object.entries(TYPES).map(([k,v])=>`<button type="button" data-t="${k}" class="${v.c} ${ttype===k?'on':''}"><b>${v.l}</b><br><small>${v.d}</small></button>`).join('')}</div>
    <div class="g2"><div><label>المبلغ</label><input id="tAmt" type="text" autocomplete="off" placeholder="ممكن تكتب 50+30" inputmode="decimal" min="0" step="any"></div><div><label>التاريخ</label><input id="tDate" type="date" value="${today()}"></div></div>
-   <label id="twl">${TXWL[ttype]}</label>${wsel(lastW,true)}
+   <label id="twl">${TXWL[ttype]}</label>${wsel(lastW,true)}${payBox('ipa')}
    <div class="g2"><div><label>ملاحظة</label><input id="tNote" placeholder="اختياري"></div><div id="dueW"><label>ميعاد السداد</label><input id="tDue" type="date"></div></div>
    <div class="btns"><button class="btn">تسجيل</button></div></form>
-  <div class="sec"><h3>الحركات <span class="muted">${txs.length}</span></h3><div class="box">${txs.length?txs.map(t=>{const T=TYPES[t.type];return `<div class="tx" data-edit="t:${t.id}" style="cursor:pointer"><span class="ti" style="color:var(--${T.c==='p'?'plus':'minus'});background:var(--soft)">${T.s>0?'+':'−'}</span><span class="t"><b>${T.l}</b> <b class="${T.c==='p'?'pl':'mi'}">${fmt(t.amt)}</b><small>${dstr(t.date)}${t.note?' · '+esc(t.note):''}${t.due?' · السداد '+dstr(t.due):''}${t.w?' · '+TXWL[t.type]+' '+wn(t.w):''}</small></span><button class="del" data-del="${t.id}" aria-label="مسح">${ic('trash')}</button></div>`}).join(''):'<div class="empty">سجّل أول حركة فوق</div>'}</div></div>
+  <div class="sec"><h3>الحركات <span class="muted">${txs.length}</span></h3><div class="box">${txs.length?txs.map(t=>{const T=TYPES[t.type];return `<div class="tx" data-edit="t:${t.id}" style="cursor:pointer"><span class="ti" style="color:var(--${T.c==='p'?'plus':'minus'});background:var(--soft)">${T.s>0?'+':'−'}</span><span class="t"><b>${T.l}</b> <b class="${T.c==='p'?'pl':'mi'}">${fmt(t.amt)}</b>${feeSum(t.id)?`<small class="feel" style="display:inline"> + ${fmt(feeSum(t.id))} عمولة</small>`:''}<small>${dstr(t.date)}${t.note?' · '+esc(t.note):''}${t.due?' · السداد '+dstr(t.due):''}${t.w?' · '+TXWL[t.type]+' '+wn(t.w):''}</small></span><button class="del" data-del="${t.id}" aria-label="مسح">${ic('trash')}</button></div>`}).join(''):'<div class="empty">سجّل أول حركة فوق</div>'}</div></div>
   <div class="btns" style="margin-top:14px"><button class="btn ghost sm" data-act="editP">${ic('edit')}تعديل</button><button class="btn ghost sm" data-act="copy">${ic('copy')}نسخ كشف الحساب</button><a class="btn ghost sm" href="https://wa.me/${p.phone?waNum(p.phone):''}?text=${encodeURIComponent(stmtP(p))}" target="_blank" rel="noopener">${ic('chat')}ابعت الكشف واتساب</a>${b<0?`<button class="btn ghost sm" data-act="oweCal">${ic('cal')}فكّرني أرجّعله (تقويم)</button>`:''}<button class="btn danger sm" data-act="delP">مسح الحساب</button></div>`;
-  const syncDue=()=>{$('dueW').style.visibility=ttype==='took'?'visible':'hidden';$('twl').textContent='الفلوس دي '+TXWL[ttype]+':'};syncDue();
+  const PB=payBind(c,'tAmt',()=>TXW[ttype]<0);const syncDue=()=>{$('dueW').style.visibility=ttype==='took'?'visible':'hidden';$('twl').textContent='الفلوس دي '+TXWL[ttype]+':';PB.up()};syncDue();
   c.querySelectorAll('.seg button').forEach(bt=>bt.onclick=()=>{ttype=bt.dataset.t;c.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===bt));syncDue()});
   if(open.focus){$('tAmt').focus();open.focus=false}
   $('fTx').onsubmit=e=>{e.preventDefault();const amt=pn($('tAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');
    const t={id:uid(),pid:p.id,type:ttype,amt,date:$('tDate').value||today(),note:$('tNote').value.trim()};const w=getW($('fTx'));lastW=w;if(w!=='none')t.w=w;if(ttype==='took'&&$('tDue').value)t.due=$('tDue').value;
-   S.tx.push(t);save();render();toast(t.w?`اتسجّل، و${TXW[t.type]>0?'اتضاف على':'اتخصم من'} ${wn(t.w)}`:'اتسجّل')};return}
+   S.tx.push(t);const fe=t.w?setFee(t,PB.fee()):0;save();render();toast(t.w?`اتسجّل، و${TXW[t.type]>0?'اتضاف على':'اتخصم من'} ${wn(t.w)}${fe?' (+ '+fmt(fe)+' عمولة)':''}`:'اتسجّل')};return}
  if(k==='f'){
   const f=S.funds.find(x=>x.id===open.id);if(!f){close();return}
   const col=f.color||colorOf(f.name),t=ftot(f.id),ex=S.exp.filter(e=>e.fid===f.id).sort((a,z)=>z.date.localeCompare(a.date)||z.id.localeCompare(a.id));
@@ -1638,7 +1696,7 @@ document.addEventListener('click',async e=>{
  const dy=e.target.closest('[data-day]');if(dy){const n=addDays(dayV||today(),+dy.dataset.day);if(n<=today()){dayV=n;render()}return}
  const ds=e.target.closest('[data-dayset]');if(ds){dayV=ds.dataset.dayset;render();return}
  const dr=e.target.closest('[data-delrec]');if(dr){snap();S.rec=S.rec.filter(r=>r.id!==dr.dataset.delrec);save();renderSheet();toast('اتمسحت',true);return}
- const del=e.target.closest('[data-del]');if(del){snap();const id=del.dataset.del;S.tx=S.tx.filter(t=>t.id!==id);S.exp=S.exp.filter(x=>x.id!==id);S.mv=S.mv.filter(x=>x.id!==id);save();render();toast('اتمسح',true);return}
+ const del=e.target.closest('[data-del]');if(del){snap();const id=del.dataset.del;S.tx=S.tx.filter(t=>t.id!==id);S.exp=S.exp.filter(x=>x.id!==id&&x.of!==id);S.mv=S.mv.filter(x=>x.id!==id);save();render();toast('اتمسح',true);return}
  if(e.target.closest('#fab')){show({kind:'quick'});return}
  if(e.target.closest('#gear')){show({kind:'settings'});return}
  if(e.target.closest('#bell')){show({kind:'rems'});return}
@@ -1683,7 +1741,7 @@ document.addEventListener('click',async e=>{
  if(a==='csv')return show({kind:'export'});
  if(a==='shareB')return shareBackup();
  if(a==='delG'){const id=open.id;snap();S.mv=S.mv.filter(m=>!(m.k==='gl'&&m.goal===id));S.goals=S.goals.filter(g=>g.id!==id);save();show({kind:'goals'});return toast('اتمسح الهدف ورجعت فلوسه للمحافظ',true)}
- if(a==='edDel'){const L=open.t==='e'?'exp':open.t==='m'?'mv':'tx';snap();S[L]=S[L].filter(x=>x.id!==open.id);save();goBack();return toast('اتمسح',true)}
+ if(a==='edDel'){const L=open.t==='e'?'exp':open.t==='m'?'mv':'tx';snap();S[L]=S[L].filter(x=>x.id!==open.id);S.exp=S.exp.filter(x=>x.of!==open.id);save();goBack();return toast('اتمسح',true)}
  if(a==='wallets')return show({kind:'wallets'});
  if(a==='wedit')return show({kind:'wedit',w:e.target.closest('[data-wallet]').dataset.wallet});
  if(a==='wdel'){const id=e.target.closest('[data-wallet]').dataset.wallet;if(S.wallets.length<2)return toast('لازم تفضل محفظة واحدة على الأقل');
@@ -1692,6 +1750,14 @@ document.addEventListener('click',async e=>{
   S.mv=S.mv.filter(m=>m.w!==id);S.wallets=S.wallets.filter(w=>w.id!==id);save();show({kind:'wallets'});return toast('اتمسحت')}
  if(a==='signOut'){if(!confirm('تسجّل خروج؟ بياناتك هتفضل على الجهاز، وهتحتاج تسجّل تاني عشان تفتح.'))return;return fbSignOut()}
  if(a==='admin')return show({kind:'admin'});
+ if(a==='bankOn'){try{NAT.bankSet(true)}catch(e){}bankBack=1;setTimeout(()=>{if(open&&open.kind==='settings')renderSheet()},600);if(bankSt()==='on')toast('اتشغّل ✅',true);return}
+ if(a==='bankOff'){try{NAT.bankSet(false)}catch(e){}renderSheet();return toast('اتوقّف')}
+ if(a==='appInfo'){e.preventDefault();try{NAT.openAppInfo()}catch(x){}bankBack=1;return}
+ if(a==='bankq')return show({kind:'bankq'});
+ if(a==='bqOk'||a==='bqNo'){const i=+e.target.closest('[data-i]').dataset.i,q=bankQ(),x=q[i];if(!x)return renderSheet();q.splice(i,1);
+  if(a==='bqOk'){const w=getW($('card'),'bq'+i);snap();const W=S.wallets.find(z=>z.id===w);if(W){W.bk=[...new Set([...(W.bk||[]),bankKey(x)])].slice(-12)}bankRecord(x,w);
+   for(let j=q.length-1;j>=0;j--)if(bankKey(q[j])===bankKey(x)){bankRecord(q[j],w);q.splice(j,1)}bankQset(q);save();render();toast('اتسجّلت على '+wn(w)+'، واللي بعد كده من الكارت ده هيتسجّل لوحده',true)}else bankQset(q);
+  if(q.length)renderSheet();else close();return}
  if(a==='admAdd'){const em=String($('admEm').value||'').trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))return toast('اكتب إيميل صح');try{const f=await fbReady();await f.fs.setDoc(f.fs.doc(f.db,'admins',em),{by:(acct()||{}).email||'',at:f.fs.serverTimestamp()});toast('اتضاف '+em+' أدمن ✅');adminData=null;renderSheet()}catch(x){toast('مقدرتش أضيفه: '+(x.code||x.message))}return}
  if(a==='admDel'){const em=e.target.closest('[data-em]').dataset.em;if(!confirm('تشيل '+em+' من الأدمنز؟'))return;try{const f=await fbReady();await f.fs.deleteDoc(f.fs.doc(f.db,'admins',em));toast('اتشال');adminData=null;renderSheet()}catch(x){toast('مقدرتش: '+(x.code||x.message))}return}
  if(a==='admRef'){adminData=null;return renderSheet()}
@@ -1743,8 +1809,8 @@ document.addEventListener('click',async e=>{
  if(a==='dlApp')return download('daftar.html',appSource(),'text/html');
  const isP=open?.kind==='p',o=open&&(isP?S.people:S.funds).find(x=>x.id===open.id);if(!o)return;
  if(a==='editP'||a==='editF')return show({kind:a,id:o.id});
- if(a==='delP'){snap();S.tx=S.tx.filter(t=>t.pid!==o.id);S.people=S.people.filter(x=>x!==o);save();close();toast('اتمسح حساب '+o.name,true)}
- if(a==='delF'){snap();S.exp=S.exp.filter(t=>t.fid!==o.id);S.funds=S.funds.filter(x=>x!==o);save();close();toast('اتمسح باب '+o.name,true)}
+ if(a==='delP'){snap();{const ids=new Set(S.tx.filter(t=>t.pid===o.id).map(t=>t.id));S.exp=S.exp.filter(e=>!ids.has(e.of))}S.tx=S.tx.filter(t=>t.pid!==o.id);S.people=S.people.filter(x=>x!==o);save();close();toast('اتمسح حساب '+o.name,true)}
+ if(a==='delF'){snap();{const ids=new Set(S.exp.filter(t=>t.fid===o.id).map(t=>t.id));S.exp=S.exp.filter(e=>!ids.has(e.of))}S.exp=S.exp.filter(t=>t.fid!==o.id);S.funds=S.funds.filter(x=>x!==o);save();close();toast('اتمسح باب '+o.name,true)}
  if(a==='copy'){let txt;const hd=HIDE;HIDE=false;
   if(isP){const b=bal(o.id);txt=`كشف حساب: ${o.name}\n`+S.tx.filter(t=>t.pid===o.id).sort((x,y)=>x.date.localeCompare(y.date)).map(t=>`${t.date} | ${TYPES[t.type].l} | ${num(t.amt)}${t.note?' | '+t.note:''}`).join('\n')+`\nالرصيد: ${b===0?'خالصين':fmt(b)+(b>0?' ليا عندك':' ليك عندي')}`}
   else txt=`مصاريف: ${o.name}\n`+S.exp.filter(x=>x.fid===o.id).sort((x,y)=>x.date.localeCompare(y.date)).map(x=>`${x.date} | ${num(x.amt)}${x.note?' | '+x.note:''}`).join('\n')+`\nالإجمالي: ${fmt(ftot(o.id))}`;
