@@ -266,7 +266,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 #gate[hidden]{display:none}#gate .gwrap{max-width:380px;width:100%;display:flex;flex-direction:column;align-items:center;text-align:center;animation:bup .5s ease both}
 #gate h1{font:400 34px/1.2 Lalezar,"IBM Plex Sans Arabic",system-ui,sans-serif;margin:22px 0 6px}#gate p{margin:0 0 26px;opacity:.82;line-height:1.7}
 #gBtn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:15px 18px;border:0;border-radius:18px;background:#fff;color:#1f1f1f;font:600 16px "IBM Plex Sans Arabic",system-ui,sans-serif;box-shadow:0 10px 30px rgb(0 0 0/.25);cursor:pointer}
-#gBtn:disabled{opacity:.65}#gate .gmsg{min-height:22px;margin:12px 0 4px;color:#ffcf5a;font-size:14px}#gate small{opacity:.62;font-size:12.5px;line-height:1.7}#gate small a{color:#ffcf5a}
+#gBtn:disabled{opacity:.65}#gate .glink{background:none;border:0;color:#ffcf5a;font:inherit;font-size:14px;margin-top:14px;cursor:pointer;text-decoration:underline;text-underline-offset:4px}#gEm{width:100%;display:flex;flex-direction:column;gap:10px;margin-top:14px}#gEm input{width:100%;box-sizing:border-box;padding:14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:16px;text-align:left}#gEm input::placeholder{color:rgba(255,255,255,.55);text-align:right}#gEmB{padding:14px;border:0;border-radius:16px;background:#ffcf5a;color:#1a1a1a;font:inherit;font-weight:800;font-size:16px}#gEmB:disabled{opacity:.6}#gEm .glink{margin-top:2px}#gate .gmsg{min-height:22px;margin:12px 0 4px;color:#ffcf5a;font-size:14px}#gate small{opacity:.62;font-size:12.5px;line-height:1.7}#gate small a{color:#ffcf5a}
 #boot{position:fixed;inset:0;z-index:100;background:#0c3b3a;display:grid;place-items:center;color:#e9f6f2;transition:opacity .45s ease,visibility .45s}
 #boot.gone{opacity:0;visibility:hidden}#boot.gone .bwrap{transform:scale(1.06);transition:transform .45s cubic-bezier(.4,0,.2,1)}
 #boot::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 40%,#145553 0%,#0c3b3a 55%,#082a29 100%);animation:bfade .8s ease both}@keyframes bfade{from{opacity:0}}
@@ -290,8 +290,10 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <div id="gate" hidden><div class="gwrap"><div class="blogo" style="animation:none"><svg viewBox="0 0 512 512" width="96" height="96" aria-hidden="true"><rect x="128" y="110" width="256" height="305" rx="30" fill="#e8f4f0"/><rect x="185" y="187" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="250" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="313" width="87" height="26" rx="13" fill="#0c3b3a"/><circle cx="368" cy="368" r="74" fill="#0c3b3a"/><circle cx="368" cy="368" r="57" fill="#ffcf5a"/></svg></div>
 <h1>أهلًا بيك في دفتري</h1><p>حساباتك ومصاريفك ومحافظك في مكان واحد، ومتزامنة على كل أجهزتك.</p>
 <button type="button" id="gBtn"><svg viewBox="0 0 48 48" width="22" height="22" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg><span>سجّل الدخول بحساب جوجل</span></button>
+<button type="button" id="gEmT" class="glink">موبايلك مفيهوش خدمات جوجل؟ ادخل بالإيميل</button>
+<form id="gEm" hidden autocomplete="on"><input id="gEmail" type="email" inputmode="email" autocomplete="email" placeholder="الإيميل" dir="ltr"><input id="gPass" type="password" autocomplete="current-password" placeholder="كلمة سر (٦ حروف أو أرقام على الأقل)" dir="ltr"><button id="gEmB" type="submit">ادخل</button><button type="button" id="gForgot" class="glink">نسيت كلمة السر؟</button></form>
 <div id="gMsg" class="gmsg"></div>
-<small>بنحتفظ باسمك وإيميلك وصورتك من جوجل، وإمتى بتستخدم التطبيق. حساباتك وفلوسك بتفضل على جهازك وعلى Google Drive بتاعك، ومحدش يقدر يشوفها. <a href="https://mahmoudbassiuoni.github.io/privacy.html" target="_blank" rel="noopener">سياسة الخصوصية</a></small></div></div>
+<small>بنحتفظ باسمك وإيميلك (وصورتك لو دخلت بجوجل)، وإمتى بتستخدم التطبيق. حساباتك وفلوسك بتفضل على جهازك وعلى Google Drive بتاعك، ومحدش يقدر يشوفها. <a href="https://mahmoudbassiuoni.github.io/privacy.html" target="_blank" rel="noopener">سياسة الخصوصية</a></small></div></div>
 <div id="boot" aria-hidden="true"><div class="bwrap"><div class="blogo"><svg viewBox="0 0 512 512" width="112" height="112" aria-hidden="true"><rect x="128" y="110" width="256" height="305" rx="30" fill="#e8f4f0"/><rect x="185" y="187" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="250" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="313" width="87" height="26" rx="13" fill="#0c3b3a"/><circle cx="368" cy="368" r="74" fill="#0c3b3a"/><circle cx="368" cy="368" r="57" fill="#ffcf5a"/></svg></div><div class="bname">دفتري</div><div class="bsub">حساباتك ومصاريفك في مكان واحد</div><div class="bbar"><i></i></div></div></div>
 <script>document.body.classList.add('booting');setTimeout(function(){var b=document.getElementById('boot');if(b)b.classList.add('long')},1900);setTimeout(function(){var b=document.getElementById('boot');if(b&&!/access_token=/.test(location.hash)){b.classList.add('gone');document.body.classList.replace('booting','booted');setTimeout(function(){b.remove()},460)}},6000)</script>
 <div id="root">
@@ -325,7 +327,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ١٢';
+const VER='٢٦ نوفمبر - ١٣';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -2021,6 +2023,21 @@ async function gateSignIn(){const b=$('gBtn'),m=$('gMsg');b.disabled=true;m.text
   $('gate').hidden=true;b.disabled=false;m.textContent='';fbPing(true,prev&&prev.uid===u.uid);toast('أهلًا '+(u.displayName||'')+' 👋');
   if(isNative){natToken(true).then(ok=>{if(ok){toast('اتربط Google Drive ✅');driveBackup(false)}})}else{render();gSchedule(800)}
  }catch(e){b.disabled=false;const t=String(e&&(e.code||e.message)||'');m.textContent=/cancel|closed-by-user|popup-closed|16:|canceled/i.test(t)?'اتلغى، دوس تاني لما تحب':/network|offline|Failed to fetch|unavailable/i.test(t)?'مفيش نت، اتأكد من الاتصال وجرّب تاني':'مقدرتش أسجّل دلوقتي ('+t.slice(0,60)+')'}}
+// email sign-in for phones without Google services (Huawei...). First time it creates the account.
+async function gateEmail(e){e&&e.preventDefault();const em=$('gEmail').value.trim(),pw=$('gPass').value,m=$('gMsg'),b=$('gEmB');
+ if(!/^\S+@\S+\.\S+$/.test(em))return m.textContent='اكتب إيميل صح';if(pw.length<6)return m.textContent='كلمة السر لازم ٦ حروف أو أرقام على الأقل';
+ b.disabled=true;m.textContent='لحظة…';
+ try{const f=await fbLoad();let res,isNew=false;
+  try{res=await f.au.signInWithEmailAndPassword(f.auth,em,pw)}
+  catch(x){const c=String(x.code||'');if(!/user-not-found|invalid-credential|invalid-login/.test(c))throw x;
+   try{res=await f.au.createUserWithEmailAndPassword(f.auth,em,pw);isNew=true}catch(y){if(String(y.code||'').includes('email-already-in-use'))throw {code:'wrong-password'};throw y}}
+  const u=res.user;if(isNew){try{await f.au.sendEmailVerification(u)}catch(_){}}
+  const prev=acct();LS.set('daftar_user',{uid:u.uid,email:u.email,name:u.displayName||'',photo:'',at:Date.now(),em:1});
+  $('gate').hidden=true;b.disabled=false;m.textContent='';fbPing(true,prev&&prev.uid===u.uid);toast(isNew?'اتعمل حسابك ✅ أهلًا بيك 👋':'أهلًا بيك 👋',true);render();
+ }catch(x){b.disabled=false;const c=String(x&&(x.code||x.message)||'');
+  m.textContent=/wrong-password/.test(c)?'كلمة السر غلط. لو نسيتها دوس «نسيت كلمة السر؟»':/too-many/.test(c)?'محاولات كتير، استنى شوية وجرّب تاني':/operation-not-allowed/.test(c)?'الدخول بالإيميل لسه مش متفعّل، كلّم صاحب التطبيق':/network|offline|fetch|unavailable/i.test(c)?'مفيش نت، اتأكد من الاتصال وجرّب تاني':/invalid-email/.test(c)?'الإيميل مش صح':'مقدرتش أسجّل دلوقتي ('+c.slice(0,60)+')'}}
+async function gateForgot(){const em=$('gEmail').value.trim(),m=$('gMsg');if(!/^\S+@\S+\.\S+$/.test(em))return m.textContent='اكتب إيميلك الأول فوق';
+ try{const f=await fbLoad();await f.au.sendPasswordResetEmail(f.auth,em);m.textContent='بعتنالك رسالة على الإيميل تغيّر منها كلمة السر (بص في الـ Spam كمان)'}catch(x){m.textContent='مقدرتش أبعت دلوقتي، جرّب كمان شوية'}}
 const featQ={};const FEATS=new Set(['spend','income','split','transfer','salary','loans','gamList','goals','bills','budget','export','recon','rems','wallets','quick','vcEdit']);
 let adminData=null;
 async function adminLoad(){try{const f=await fbReady();const F=f.fs;const [us,ad]=await Promise.all([F.getDocs(F.collection(f.db,'users')),F.getDocs(F.collection(f.db,'admins'))]);
@@ -2094,7 +2111,7 @@ const l=LS.get('daftar');if(l&&Array.isArray(l.people)){S=Object.assign(S,l);if(
 skin=LS.get('daftar_skin')||S.skin||'auto';applySkin();HIDE=!!LS.get('daftar_hide');ensureW();if(runRec())save();setTimeout(notifyOpen,1500);setTimeout(remSnap,2000);setTimeout(()=>{if(gAuto()&&new Date(LS.get('daftar_gbk')||0).toDateString()!==new Date().toDateString())driveBackup(false)},5000);
 const lc=LS.get('daftar_contacts');if(Array.isArray(lc))C=lc;
 if(!trPrev)trPrev=trIndex();if(dropVcph())save();
-if(!inArtifact){$('gBtn').onclick=gateSignIn;if(!acct())gateShow();else setTimeout(()=>fbPing(false),3000)}setTimeout(syncSoon,isNative?1500:4000);
+if(!inArtifact){$('gBtn').onclick=gateSignIn;$('gEmT').onclick=()=>{$('gEm').hidden=false;$('gEmT').hidden=true;$('gMsg').textContent='أول مرة؟ اكتب إيميلك وكلمة سر جديدة وهيتعملك حساب';setTimeout(()=>$('gEmail').focus(),50)};$('gEm').onsubmit=gateEmail;$('gForgot').onclick=gateForgot;if(!acct())gateShow();else setTimeout(()=>fbPing(false),3000)}setTimeout(syncSoon,isNative?1500:4000);
 render();status('على الجهاز','off');
 (async()=>{
  let tries=0;while(typeof window.claude==='undefined'&&tries<8){await new Promise(r=>setTimeout(r,250));tries++}
