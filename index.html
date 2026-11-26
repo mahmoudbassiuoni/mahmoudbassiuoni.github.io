@@ -327,7 +327,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ١٣';
+const VER='٢٦ نوفمبر - ١٤';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -2111,6 +2111,8 @@ const l=LS.get('daftar');if(l&&Array.isArray(l.people)){S=Object.assign(S,l);if(
 skin=LS.get('daftar_skin')||S.skin||'auto';applySkin();HIDE=!!LS.get('daftar_hide');ensureW();if(runRec())save();setTimeout(notifyOpen,1500);setTimeout(remSnap,2000);setTimeout(()=>{if(gAuto()&&new Date(LS.get('daftar_gbk')||0).toDateString()!==new Date().toDateString())driveBackup(false)},5000);
 const lc=LS.get('daftar_contacts');if(Array.isArray(lc))C=lc;
 if(!trPrev)trPrev=trIndex();if(dropVcph())save();
+// ask once for notifications (update alerts + reminders) on the phone app
+if(isNative)setTimeout(()=>{try{if(acct()&&!LS.get('daftar_npAsked')&&NAT.notifState&&NAT.notifState()==='default'){LS.set('daftar_npAsked',1);natCall('notifPerm')}}catch(e){}},5000);
 if(!inArtifact){$('gBtn').onclick=gateSignIn;$('gEmT').onclick=()=>{$('gEm').hidden=false;$('gEmT').hidden=true;$('gMsg').textContent='أول مرة؟ اكتب إيميلك وكلمة سر جديدة وهيتعملك حساب';setTimeout(()=>$('gEmail').focus(),50)};$('gEm').onsubmit=gateEmail;$('gForgot').onclick=gateForgot;if(!acct())gateShow();else setTimeout(()=>fbPing(false),3000)}setTimeout(syncSoon,isNative?1500:4000);
 render();status('على الجهاز','off');
 (async()=>{
