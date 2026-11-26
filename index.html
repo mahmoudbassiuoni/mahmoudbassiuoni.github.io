@@ -323,7 +323,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ٣';
+const VER='٢٦ نوفمبر - ٤';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -398,7 +398,7 @@ const DEFW=[{id:'cash',name:'نقدي',ic:'wallet'},{id:'visa',name:'الفيز�
 const wn=id=>id==='none'?'مش من محفظتي':((S.wallets||[]).find(w=>w.id===id)||{name:id}).name;
 const ensureW=()=>{if(!Array.isArray(S.wallets)||!S.wallets.length)S.wallets=JSON.parse(JSON.stringify(DEFW));
  if(!Array.isArray(S.rec))S.rec=[];if(!Array.isArray(S.gam))S.gam=[];if(!Array.isArray(S.loans))S.loans=[];if(!Array.isArray(S.nDays))S.nDays=[3,2];if(!Array.isArray(S.goals))S.goals=[];if(typeof S.budget!=='number')S.budget=0;
- wMig28();wMig30();try{if(linkFees())setTimeout(()=>{try{save()}catch(e){}},0)}catch(e){}
+ wMig28();wMig30();try{for(const w of S.wallets)if(Array.isArray(w.bk)&&w.bk.some(k=>/insta|انستا|إنستا/i.test(k))){w.bk=w.bk.filter(k=>!/insta|انستا|إنستا/i.test(k));if(!w.bk.length)delete w.bk}}catch(e){}try{if(linkFees())setTimeout(()=>{try{save()}catch(e){}},0)}catch(e){}
  if(!S.wMig8){S.wMig8=1;S.wallets.forEach(w=>{if(w.id==='frozen'&&w.frozen){delete w.frozen;if(w.ic==='lock')w.ic='wallet';w.parent='cash'}if(w.id==='silver'&&!w.parent)w.parent='cash'})}};
 const GRPS={cash:'نقدي',visa:'الفيزا والبنوك',mob:'محافظ الموبايل'};const isGrp=w=>!!w&&w.id in GRPS;
 function ensureGrp(id){if(!S.wallets.some(w=>w.id===id)){const i=S.wallets.findIndex(w=>w.id==='visa');const g=id==='visa'?{id:'visa',name:'الفيزا',ic:'card'}:id==='mob'?{id:'mob',name:'محافظ الموبايل',ic:'mobile'}:{id:'cash',name:'نقدي',ic:'wallet'};S.wallets.splice(i<0?S.wallets.length:i+1,0,g)}}
@@ -652,19 +652,34 @@ function parseBank(o){let t=String(o.text||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤
  const pms=[...t.matchAll(dir==='in'?/(?:^|\s)(?:من|from)\s+([^\d,.،\n*]{2,28})/gi:tr?/(?:^|\s)(?:إلى|الى|لـ|to)\s+([^\d,.،\n*]{2,28})/gi:/(?:^|\s)(?:لدى|لدي|عند|at|merchant|في)\s+([^\d,.،\n*]{2,28})/gi)],pm=dir==='in'?(()=>{const li=Math.max(t.lastIndexOf(' من '),t.toLowerCase().lastIndexOf(' from '));return li<0?null:t.slice(li).replace(/^\s*(من|from)\s+/i,'').match(/^([^\d,.،\n*]{2,28})/)})():pms[0];
  let who=pm?pm[1].replace(/(?:^|\s)(يوم|بتاريخ|on|في|بنجاح|successfully|رقم|card|بطاقة|عبر|via|using|من|from|الرصيد|Avail|رسوم|عمولة|fees?|بمبلغ|مبلغ).*$/i,'').trim():'';if(/^(حساب|بطاقة|البطاقة|الحساب|كارت|card|account|تحويل)/i.test(who))who='';
  const d=new Date(o.t||Date.now()),date=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
- const bill=/(فاتورة|شحن|باقة|bill|recharge|top.?up)/i.test(t);
- return {bill,id:o.id,amt:Math.round(amt*100)/100,fee:Math.round(fee*100)/100,dir,tr,l4:l4m?l4m[1]:'',who:who.slice(0,30),date,src:(o.from||'').slice(0,40),pkg:o.pkg||'',text:String(o.text||'').slice(0,400)}}
+ const bill=/(فاتورة|شحن|باقة|bill|recharge|top.?up)/i.test(t),atm=dir==='out'&&!tr&&/(ATM|ماكينة|ماكينه|صراف|سحب نقد|سحب كاش|cash withdraw)/i.test(t),insta=/instapay/i.test(o.pkg||'')||/insta ?pay|انستا ?باي|إنستا ?باي/i.test(o.from||'');
+ return {bill,atm,insta,tm:+o.t||Date.now(),id:o.id,amt:Math.round(amt*100)/100,fee:Math.round(fee*100)/100,dir,tr,l4:l4m?l4m[1]:'',who:who.slice(0,30),date,src:(o.from||'').slice(0,40),pkg:o.pkg||'',text:String(o.text||'').slice(0,400)}}
 const bankKey=x=>x.l4?'#'+x.l4:'@'+(x.src||x.pkg);
-const bankWallet=x=>{const k=bankKey(x);const w=S.wallets.find(w=>(w.bk||[]).includes(k)||(x.l4&&w.vc&&w.vc.l4===x.l4));return w&&!kids(w.id).length?w.id:''};
+const bankWallet=x=>{const k=bankKey(x);const w=S.wallets.find(w=>(w.bk||[]).includes(k)||(x.l4&&((w.vc&&w.vc.l4===x.l4)||w.l4===x.l4)));return w&&!kids(w.id).length?w.id:''};
+const BKG=[['الأهلي المصري','الاهلي المصري','NBE','National Bank of Egypt','البنك الأهلي'],['بنك مصر','Banque Misr','BM ATM','Misr'],['القاهرة','Banque du Caire','BdC'],['CIB','التجاري الدولي'],['QNB'],['الإسكندرية','الاسكندرية','AlexBank','Alex Bank'],['قناة السويس','SCB'],['الزراعي','ABE','Agricultural'],['التعمير','HDB'],['العربي الأفريقي','AAIB'],['NBK','الكويت الوطني'],['الإمارات دبي','Emirates NBD','ENBD'],['FAB','أبوظبي الأول'],['ADCB','أبوظبي التجاري'],['ADIB','أبوظبي الإسلامي'],['فيصل','Faisal'],['البركة','Baraka'],['HSBC'],['كريدي','Credit Agricole'],['EG Bank','المصري الخليجي'],['المشرق','Mashreq'],['aiBANK','الاستثمار العربي'],['SAIB','الشركة المصرفية'],['ABK','الأهلي الكويتي'],['Attijari','التجاري وفا'],['Audi','عودة'],['المتحد','United Bank'],['ميد','MIDBANK'],['ABC']];
+const bkGrp=n=>BKG.findIndex(g=>g.some(a=>new RegExp(a.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(n||'')));
+function atmFeeFor(x,w){if(x.fee>0)return x.fee;const W=S.wallets.find(z=>z.id===w)||{},own=bkGrp((W.bank||'')+' '+W.name);const seg=x.text.replace(/^[\s\S]*?(ATM|ماكين[ةه]|صراف)/i,'');const other=BKG.some((g,i)=>i!==own&&g.some(a=>new RegExp(a.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(seg)));return other?(S.atmFee||5):0}
+const cashLeaf=()=>{if(S.atmTo&&S.wallets.some(w=>w.id===S.atmTo&&!kids(w.id).length))return S.atmTo;const K=kids('cash').filter(w=>!w.frozen&&w.id!=='silver');return K[0]?K[0].id:'cash'};
 function bankRecord(x,w){const note=x.dir==='in'?(x.who?'من '+x.who:'فلوس دخلت'):x.tr?('تحويل'+(x.who?' لـ '+x.who:'')):(x.who||(x.bill?'فاتورة / شحن':'مشتريات بالكارت'));
- if(x.dir==='in'){S.mv.push({id:uid(),k:'in',w,amt:x.amt,date:x.date,note,auto:1});return}
+ if(x.dir==='in'){S.mv.push({id:uid(),k:'in',w,amt:x.amt,date:x.date,note,auto:1,tm:x.tm});return}
  if(!x.amt&&x.fee>0){const last=[...S.exp,...S.tx,...S.mv].filter(r=>r.auto&&r.w===w&&r.date===x.date).sort((a,b)=>b.id.localeCompare(a.id))[0];if(last){setFee(last,feeSum(last.id)+x.fee);return}S.exp.push({id:uid(),fid:'',amt:x.fee,date:x.date,note:'عمولة',w,fee:1,auto:1});return}
- const e={id:uid(),fid:'',amt:x.amt,date:x.date,note,w,auto:1};S.exp.push(e);if(x.fee>0)setFee(e,x.fee)}
+ if(x.atm){const m={id:uid(),k:'tr',w,to:cashLeaf(),amt:x.amt,date:x.date,note:'سحب من ماكينة',auto:1};S.mv.push(m);const f=atmFeeFor(x,w);if(f>0)setFee(m,f,'رسوم سحب من ماكينة بنك تاني');return}
+ const e={id:uid(),fid:'',amt:x.amt,date:x.date,note,w,auto:1,tm:x.tm};S.exp.push(e);const f=x.fee>0?x.fee:x.tr?feeOf(x.amt,S.trFeeR||1):0;if(f>0)setFee(e,f)}
+// own-card to own-card transfer: an outgoing transfer + an incoming of the same amount on another card → one transfer
+function bankPair(){let ch=0;const T=Date.now()-3*864e5;const outs=S.exp.filter(e=>e.auto&&/^تحويل/.test(e.note||'')&&idT(e.id)>T),ins=S.mv.filter(m=>m.auto&&m.k==='in'&&idT(m.id)>T);
+ for(const o of outs){const i=ins.find(m=>m.w!==o.w&&Math.abs(m.amt-o.amt)<0.01&&Math.abs((m.tm||idT(m.id))-(o.tm||idT(o.id)))<6*36e5&&S.mv.includes(m));if(!i)continue;
+  const f=feeSum(o.id),m={id:uid(),k:'tr',w:o.w,to:i.w,amt:o.amt,date:o.date,note:'تحويل بين كروتك',auto:1};S.exp=S.exp.filter(e=>e.id!==o.id&&e.of!==o.id);S.mv=S.mv.filter(x=>x!==i);S.mv.push(m);if(f>0)setFee(m,f);ch=1}return ch}
 window.__bankPull=()=>{if(bankSt()!=='on')return;let raw=[];try{raw=JSON.parse(NAT.bankTake()||'[]')}catch(e){}
- if(!raw.length)return;const q=bankQ();let n=0;snap();
- for(const o of raw){const x=parseBank(o);if(!x.dir||!(x.amt>0||x.fee>0))continue;const w=bankWallet(x);if(w){bankRecord(x,w);n++}else q.push(x)}
- bankQset(q);if(n){save();render();toast(`دفتري سجّل ${n.toLocaleString('ar-EG')} حركة من رسائل البنك تلقائي ✅`,true)}else render();
- if(q.length&&!n)toast('فيه حركة جديدة من البنك محتاجة تختار الكارت بتاعها')};
+ const q=bankQ();let hold=LS.get('daftar_bankhold');if(!Array.isArray(hold))hold=[];let n=0,ch=0;snap();
+ const X=raw.map(parseBank).filter(x=>x.dir&&(x.amt>0||x.fee>0));
+ const same=(a,b)=>a.dir===b.dir&&Math.abs(a.amt-b.amt)<0.01&&Math.abs(a.tm-b.tm)<6*36e5;
+ // InstaPay app notifications don't say which account → wait for the bank's own message
+ for(const x of X.filter(x=>x.insta&&!x.l4)){const rec=[...S.exp,...S.mv].some(r=>r.auto&&r.tm&&Math.abs(r.amt-x.amt)<0.01&&Math.abs(r.tm-x.tm)<6*36e5);if(!rec&&!hold.some(h=>same(h,x)))hold.push(x)}
+ for(const x of X.filter(x=>!(x.insta&&!x.l4))){hold=hold.filter(h=>!same(h,x));const w=bankWallet(x);if(w){bankRecord(x,w);n++}else q.push(x)}
+ const now=Date.now();for(const h of hold.filter(h=>now-h.tm>6*36e5)){q.push(h);ch=1}hold=hold.filter(h=>now-h.tm<=6*36e5);
+ LS.set('daftar_bankhold',hold.length?hold:null);bankQset(q);if(bankPair())ch=1;
+ if(n||ch){save();render();if(n)toast(`دفتري سجّل ${n.toLocaleString('ar-EG')} حركة من رسائل البنك تلقائي ✅`,true)}else if(raw.length)render();
+ if(q.length&&!n&&raw.length)toast('فيه حركة جديدة من البنك محتاجة تختار الكارت بتاعها')};
 let bankBack=0;const amtB=x=>`<b class="${x.dir==='in'?'pl':'mi'}" style="white-space:nowrap">${x.dir==='in'?'+':'−'} ${fmt(x.amt||x.fee)}${x.fee&&x.amt?'<small class="feel" style="display:block">+ '+fmt(x.fee)+' عمولة</small>':''}</b>`;
 const bankCard=()=>{const q=bankQ();return q.length?`<div class="box" data-act="bankq" style="padding:12px 14px;margin:10px 0;cursor:pointer;border-inline-start:5px solid var(--gold)"><b>${q.length.toLocaleString('ar-EG')} حركة من البنك مستنياك</b><div class="muted" style="font-size:13px">اختار الكارت بتاعها مرة واحدة، وبعد كده هتتسجّل لوحدها.</div></div>`:''};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){setTimeout(()=>window.__bankPull&&window.__bankPull(),400);if(bankBack&&open&&open.kind==='settings'){bankBack=0;setTimeout(renderSheet,500)}}});setTimeout(()=>window.__bankPull&&window.__bankPull(),2500);
@@ -1204,7 +1219,7 @@ function renderSheet(){
  if(k==='bankq'){const q=bankQ();if(!q.length){close();return}
   const L=S.wallets.filter(w=>!kids(w.id).length&&w.t!=='app'&&!(w.id==='cash'||w.parent==='cash'));
   c.innerHTML=head('حركات من البنك')+`<p class="muted" style="margin:0 0 10px">قولّي كل حركة من أنهي كارت. هفتكره، والمرة الجاية هتتسجّل لوحدها.</p>`+q.map((x,i)=>{const g=L.find(w=>w.id===lastW)?lastW:(L[0]||{}).id;return `<div class="box" style="padding:12px 14px;margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:8px"><b>${x.dir==='in'?'دخل':x.tr?'تحويل':'دفع'}${x.who?' · '+esc(x.who):''}${x.l4?' <small class="muted">كارت <bdi dir="ltr">••'+esc(x.l4)+'</bdi></small>':''}</b>${amtB(x)}</div>
-   <div class="muted" style="font-size:12px;margin:4px 0 8px;max-height:60px;overflow:hidden">${esc(x.text)}</div>
+   <div class="muted" style="font-size:12px;margin:4px 0 8px;max-height:60px;overflow:hidden">${esc(x.text)}</div>${x.insta&&!x.l4?'<div class="muted" style="font-size:12px;margin:-4px 0 8px">ده إشعار إنستاباي ومش مكتوب فيه الحساب، ورسالة البنك ما جاتش. اختار الحساب للحركة دي بس.</div>':''}
    <div class="wsel" data-wsel="bq${i}">${L.map(w=>`<button type="button" data-w="${w.id}" class="${w.id===g?'on':''}">${esc(wlabel(w))}</button>`).join('')}</div>
    <div class="btns" style="margin-top:8px" data-i="${i}"><button class="btn sm" data-act="bqOk">سجّلها</button><button class="btn ghost sm" data-act="bqNo">تجاهل</button></div></div>`}).join('');return}
  if(k==='admin'){
@@ -1755,8 +1770,8 @@ document.addEventListener('click',async e=>{
  if(a==='appInfo'){e.preventDefault();try{NAT.openAppInfo()}catch(x){}bankBack=1;return}
  if(a==='bankq')return show({kind:'bankq'});
  if(a==='bqOk'||a==='bqNo'){const i=+e.target.closest('[data-i]').dataset.i,q=bankQ(),x=q[i];if(!x)return renderSheet();q.splice(i,1);
-  if(a==='bqOk'){const w=getW($('card'),'bq'+i);snap();const W=S.wallets.find(z=>z.id===w);if(W){W.bk=[...new Set([...(W.bk||[]),bankKey(x)])].slice(-12)}bankRecord(x,w);
-   for(let j=q.length-1;j>=0;j--)if(bankKey(q[j])===bankKey(x)){bankRecord(q[j],w);q.splice(j,1)}bankQset(q);save();render();toast('اتسجّلت على '+wn(w)+'، واللي بعد كده من الكارت ده هيتسجّل لوحده',true)}else bankQset(q);
+  if(a==='bqOk'){const w=getW($('card'),'bq'+i);snap();const W=S.wallets.find(z=>z.id===w);const mem=!(x.insta&&!x.l4);if(W&&mem){W.bk=[...new Set([...(W.bk||[]),bankKey(x)])].slice(-12)}bankRecord(x,w);
+   if(mem)for(let j=q.length-1;j>=0;j--)if(bankKey(q[j])===bankKey(x)){bankRecord(q[j],w);q.splice(j,1)}bankPair();bankQset(q);save();render();toast(mem?'اتسجّلت على '+wn(w)+'، واللي بعد كده من الكارت ده هيتسجّل لوحده':'اتسجّلت على '+wn(w),true)}else bankQset(q);
   if(q.length)renderSheet();else close();return}
  if(a==='admAdd'){const em=String($('admEm').value||'').trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))return toast('اكتب إيميل صح');try{const f=await fbReady();await f.fs.setDoc(f.fs.doc(f.db,'admins',em),{by:(acct()||{}).email||'',at:f.fs.serverTimestamp()});toast('اتضاف '+em+' أدمن ✅');adminData=null;renderSheet()}catch(x){toast('مقدرتش أضيفه: '+(x.code||x.message))}return}
  if(a==='admDel'){const em=e.target.closest('[data-em]').dataset.em;if(!confirm('تشيل '+em+' من الأدمنز؟'))return;try{const f=await fbReady();await f.fs.deleteDoc(f.fs.doc(f.db,'admins',em));toast('اتشال');adminData=null;renderSheet()}catch(x){toast('مقدرتش: '+(x.code||x.message))}return}
