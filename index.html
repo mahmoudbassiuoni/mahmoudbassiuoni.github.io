@@ -324,7 +324,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ٦';
+const VER='٢٦ نوفمبر - ٧';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -462,6 +462,8 @@ const isBankW=id=>{const w=(S.wallets||[]).find(x=>x.id===id);return !!w&&(w.t==
 const tmStr=t=>{try{return new Date(+t).toLocaleTimeString('ar-EG',{hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
 const rmeta=r=>(r.tm?' · '+tmStr(r.tm):'')+(r.ref?' · مرجعي <bdi dir="ltr">'+esc(r.ref)+'</bdi>':'');
 const refIn=(id,v)=>`<label>الرقم المرجعي <small class="muted">(اختياري)</small></label><input id="${id}" type="text" autocomplete="off" inputmode="text" dir="ltr" style="text-align:right" placeholder="من رسالة البنك أو إنستاباي" value="${esc(v||'')}">`;
+function noFunds(w,need,old){if(!w||w==='none'||isUSD(w)||!S.wallets.some(x=>x.id===w))return false;const bal=Math.round((wbal(w)+(old||0))*100)/100;if(need<=bal+0.005)return false;
+ toast(`مينفعش ❌ ${wn(w)} فيه ${bal<0?'− ':''}${fmt(Math.abs(bal))} بس، والعملية محتاجة ${fmt(need)}`);try{NAT.haptic&&NAT.haptic()}catch(e){}return true}
 const feeKids=id=>(S.exp||[]).filter(e=>e.of===id),feeSum=id=>Math.round(feeKids(id).reduce((a,e)=>a+(+e.amt||0),0)*100)/100;
 function setFee(o,f,note){const old=feeKids(o.id)[0];S.exp=S.exp.filter(e=>e.of!==o.id);f=Math.round((+f||0)*100)/100;if(f>0&&o.w&&o.w!=='none')S.exp.push({id:old?old.id:uid(),fid:'',amt:f,date:o.date,note:note||(old&&old.note)||'عمولة تحويل',w:o.w,fee:1,of:o.id});return f}
 const parIds=()=>new Set([...S.mv,...S.tx,...S.exp].map(x=>x.id));
@@ -1091,7 +1093,7 @@ function renderSheet(){
    <div class="btns" style="margin-top:12px"><button class="btn" style="background:${sp?'#c2334d':'#0a7a6c'}">${sp?'سجّل المصروف':'ضيف الفلوس'}</button></div></form>`;
   const PB=sp?payBind(c,'mAmt'):null;$('mAmt').focus();{const sy=()=>{$('mAmtL').textContent=isUSD(getW(c))?'المبلغ بالدولار $':'المبلغ'};c.querySelector('[data-wsel=w]').addEventListener('click',()=>setTimeout(sy));sy()}
   c.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{$('mNote').value=b.dataset.q;if(!sp&&b.dataset.q==='مرتب'){const sw=salW();c.querySelectorAll('[data-wsel=w] button').forEach(x=>x.classList.toggle('on',x.dataset.w===sw))}});
-  $('fM').onsubmit=e=>{e.preventDefault();const amt=pn($('mAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');const w=getW(c);lastW=w;const date=$('mDate').value||today(),note=$('mNote').value.trim();
+  $('fM').onsubmit=e=>{e.preventDefault();const amt=pn($('mAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');const w=getW(c);const date=$('mDate').value||today(),note=$('mNote').value.trim();if(sp&&noFunds(w,amt+PB.fee()))return;lastW=w;
    let fe=0;if(sp){const x={id:uid(),fid:$('mFund')?.value||'',amt,date,note,w};if(PB.ref())x.ref=PB.ref();S.exp.push(x);fe=setFee(x,PB.fee())}else{const x={id:uid(),k:'in',w,amt,date,note};if(/^مرتب/.test(note)&&!salGot(date.slice(0,7))){x.sal=1;x.salM=date.slice(0,7);if(!S.sal)S.sal={amt,day:+date.slice(8),w};}S.mv.push(x)}
    dayV=date;save();close();toast(sp?`اتخصم ${fmt(amt+fe)} من ${wn(w)}${fe?' (منهم '+fmt(fe)+' عمولة)':''}`:`اتضاف ${fmt(amt)} على ${wn(w)}`)};return}
  if(k==='transfer'){
@@ -1106,9 +1108,9 @@ function renderSheet(){
    <div class="btns" style="margin-top:12px"><button class="btn">حوّل</button></div></form>`;
   $('fT').onsubmit=e=>{e.preventDefault();const amt=pn($('trAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');const w=getW(c,'from'),to=getW(c,'to');if(w===to)return toast('اختار محفظتين مختلفين');
    const dt=$('trDate').value||today();
-   if(isAtm()){const other=getW(c,'atm')==='other',fa=other?pn($('atmF').value)||0:0;snap();if(other&&fa>0)S.atmFee=fa;const m={id:uid(),k:'tr',w,to,amt,date:dt,note:'سحب من ماكينة'};{const rf=$('trRef').value.trim();if(rf)m.ref=rf}S.mv.push(m);if(fa>0)setFee(m,fa,'رسوم سحب من ماكينة بنك تاني');
+   if(isAtm()){const other=getW(c,'atm')==='other',fa=other?pn($('atmF').value)||0:0;if(noFunds(w,amt+fa))return;snap();if(other&&fa>0)S.atmFee=fa;const m={id:uid(),k:'tr',w,to,amt,date:dt,note:'سحب من ماكينة'};{const rf=$('trRef').value.trim();if(rf)m.ref=rf}S.mv.push(m);if(fa>0)setFee(m,fa,'رسوم سحب من ماكينة بنك تاني');
     save();close();render();return toast(`اتسحب ${fmt(amt)} لـ ${wn(to)}${fa?' واتخصم '+fmt(amt+fa)+' من '+wn(w)+' (رسوم '+fmt(fa)+')':''}`,true)}
-   const rv=pn($('trRecv').value)||0;if(rv>amt)return toast('اللي وصل أكبر من اللي اتحوّل؟');snap();const f=doTransfer(w,to,amt,dt,feeVal(),'',rv);{const rf=$('trRef').value.trim(),lm=S.mv[S.mv.length-1];if(rf&&lm&&lm.k==='tr')lm.ref=rf}save();close();render();toast(`اتحوّل ${fmt(rv>0?rv:amt)} لـ ${wn(to)}${f?' (عمولة '+fmt(f)+' اتخصمت من '+wn(w)+')':''}`,true)};feeBind('trAmt');
+   const rv=pn($('trRecv').value)||0;if(rv>amt)return toast('اللي وصل أكبر من اللي اتحوّل؟');if(noFunds(w,rv>0?amt:amt+feeOf(amt,feeVal())))return;snap();const f=doTransfer(w,to,amt,dt,feeVal(),'',rv);{const rf=$('trRef').value.trim(),lm=S.mv[S.mv.length-1];if(rf&&lm&&lm.k==='tr')lm.ref=rf}save();close();render();toast(`اتحوّل ${fmt(rv>0?rv:amt)} لـ ${wn(to)}${f?' (عمولة '+fmt(f)+' اتخصمت من '+wn(w)+')':''}`,true)};feeBind('trAmt');
   const wObj=id=>S.wallets.find(x=>x.id===id)||{},inCash=id=>id==='cash'||wObj(id).parent==='cash';
   const isAtm=()=>{const f=wObj(getW(c,'from'));return (f.t==='bank'||f.t==='ew')&&inCash(getW(c,'to'))};
   const atmUp=()=>{const on=isAtm();$('atmBox').hidden=!on;$('trFeeW').hidden=on;if(!on)return;const f=wObj(getW(c,'from'));$('atmOwn').textContent=(f.bank?'ماكينة '+f.bank:'بنك الكارت')+' (من غير رسوم)';const other=getW(c,'atm')==='other';$('atmFW').hidden=!other;
@@ -1221,6 +1223,7 @@ function renderSheet(){
    <div class="btns" style="margin-top:6px"><button class="btn">حفظ</button><button type="button" class="btn danger" data-act="edDel">${ic('trash')}مسح</button></div></form>`;
   let et=o.type;c.querySelectorAll('[data-et]').forEach(b=>b.onclick=()=>{et=b.dataset.et;c.querySelectorAll('[data-et]').forEach(x=>x.classList.toggle('on',x===b))});
   $('fEd2').onsubmit=e=>{e.preventDefault();const a=pn($('edAmt').value);if(isNaN(a)||(!isAdj&&!isGl&&!(a>0))||a===0)return toast('اكتب المبلغ صح');
+   {const nw=isTr?getW(c,'from'):isGl||isAdj?'':getW(c),outN=isE||isTr||(isT&&TXW[et]<0),outO=isE||isTr||(isT&&TXW[o.type]<0);if(outN&&nw&&nw!=='none'&&!o.auto){const nf=$('edFee')?(pn($('edFee').value)||0):feeSum(o.id),old=outO&&o.w===nw?(+o.amt||0)+feeSum(o.id):0;if(noFunds(nw,a+nf,old))return}}
    if(isTr){const f=getW(c,'from'),t=getW(c,'to');if(f===t)return toast('اختار محفظتين مختلفين');o.w=f;o.to=t}
    else if(!isGl){const w=getW(c);if(w==='none')delete o.w;else o.w=w}
    o.amt=a;o.date=$('edDate').value||o.date;if($('edNote'))o.note=$('edNote').value.trim();if($('edFund'))o.fid=$('edFund').value;
@@ -1276,11 +1279,11 @@ function renderSheet(){
   $('spL').onclick=e=>{const b=e.target.closest('[data-sp]');if(!b)return;const id=b.dataset.sp;const i=sel.indexOf(id);if(i>=0)sel.splice(i,1);else sel.push(id);drawL()};drawL();
   $('fSp').onsubmit=e=>{e.preventDefault();const a=pn($('spAmt').value);if(!(a>0))return toast('اكتب المبلغ صح');if(!sel.length)return toast('اختار شخص واحد على الأقل');
    const note=$('spNote').value.trim()||'فاتورة',date=$('spDate').value||today(),sh=share(),tn='تقسيم: '+note;
-   if(payer()==='other'){const pid=$('spPayer').value;if(!pid)return toast('اختار مين دفع');const mine=getW(c,'mine');snap();
+   if(payer()==='other'){const pid=$('spPayer').value;if(!pid)return toast('اختار مين دفع');const mine=getW(c,'mine');if(mine!=='owe'&&noFunds(getW(c,'mw'),sh))return;snap();
     S.exp.push({id:uid(),fid:'',amt:sh,date,note:note+' (نصيبي)'});S.tx.push({id:uid(),pid,type:'lent',amt:sh,date,note:tn+' (دفعها عني)'});
     if(mine!=='owe'){const w=getW(c,'mw');lastW=w;S.tx.push({id:uid(),pid,type:'iPaid',amt:sh,date,note:tn+(mine==='cash'?' (اديته كاش)':' (حوّلتله)'),w})}
     const pn0=(S.people.find(p=>p.id===pid)||{}).name||'';save();close();return toast(mine==='owe'?`اتسجّل إن عليك ${fmt(sh)} لـ ${pn0}`:`اتسجّل نصيبك ${fmt(sh)} واتدفع لـ ${pn0}`,true)}
-   const me=getW(c,'me')==='y',w=getW(c),cin=getW(c,'cin'),tin=getW(c,'tin');lastW=w==='none'?lastW:w;snap();let paid=0,owe=0;
+   const me=getW(c,'me')==='y',w=getW(c),cin=getW(c,'cin'),tin=getW(c,'tin');if(noFunds(w,a))return;lastW=w==='none'?lastW:w;snap();let paid=0,owe=0;
    sel.forEach(pid=>{const t={id:uid(),pid,type:'took',amt:sh,date,note:tn};if(w!=='none')t.w=w;S.tx.push(t);const v=st[pid]||'owe';
     if(v==='owe'){owe++;return}paid++;S.tx.push({id:uid(),pid,type:'paidMe',amt:sh,date,note:tn+(v==='cash'?' (اداني كاش)':' (حوّلي)'),w:v==='cash'?cin:tin})});
    if(me){const x={id:uid(),fid:'',amt:r2(a-sh*sel.length),date,note:note+' (نصيبي)'};if(w!=='none')x.w=w;S.exp.push(x)}
@@ -1594,7 +1597,7 @@ function renderSheet(){
   c.querySelectorAll('.seg button').forEach(bt=>bt.onclick=()=>{ttype=bt.dataset.t;c.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===bt));syncDue()});
   if(open.focus){$('tAmt').focus();open.focus=false}
   $('fTx').onsubmit=e=>{e.preventDefault();const amt=pn($('tAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');
-   const t={id:uid(),pid:p.id,type:ttype,amt,date:$('tDate').value||today(),note:$('tNote').value.trim()};const w=getW($('fTx'));lastW=w;if(w!=='none')t.w=w;if(ttype==='took'&&$('tDue').value)t.due=$('tDue').value;
+   const t={id:uid(),pid:p.id,type:ttype,amt,date:$('tDate').value||today(),note:$('tNote').value.trim()};const w=getW($('fTx'));if(w!=='none'&&TXW[ttype]<0&&noFunds(w,amt+PB.fee()))return;lastW=w;if(w!=='none')t.w=w;if(ttype==='took'&&$('tDue').value)t.due=$('tDue').value;
    if(t.w&&PB.ref())t.ref=PB.ref();S.tx.push(t);const fe=t.w?setFee(t,PB.fee()):0;save();render();toast(t.w?`اتسجّل، و${TXW[t.type]>0?'اتضاف على':'اتخصم من'} ${wn(t.w)}${fe?' (+ '+fmt(fe)+' عمولة)':''}`:'اتسجّل')};return}
  if(k==='f'){
   const f=S.funds.find(x=>x.id===open.id);if(!f){close();return}
