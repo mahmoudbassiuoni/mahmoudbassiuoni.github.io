@@ -64,6 +64,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans
 .wsel button .i{width:16px;height:16px;vertical-align:-3px;margin-inline-end:4px}
 .bdg{display:inline-grid;place-items:center;min-width:44px;height:26px;padding:0 7px;border-radius:9px;color:#fff;font:700 11px/1 inherit;letter-spacing:0;white-space:nowrap;vertical-align:middle;box-shadow:inset 0 0 0 1px rgb(255 255 255/.18)}.wcard small .bdg{height:22px;min-width:38px;font-size:10px;margin-inline-end:4px}.av .bdg{min-width:0;width:100%;height:100%;border-radius:inherit;padding:0 2px;font-size:10px}#wfPrev{margin-top:8px}
 .rcs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.rcs small{display:block;color:var(--mute);font-size:12px}.rcs b{font-size:16px}
+.ferr{color:var(--minus);font-size:13px;font-weight:700;margin:6px 2px 0;display:flex;align-items:center;gap:6px}.ferr svg{width:16px;height:16px}input.bad{border-color:var(--minus)!important;box-shadow:0 0 0 3px rgba(200,50,70,.18)!important}.btn.dim{opacity:.45}
 .amtc{display:flex;flex-direction:column;align-items:flex-end;white-space:nowrap;line-height:1.25}.feel{font-size:11.5px;color:var(--minus);font-weight:600;opacity:.85}
 .fee{display:flex;align-items:center;gap:6px;font-size:14px;margin:4px 0 6px;flex-wrap:wrap}.fee input[type=checkbox]{width:18px;height:18px}.fee input[type=text]{padding:4px 6px;border-radius:8px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:inherit}
 .salc{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:0 0 12px;cursor:pointer;border-inline-start:5px solid #0a7a6c}.salc .ti{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#0a7a6c;color:#fff;flex:none}.salc .t{flex:1;display:flex;flex-direction:column}.salc small{color:var(--mute)}.salc .btn{background:#0a7a6c;pointer-events:none}
@@ -324,7 +325,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ٩';
+const VER='٢٦ نوفمبر - ١٠';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -464,6 +465,12 @@ const rmeta=r=>(r.tm?' · '+tmStr(r.tm):'')+(r.ref?' · مرجعي <bdi dir="ltr
 const refIn=(id,v)=>`<label>الرقم المرجعي <small class="muted">(اختياري)</small></label><input id="${id}" type="text" autocomplete="off" inputmode="text" dir="ltr" style="text-align:right" placeholder="من رسالة البنك أو إنستاباي" value="${esc(v||'')}">`;
 function noFunds(w,need,old){if(!w||w==='none'||isUSD(w)||!S.wallets.some(x=>x.id===w))return false;const bal=Math.round((wbal(w)+(old||0))*100)/100;if(need<=bal+0.005)return false;
  toast(`مينفعش ❌ ${wn(w)} فيه ${bal<0?'− ':''}${fmt(Math.abs(bal))} بس، والعملية محتاجة ${fmt(need)}`);try{NAT.haptic&&NAT.haptic()}catch(e){}return true}
+// live check under the amount field: shows the error while typing
+function fundsHint(c,inpId,fn){const inp=$(inpId);if(!inp)return;const el=document.createElement('div');el.className='ferr';el.hidden=true;inp.insertAdjacentElement('afterend',el);const btn=inp.closest('form')?.querySelector('.btns .btn:not(.ghost):not(.danger)');
+ const up=()=>{let r=null;try{r=fn()}catch(e){}const ok=r&&r.w&&r.w!=='none'&&!isUSD(r.w)&&S.wallets.some(x=>x.id===r.w)&&r.need>0,bal=ok?Math.round((wbal(r.w)+(r.old||0))*100)/100:0,bad=ok&&r.need>bal+0.005;
+  inp.classList.toggle('bad',bad);el.hidden=!bad;if(btn)btn.classList.toggle('dim',bad);
+  if(bad)el.innerHTML=`${ic('alert')} ${esc(wn(r.w))} فيه ${bal<0?'− ':''}${fmt(Math.abs(bal))} بس`+(r.fee>0?` — والعملية بالعمولة ${fmt(r.need)}`:'')};
+ inp.addEventListener('input',up);c.addEventListener('click',()=>setTimeout(up,0));c.addEventListener('input',e=>{if(e.target!==inp)setTimeout(up,0)});setTimeout(up,0)}
 const feeKids=id=>(S.exp||[]).filter(e=>e.of===id),feeSum=id=>Math.round(feeKids(id).reduce((a,e)=>a+(+e.amt||0),0)*100)/100;
 function setFee(o,f,note){const old=feeKids(o.id)[0];S.exp=S.exp.filter(e=>e.of!==o.id);f=Math.round((+f||0)*100)/100;if(f>0&&o.w&&o.w!=='none')S.exp.push({id:old?old.id:uid(),fid:'',amt:f,date:o.date,note:note||(old&&old.note)||'عمولة تحويل',w:o.w,fee:1,of:o.id});return f}
 const parIds=()=>new Set([...S.mv,...S.tx,...S.exp].map(x=>x.id));
@@ -1095,7 +1102,7 @@ function renderSheet(){
    ${sp&&S.funds.length?`<label>على باب مصاريف؟ (اختياري)</label><select id="mFund"><option value="">لأ، مصروف يومي</option>${S.funds.map(f=>`<option value="${f.id}" ${open.fid===f.id?'selected':''}>${esc(f.name)}</option>`).join('')}</select><div style="height:10px"></div>`:''}
    <label>التاريخ</label><input id="mDate" type="date" value="${d}">
    <div class="btns" style="margin-top:12px"><button class="btn" style="background:${sp?'#c2334d':'#0a7a6c'}">${sp?'سجّل المصروف':'ضيف الفلوس'}</button></div></form>`;
-  const PB=sp?payBind(c,'mAmt'):null;$('mAmt').focus();{const sy=()=>{$('mAmtL').textContent=isUSD(getW(c))?'المبلغ بالدولار $':'المبلغ'};c.querySelector('[data-wsel=w]').addEventListener('click',()=>setTimeout(sy));sy()}
+  const PB=sp?payBind(c,'mAmt'):null;if(sp)fundsHint(c,'mAmt',()=>{const a=pn($('mAmt').value)||0,f=PB.fee();return {w:getW(c),need:a+f,fee:f}});$('mAmt').focus();{const sy=()=>{$('mAmtL').textContent=isUSD(getW(c))?'المبلغ بالدولار $':'المبلغ'};c.querySelector('[data-wsel=w]').addEventListener('click',()=>setTimeout(sy));sy()}
   c.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{$('mNote').value=b.dataset.q;if(!sp&&b.dataset.q==='مرتب'){const sw=salW();c.querySelectorAll('[data-wsel=w] button').forEach(x=>x.classList.toggle('on',x.dataset.w===sw))}});
   $('fM').onsubmit=e=>{e.preventDefault();const amt=pn($('mAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');const w=getW(c);const date=$('mDate').value||today(),note=$('mNote').value.trim();if(sp&&noFunds(w,amt+PB.fee()))return;lastW=w;
    let fe=0;if(sp){const x={id:uid(),fid:$('mFund')?.value||'',amt,date,note,w};if(PB.ref())x.ref=PB.ref();S.exp.push(x);fe=setFee(x,PB.fee())}else{const x={id:uid(),k:'in',w,amt,date,note};if(/^مرتب/.test(note)&&!salGot(date.slice(0,7))){x.sal=1;x.salM=date.slice(0,7);if(!S.sal)S.sal={amt,day:+date.slice(8),w};}S.mv.push(x)}
@@ -1110,6 +1117,7 @@ function renderSheet(){
    ${feeBox(open.fee!=null?open.fee:!!S.trFee,S.trFeeR||1)}</div>${refIn('trRef')}<div style="height:10px"></div>
    <label>التاريخ</label><input id="trDate" type="date" value="${dayV||today()}">
    <div class="btns" style="margin-top:12px"><button class="btn">حوّل</button></div></form>`;
+  fundsHint(c,'trAmt',()=>{const a=pn($('trAmt').value)||0,w=getW(c,'from');if(isAtm()){const fa=getW(c,'atm')==='other'?pn($('atmF').value)||0:0;return {w,need:a+fa,fee:fa}}const rv=pn($('trRecv').value)||0,f=rv>0?0:feeOf(a,feeVal());return {w,need:a+f,fee:f}});
   $('fT').onsubmit=e=>{e.preventDefault();const amt=pn($('trAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');const w=getW(c,'from'),to=getW(c,'to');if(w===to)return toast('اختار محفظتين مختلفين');
    const dt=$('trDate').value||today();
    if(isAtm()){const other=getW(c,'atm')==='other',fa=other?pn($('atmF').value)||0:0;if(noFunds(w,amt+fa))return;snap();if(other&&fa>0)S.atmFee=fa;const m={id:uid(),k:'tr',w,to,amt,date:dt,note:'سحب من ماكينة'};{const rf=$('trRef').value.trim();if(rf)m.ref=rf}S.mv.push(m);if(fa>0)setFee(m,fa,'رسوم سحب من ماكينة بنك تاني');
@@ -1226,6 +1234,7 @@ function renderSheet(){
    <div class="g2"><div><label>التاريخ</label><input id="edDate" type="date" value="${o.date}"></div>${isT?`<div><label>ميعاد السداد</label><input id="edDue" type="date" value="${o.due||''}"></div>`:''}</div>
    <div class="btns" style="margin-top:6px"><button class="btn">حفظ</button><button type="button" class="btn danger" data-act="edDel">${ic('trash')}مسح</button></div></form>`;
   let et=o.type;c.querySelectorAll('[data-et]').forEach(b=>b.onclick=()=>{et=b.dataset.et;c.querySelectorAll('[data-et]').forEach(x=>x.classList.toggle('on',x===b))});
+  fundsHint(c,'edAmt',()=>{if(o.auto||isGl||isAdj)return null;const a=pn($('edAmt').value)||0,nw=isTr?getW(c,'from'):getW(c),outN=isE||isTr||(isT&&TXW[et]<0),outO=isE||isTr||(isT&&TXW[o.type]<0);if(!outN)return null;const nf=$('edFee')?(pn($('edFee').value)||0):feeSum(o.id);return {w:nw,need:a+nf,fee:nf,old:outO&&o.w===nw?(+o.amt||0)+feeSum(o.id):0}});
   $('fEd2').onsubmit=e=>{e.preventDefault();const a=pn($('edAmt').value);if(isNaN(a)||(!isAdj&&!isGl&&!(a>0))||a===0)return toast('اكتب المبلغ صح');
    {const nw=isTr?getW(c,'from'):isGl||isAdj?'':getW(c),outN=isE||isTr||(isT&&TXW[et]<0),outO=isE||isTr||(isT&&TXW[o.type]<0);if(outN&&nw&&nw!=='none'&&!o.auto){const nf=$('edFee')?(pn($('edFee').value)||0):feeSum(o.id),old=outO&&o.w===nw?(+o.amt||0)+feeSum(o.id):0;if(noFunds(nw,a+nf,old))return}}
    if(isTr){const f=getW(c,'from'),t=getW(c,'to');if(f===t)return toast('اختار محفظتين مختلفين');o.w=f;o.to=t}
@@ -1281,6 +1290,7 @@ function renderSheet(){
   ['payer','me','mine'].forEach(n=>c.querySelector(`[data-wsel=${n}]`).addEventListener('click',()=>setTimeout(calcR)));
   $('spRows').addEventListener('click',e=>{const b=e.target.closest('[data-stp] [data-w]');if(!b)return;st[b.parentNode.dataset.stp]=b.dataset.w;setTimeout(calcR)});
   $('spL').onclick=e=>{const b=e.target.closest('[data-sp]');if(!b)return;const id=b.dataset.sp;const i=sel.indexOf(id);if(i>=0)sel.splice(i,1);else sel.push(id);drawL()};drawL();
+  fundsHint(c,'spAmt',()=>{const a=pn($('spAmt').value)||0;if(!(a>0)||!sel.length&&payer()==='other')return null;if(payer()==='other')return getW(c,'mine')!=='owe'?{w:getW(c,'mw'),need:share()}:null;return {w:getW(c),need:a}});
   $('fSp').onsubmit=e=>{e.preventDefault();const a=pn($('spAmt').value);if(!(a>0))return toast('اكتب المبلغ صح');if(!sel.length)return toast('اختار شخص واحد على الأقل');
    const note=$('spNote').value.trim()||'فاتورة',date=$('spDate').value||today(),sh=share(),tn='تقسيم: '+note;
    if(payer()==='other'){const pid=$('spPayer').value;if(!pid)return toast('اختار مين دفع');const mine=getW(c,'mine');if(mine!=='owe'&&noFunds(getW(c,'mw'),sh))return;snap();
@@ -1598,7 +1608,7 @@ function renderSheet(){
    <div class="btns"><button class="btn">تسجيل</button></div></form>
   <div class="sec"><h3>الحركات <span class="muted">${txs.length}</span></h3><div class="box">${txs.length?txs.map(t=>{const T=TYPES[t.type];return `<div class="tx" data-edit="t:${t.id}" style="cursor:pointer"><span class="ti" style="color:var(--${T.c==='p'?'plus':'minus'});background:var(--soft)">${T.s>0?'+':'−'}</span><span class="t"><b>${T.l}</b> <b class="${T.c==='p'?'pl':'mi'}">${fmt(t.amt)}</b>${feeSum(t.id)?`<small class="feel" style="display:inline"> + ${fmt(feeSum(t.id))} عمولة</small>`:''}<small>${dstr(t.date)}${t.note?' · '+esc(t.note):''}${t.due?' · السداد '+dstr(t.due):''}${t.w?' · '+TXWL[t.type]+' '+wn(t.w):''}</small></span><button class="del" data-del="${t.id}" aria-label="مسح">${ic('trash')}</button></div>`}).join(''):'<div class="empty">سجّل أول حركة فوق</div>'}</div></div>
   <div class="btns" style="margin-top:14px"><button class="btn ghost sm" data-act="editP">${ic('edit')}تعديل</button><button class="btn ghost sm" data-act="copy">${ic('copy')}نسخ كشف الحساب</button><a class="btn ghost sm" href="https://wa.me/${p.phone?waNum(p.phone):''}?text=${encodeURIComponent(stmtP(p))}" target="_blank" rel="noopener">${ic('chat')}ابعت الكشف واتساب</a>${b<0?`<button class="btn ghost sm" data-act="oweCal">${ic('cal')}فكّرني أرجّعله (تقويم)</button>`:''}<button class="btn danger sm" data-act="delP">مسح الحساب</button></div>`;
-  const PB=payBind(c,'tAmt',()=>TXW[ttype]<0);const syncDue=()=>{$('dueW').style.visibility=ttype==='took'?'visible':'hidden';$('twl').textContent='الفلوس دي '+TXWL[ttype]+':';PB.up()};syncDue();
+  const PB=payBind(c,'tAmt',()=>TXW[ttype]<0);fundsHint(c,'tAmt',()=>{if(TXW[ttype]>=0)return null;const a=pn($('tAmt').value)||0,f=PB.fee();return {w:getW($('fTx')),need:a+f,fee:f}});const syncDue=()=>{$('dueW').style.visibility=ttype==='took'?'visible':'hidden';$('twl').textContent='الفلوس دي '+TXWL[ttype]+':';PB.up()};syncDue();
   c.querySelectorAll('.seg button').forEach(bt=>bt.onclick=()=>{ttype=bt.dataset.t;c.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===bt));syncDue()});
   if(open.focus){$('tAmt').focus();open.focus=false}
   $('fTx').onsubmit=e=>{e.preventDefault();const amt=pn($('tAmt').value);if(!(amt>0))return toast('اكتب المبلغ صح');
