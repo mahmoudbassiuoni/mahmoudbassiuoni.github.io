@@ -357,7 +357,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ١٨';
+const VER='٢٦ نوفمبر - ١٩';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -495,9 +495,9 @@ const isBankW=id=>{const w=(S.wallets||[]).find(x=>x.id===id);return !!w&&(w.t==
 // balance of the wallet(s) right before and right after this transaction (saved when it is recorded)
 function balSnap(r){const W=[r.w,r.to].filter((w,i,a)=>w&&w!=='none'&&a.indexOf(w)===i&&S.wallets.some(x=>x.id===w));if(!W.length){delete r.bw;return}
  const after={};W.forEach(w=>after[w]=wbal(w));const tA=wsum(()=>true),e0=S.exp,m0=S.mv,t0=S.tx;
- try{S.exp=e0.filter(x=>x!==r&&x.of!==r.id);S.mv=m0.filter(x=>x!==r);S.tx=t0.filter(x=>x!==r);const bw={};W.forEach(w=>{const b=wbal(w);if(Math.abs(b-after[w])>0.004)bw[w]=[b,after[w]]});if(Object.keys(bw).length)r.bw=bw;else delete r.bw;const tB=wsum(()=>true);if(Math.abs(tB-tA)>0.004)r.bt=[Math.round(tB*100)/100,Math.round(tA*100)/100];else delete r.bt}
+ try{S.exp=e0.filter(x=>x!==r&&x.of!==r.id);S.mv=m0.filter(x=>x!==r);S.tx=t0.filter(x=>x!==r);const bw={};W.forEach(w=>{const b=wbal(w);if(Math.abs(b-after[w])>0.004)bw[w]=[b,after[w]]});if(Object.keys(bw).length)r.bw=bw;else delete r.bw;const tB=wsum(()=>true);r.bt=[Math.round(tB*100)/100,Math.round(tA*100)/100]}
  finally{S.exp=e0;S.mv=m0;S.tx=t0}}
-const balLine=r=>{if(!r.bw||typeof r.bw!=='object')return '';const f=(w,v)=>'<span style="white-space:nowrap">'+(isUSD(w)?ufmt(v):(v<0?'− ':'')+fmt(Math.abs(v)))+'</span>';const E=Object.entries(r.bw).filter(([w])=>S.wallets.some(x=>x.id===w));return E.map(([w,[b,a]])=>`<small class="balx">${E.length>1?esc(wn(w))+': ':'الرصيد: '}كان ${f(w,b)} ← بقى ${f(w,a)}</small>`).join('')+(Array.isArray(r.bt)?`<small class="balx balt">كل فلوسك: كان ${f('',r.bt[0])} ← بقى ${f('',r.bt[1])}</small>`:'')};
+const balLine=r=>{if(!r.bw||typeof r.bw!=='object')return '';const f=(w,v)=>'<span style="white-space:nowrap">'+(isUSD(w)?ufmt(v):(v<0?'− ':'')+fmt(Math.abs(v)))+'</span>';const E=Object.entries(r.bw).filter(([w])=>S.wallets.some(x=>x.id===w));return E.map(([w,[b,a]])=>`<small class="balx">${E.length>1?esc(wn(w))+': ':'الرصيد: '}كان ${f(w,b)} ← بقى ${f(w,a)}</small>`).join('')+(Array.isArray(r.bt)?`<small class="balx balt">${Math.abs(r.bt[0]-r.bt[1])<0.005?`كل فلوسك: ${f('',r.bt[1])} (زي ما هي)`:`كل فلوسك: كان ${f('',r.bt[0])} ← بقى ${f('',r.bt[1])}`}</small>`:'')};
 const tmStr=t=>{try{return new Date(+t).toLocaleTimeString('ar-EG',{hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
 const rmeta=r=>(r.tm?' · '+tmStr(r.tm):'')+(r.ref?' · مرجعي <bdi dir="ltr">'+esc(r.ref)+'</bdi>':'')+balLine(r);
 const refIn=(id,v)=>`<label>الرقم المرجعي <small class="muted">(اختياري)</small></label><input id="${id}" type="text" autocomplete="off" inputmode="text" dir="ltr" style="text-align:right" placeholder="من رسالة البنك أو إنستاباي" value="${esc(v||'')}">`;
@@ -1635,7 +1635,7 @@ function renderSheet(){
   <div class="box" style="padding:14px;margin-bottom:12px"><b>سجّل من رسالة البنك</b><p class="muted" style="margin:4px 0 10px">${isNative?'من تطبيق الرسايل: دوس مطوّل على رسالة البنك ← مشاركة ← <b>دفتري</b>. أو انسخها والصقها هنا:':'انسخ رسالة البنك أو إنستاباي والصقها هنا:'}</p>
    <textarea id="bkPaste" rows="3" style="width:100%;box-sizing:border-box" placeholder="مثلًا: تم خصم مبلغ 250 جنيه من بطاقتكم 1234 لدى ..."></textarea><div class="btns" style="margin-top:8px"><button class="btn" data-act="bkPaste">اقرأها وسجّلها</button></div></div>
   <div class="box" style="padding:14px;margin-bottom:12px"><b>المحافظ</b><p class="muted" style="margin:4px 0 10px">${S.wallets.map(w=>esc(w.name)).join('، ')}</p><button class="btn ghost" data-act="wallets">${ic('wallet')}إدارة المحافظ</button></div>
-  <p class="muted" style="margin:0 0 4px;font-size:13px">Powered by <b>محمود نصار</b></p><p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}${isNative?` · <a href="#" data-act="updPrev" style="color:inherit">شكل رسالة التحديث</a>`:''}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
+  ${isNative&&NAT.testUpdNote?`<div class="btns" style="margin:0 0 10px"><button class="btn ghost sm" data-act="updTest">🔔 جرّب إشعار التحديث</button></div>`:''}<p class="muted" style="margin:0 0 4px;font-size:13px">Powered by <b>محمود نصار</b></p><p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}${isNative?` · <a href="#" data-act="updPrev" style="color:inherit">شكل رسالة التحديث</a>`:''}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
   ${STORE?'':`<div class="box" style="padding:14px;margin-bottom:12px"><b>نزّل البرنامج على جهازك</b><p class="muted" style="margin:4px 0 10px">ملف واحد بيفتح في أي متصفح من غير نت. بياناته بتتحفظ على الجهاز نفسه، ولنقل البيانات بين النسختين استخدم النسخة الاحتياطية.</p>
   <button class="btn" data-act="dlApp">${ic('down')}تنزيل البرنامج</button></div>`}
   <div class="box" style="padding:14px;margin-top:12px"><b>التقارير</b><p class="muted" style="margin:4px 0 10px">طلّع كشف بحساباتك ومصاريفك.</p><button class="btn ghost" data-act="export">${ic('sheet')}تصدير PDF / Excel</button></div>`;
@@ -1861,6 +1861,7 @@ document.addEventListener('click',async e=>{
  if(a==='bankOff'){try{NAT.bankSet(false)}catch(e){}renderSheet();return toast('اتوقّف')}
  if(a==='appInfo'){e.preventDefault();try{NAT.openAppInfo()}catch(x){}bankBack=1;return}
  if(a==='bankq')return show({kind:'bankq'});
+ if(a==='updTest'){let r='';try{r=NAT.testUpdNote()}catch(x){}if(r==='ok')return toast('بعتلك إشعار تجربة، بص فوق 👆',true);try{natCall('notifPerm').then(v=>{if(v==='granted'){try{NAT.testUpdNote()}catch(x){}toast('اتفعّلت ✅',true)}else toast('الإشعارات مقفولة لدفتري — فعّلها من إعدادات الموبايل ← التطبيقات ← دفتري ← الإشعارات')})}catch(x){}return}
  if(a==='bkPaste'){const v=($('bkPaste')||{}).value||'';if(!v.trim())return toast('الصق الرسالة الأول');bankFromText(v);return}
  if(a==='reconOne')return show({kind:'reconDone',aud:e.target.closest('[data-aud]').dataset.aud});
  if(a==='closeS'){close();return}
