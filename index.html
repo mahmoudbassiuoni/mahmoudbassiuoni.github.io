@@ -324,7 +324,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ٨';
+const VER='٢٦ نوفمبر - ٩';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -1516,7 +1516,8 @@ function renderSheet(){
    <div class="box">${H.L.map(m=>`<div class="tx"><span class="t"><b>${esc(wn(m.w))}</b></span><b class="${m.amt<0?'mi':'pl'}">${m.amt<0?'نقص ':'زيادة '}${isUSD(m.w)?ufmt(Math.abs(m.amt)):fmt(Math.abs(m.amt))}</b></div>`).join('')}</div>
    ${H.sp>0&&neg?`<p class="muted" style="margin:10px 2px">من ${dstr(H.since)} لحد النهارده صرفت ${fmt(H.sp)}، يعني النقص ده حوالي <b>${(Math.abs(H.d)/H.sp*100).toLocaleString('ar-EG',{maximumFractionDigits:1})}٪</b> من مصروفك.</p>`:''}
    <p class="muted" style="margin:10px 2px">الأرصدة في البرنامج اتظبطت على الموجود فعلًا. المرة الجاية هقارن بيها.</p>
-   <div class="btns"><button class="btn" data-act="recon">كل المراجعات</button><button class="btn ghost" data-act="closeS">تمام</button></div>`;return}
+   <div class="btns"><button class="btn" data-act="recon">كل المراجعات</button><button class="btn ghost" data-act="closeS">تمام</button></div>
+   <div class="btns" style="margin-top:10px"><button class="btn danger" data-act="reconDel">${ic('trash')}امسح المراجعة دي</button></div><p class="muted" style="font-size:12.5px;margin:6px 2px 0">المسح بيرجّع الأرصدة زي ما كانت قبل المراجعة.</p>`;return}
  if(k==='fileReady'){if(!pendFile){close();return}const isP=/pdf/.test(pendFile.mime);
   c.innerHTML=head((isP?'📄':'📊')+' الملف جاهز')+`<div class="box" style="padding:14px;margin-bottom:12px"><b>${esc(pendFile.name)}</b><small class="muted" style="display:block">${Math.max(1,Math.round(pendFile.blob.size/1024)).toLocaleString('ar-EG')} ك.ب</small></div>
   <p class="muted" style="margin:0 0 12px">دوس «احفظ أو ابعت» واختار: «الملفات» عشان يتحفظ على الموبايل، أو Drive، أو واتساب…</p>
@@ -1805,6 +1806,7 @@ document.addEventListener('click',async e=>{
  if(a==='bankq')return show({kind:'bankq'});
  if(a==='reconOne')return show({kind:'reconDone',aud:e.target.closest('[data-aud]').dataset.aud});
  if(a==='closeS'){close();return}
+ if(a==='reconDel'){const H=reconHist().find(h=>h.aud===open.aud);if(!H)return close();if(!confirm('تمسح المراجعة دي؟ الأرصدة هترجع زي ما كانت قبلها.'))return;snap();const ids=new Set(H.L.map(m=>m.id));S.mv=S.mv.filter(m=>!ids.has(m.id));{const R2=reconHist();if(R2.length)S.lastRecon=R2[0].date;else delete S.lastRecon}save();render();show({kind:'recon'});return toast('اتمسحت المراجعة والأرصدة رجعت',true)}
  if(a==='bqOk'||a==='bqNo'){const i=+e.target.closest('[data-i]').dataset.i,q=bankQ(),x=q[i];if(!x)return renderSheet();q.splice(i,1);
   if(a==='bqOk'){const w=getW($('card'),'bq'+i);snap();const W=S.wallets.find(z=>z.id===w);const mem=!(x.insta&&!x.l4);if(W&&mem){W.bk=[...new Set([...(W.bk||[]),bankKey(x)])].slice(-12)}bankRecord(x,w);
    if(mem)for(let j=q.length-1;j>=0;j--)if(bankKey(q[j])===bankKey(x)){bankRecord(q[j],w);q.splice(j,1)}bankPair();bankQset(q);save();render();toast(mem?'اتسجّلت على '+wn(w)+'، واللي بعد كده من الكارت ده هيتسجّل لوحده':'اتسجّلت على '+wn(w),true)}else bankQset(q);
