@@ -324,7 +324,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ٧';
+const VER='٢٦ نوفمبر - ٨';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -643,7 +643,7 @@ function walletHero(){
 
 // ===== auto-record from bank / InstaPay notifications (native only, opt-in, stays on device) =====
 const bankSt=()=>{try{return isNative&&NAT.bankState?NAT.bankState():''}catch(e){return ''}};
-const bankQ=()=>{const q=LS.get('daftar_bankq');return Array.isArray(q)?q:[]},bankQset=q=>LS.set('daftar_bankq',q.length?q.slice(-80):null);
+const bankQ=()=>{const q=LS.get('daftar_bankq');return Array.isArray(q)?q.filter(x=>bankPkgOk(x.pkg)):[]},bankQset=q=>LS.set('daftar_bankq',q.length?q.slice(-80):null);
 function parseBank(o){let t=String(o.text||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/٫/g,'.').replace(/(\d)[٬،,](?=\d{3}\b)/g,'$1').replace(/\s+/g,' ');
  const CUR='(?:EGP|E\\.G\\.P|L\\.?E\\b|جنيه(?:ا|اً|ًا)?|ج\\.?م\\.?|جم\\b|pounds?)',N='(\\d+(?:\\.\\d+)?)';
  const hits=[];for(const re of [new RegExp(CUR+'\\s*'+N,'gi'),new RegExp(N+'\\s*'+CUR,'gi'),new RegExp('(?:مبلغ|بمبلغ|amount(?: of)?|قيمة|بقيمة)\\s*:?\\s*'+N,'gi')]){let m;while((m=re.exec(t))){const v=+m[1];if(v>0&&!hits.some(h=>Math.abs(h.i-m.index)<12))hits.push({i:m.index,v})}}
@@ -660,6 +660,10 @@ function parseBank(o){let t=String(o.text||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤
  const d=new Date(o.t||Date.now()),date=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
  const rfm=t.match(/(?:الرقم المرجعي|رقم مرجعي|الرقم المرجع|مرجعي|مرجع|رقم العملي[ةه]|رقم المعامل[ةه]|رقم الحرك[ةه]|Ref(?:erence)?\.?(?:\s*(?:No|Number|ID|#)\.?)?|Trx\.?\s*(?:ID|No)|Txn\.?\s*(?:ID|No)?|Transaction\s*(?:ID|No|Number))\s*[:.#-]?\s*([A-Za-z0-9][A-Za-z0-9-]{3,34})/i),bill=/(فاتورة|شحن|باقة|bill|recharge|top.?up)/i.test(t),atm=dir==='out'&&!tr&&/(ATM|ماكينة|ماكينه|صراف|سحب نقد|سحب كاش|cash withdraw)/i.test(t),insta=/instapay/i.test(o.pkg||'')||/insta ?pay|انستا ?باي|إنستا ?باي/i.test(o.from||'');
  return {ref:rfm?rfm[1]:'',bill,atm,insta,tm:+o.t||Date.now(),id:o.id,amt:Math.round(amt*100)/100,fee:Math.round(fee*100)/100,dir,tr,l4:l4m?l4m[1]:'',who:who.slice(0,30),date,src:(o.from||'').slice(0,40),pkg:o.pkg||'',text:String(o.text||'').slice(0,400)}}
+// only SMS apps and bank / wallet / InstaPay apps — never chat apps, Claude, WhatsApp, etc.
+const BANK_PKG=/(mms|messag|\bsms|bank|nbe|cib|misr|instapay|wallet|cash|\bpay|fawry|telda|valu|ahly|alex|qnb|aaib|hsbc|banque|faisal|adib|adcb|emirates|mashreq|agri|saib|baraka|ebank|aibank|midbank|creditagricole|attijari|vodafone|etisalat|orange|myfawry|khazna|axis|\.bm\b|\babe\b)/i;
+const BANK_NO=/(anthropic|claude|whatsapp|telegram|facebook|instagram|messenger|gmail|chatgpt|openai|gemini|discord|snapchat|tiktok|twitter|viber|signal|imo|botim|skype|teams|slack|zoom)/i;
+const bankPkgOk=pk=>!pk||(!BANK_NO.test(pk)&&BANK_PKG.test(pk));
 const bankKey=x=>x.l4?'#'+x.l4:'@'+(x.src||x.pkg);
 const bankWallet=x=>{const k=bankKey(x);const w=S.wallets.find(w=>(w.bk||[]).includes(k)||(x.l4&&((w.vc&&w.vc.l4===x.l4)||w.l4===x.l4)));return w&&!kids(w.id).length?w.id:''};
 const BKG=[['الأهلي المصري','الاهلي المصري','NBE','National Bank of Egypt','البنك الأهلي'],['بنك مصر','Banque Misr','BM','Misr','BMISR'],['القاهرة','Banque du Caire','BdC','BDC'],['CIB','COMMERCIAL INTERNATIONAL','التجاري الدولي'],['QNB'],['الإسكندرية','الاسكندرية','AlexBank','Alex Bank'],['قناة السويس','SCB'],['الزراعي','ABE','Agricultural'],['التعمير','HDB'],['العربي الأفريقي','AAIB'],['NBK','الكويت الوطني'],['الإمارات دبي','Emirates NBD','ENBD'],['FAB','أبوظبي الأول'],['ADCB','أبوظبي التجاري'],['ADIB','أبوظبي الإسلامي'],['فيصل','Faisal'],['البركة','Baraka'],['HSBC'],['كريدي','Credit Agricole'],['EG Bank','المصري الخليجي'],['المشرق','Mashreq'],['aiBANK','الاستثمار العربي'],['SAIB','الشركة المصرفية'],['ABK','الأهلي الكويتي'],['Attijari','التجاري وفا'],['Audi','عودة'],['المتحد','United Bank'],['ميد','MIDBANK'],['ABC']];
@@ -681,7 +685,7 @@ function bankPair(){let ch=0;const T=Date.now()-3*864e5;const outs=S.exp.filter(
   const f=feeSum(o.id),m={id:uid(),k:'tr',w:o.w,to:i.w,amt:o.amt,date:o.date,note:'تحويل بين كروتك',auto:1,tm:o.tm||i.tm,...((o.ref||i.ref)?{ref:o.ref||i.ref}:{})};S.exp=S.exp.filter(e=>e.id!==o.id&&e.of!==o.id);S.mv=S.mv.filter(x=>x!==i);S.mv.push(m);if(f>0)setFee(m,f);ch=1}return ch}
 window.__bankPull=()=>{if(bankSt()!=='on')return;let raw=[];try{raw=JSON.parse(NAT.bankTake()||'[]')}catch(e){}
  const q=bankQ();let hold=LS.get('daftar_bankhold');if(!Array.isArray(hold))hold=[];let n=0,ch=0;snap();
- const X=raw.map(parseBank).filter(x=>x.dir&&(x.amt>0||x.fee>0));
+ const X=raw.filter(o=>bankPkgOk(o.pkg)).map(parseBank).filter(x=>x.dir&&(x.amt>0||x.fee>0));
  const same=(a,b)=>a.dir===b.dir&&Math.abs(a.amt-b.amt)<0.01&&Math.abs(a.tm-b.tm)<6*36e5;
  // InstaPay app notifications don't say which account → wait for the bank's own message
  for(const x of X.filter(x=>x.insta&&!x.l4)){const rec=[...S.exp,...S.mv].some(r=>r.auto&&r.tm&&Math.abs(r.amt-x.amt)<0.01&&Math.abs(r.tm-x.tm)<6*36e5);if(!rec&&!hold.some(h=>same(h,x)))hold.push(x)}
