@@ -65,7 +65,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans
 .bdg{display:inline-grid;place-items:center;min-width:44px;height:26px;padding:0 7px;border-radius:9px;color:#fff;font:700 11px/1 inherit;letter-spacing:0;white-space:nowrap;vertical-align:middle;box-shadow:inset 0 0 0 1px rgb(255 255 255/.18)}.wcard small .bdg{height:22px;min-width:38px;font-size:10px;margin-inline-end:4px}.av .bdg{min-width:0;width:100%;height:100%;border-radius:inherit;padding:0 2px;font-size:10px}#wfPrev{margin-top:8px}
 .rcs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.rcs small{display:block;color:var(--mute);font-size:12px}.rcs b{font-size:16px}
 .ferr{color:var(--minus);font-size:13px;font-weight:700;margin:6px 2px 0;display:flex;align-items:center;gap:6px}.ferr svg{width:16px;height:16px}input.bad{border-color:var(--minus)!important;box-shadow:0 0 0 3px rgba(200,50,70,.18)!important}.btn.dim{opacity:.45}
-.balx{display:block;margin-top:2px;font-size:11.5px;opacity:.8}
+.balx{display:block;margin-top:2px;font-size:11.5px;opacity:.8}.balt{font-weight:700;opacity:.9}
 .amtc{display:flex;flex-direction:column;align-items:flex-end;white-space:nowrap;line-height:1.25}.feel{font-size:11.5px;color:var(--minus);font-weight:600;opacity:.85}
 .fee{display:flex;align-items:center;gap:6px;font-size:14px;margin:4px 0 6px;flex-wrap:wrap}.fee input[type=checkbox]{width:18px;height:18px}.fee input[type=text]{padding:4px 6px;border-radius:8px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:inherit}
 .salc{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:0 0 12px;cursor:pointer;border-inline-start:5px solid #0a7a6c}.salc .ti{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#0a7a6c;color:#fff;flex:none}.salc .t{flex:1;display:flex;flex-direction:column}.salc small{color:var(--mute)}.salc .btn{background:#0a7a6c;pointer-events:none}
@@ -285,6 +285,35 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 @keyframes bfill{0%{transform:scaleX(0)}70%{transform:scaleX(.85)}100%{transform:scaleX(1)}}@keyframes bload{0%{transform:translateX(160%)}100%{transform:translateX(-260%)}}
 #root{transition:none}body.booting #root{opacity:0;transform:scale(.98)}body.booted #root{opacity:1;transform:none;transition:opacity .5s ease,transform .5s cubic-bezier(.2,.8,.2,1)}
 @media(prefers-reduced-motion:reduce){#boot *,#boot *::after{animation:none!important}#boot .bbar i{transform:none}}
+
+/* custom pickers */
+.ux-w{position:relative;display:block;width:100%}
+.ux-w>.ux-native{position:absolute;inset:0;opacity:0;pointer-events:none;width:100%}
+.ux-face{display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;min-height:46px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer;font-size:16px;transition:border-color .15s,box-shadow .15s;user-select:none}
+.ux-face .ux-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:start}.ux-face i{font-style:normal;color:var(--mute)}
+.ux-face .ux-ic{width:20px;height:20px;flex:none;color:var(--plus)}.ux-sel .ux-ic{color:var(--mute);transition:transform .2s}
+.ux-w.ux-open .ux-face,input.ux-open{border-color:var(--plus);box-shadow:0 0 0 3px color-mix(in srgb,var(--plus) 18%,transparent)}.ux-w.ux-open .ux-sel .ux-ic,.ux-sel.ux-open .ux-ic{transform:rotate(180deg)}
+.ux-pop{position:fixed;z-index:1000;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px rgba(0,0,0,.22),0 2px 8px rgba(0,0,0,.08);overflow:auto;overscroll-behavior:contain;animation:uxIn .16s ease-out;padding:6px}
+@keyframes uxIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.ux-list{display:flex;flex-direction:column}
+.ux-it{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;width:100%;padding:12px 14px;border-radius:11px;font-size:15.5px;cursor:pointer;text-align:start;line-height:1.35}
+.ux-it:hover,.ux-it:focus-visible{background:var(--soft)}.ux-it b{color:var(--plus);font-weight:800}
+.ux-it.on{background:color-mix(in srgb,var(--plus) 14%,transparent);color:var(--plus);font-weight:700}.ux-it.on::after{content:'✓';margin-inline-start:auto;font-weight:800}
+.ux-it[disabled]{opacity:.4;cursor:default}
+.ux-gh{font-size:12px;font-weight:700;color:var(--mute);padding:10px 14px 4px}
+.ux-sr{position:sticky;top:-6px;background:var(--card);padding:4px 4px 6px;z-index:1}.ux-sr input{min-height:40px;border-radius:10px;background:var(--soft)}
+.ux-cal{padding:4px 6px 2px}.ux-ch{display:flex;align-items:center;justify-content:space-between;padding:4px 2px 8px}.ux-ch b{font-size:16px}
+.ux-nav{all:unset;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:24px;line-height:1;cursor:pointer;color:var(--plus);background:var(--soft)}
+.ux-wd,.ux-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}.ux-wd span{font-size:11.5px;color:var(--mute);padding:4px 0}
+.ux-d{all:unset;aspect-ratio:1;display:grid;place-items:center;border-radius:12px;font-size:15px;cursor:pointer}.ux-d:hover{background:var(--soft)}
+.ux-d.td{box-shadow:inset 0 0 0 1.5px var(--plus);color:var(--plus);font-weight:700}.ux-d.on{background:var(--hero);color:#fff;font-weight:800;box-shadow:none}.ux-d[disabled]{opacity:.3;cursor:default}
+.ux-ft{display:flex;gap:6px;padding:8px 2px 4px;border-top:1px solid var(--line);margin-top:8px}.ux-ft button{all:unset;flex:1;text-align:center;padding:10px 6px;border-radius:11px;background:var(--soft);font-size:14px;font-weight:700;cursor:pointer}
+.ux-ft .ux-clr{color:var(--minus)}.ux-ft .ux-ok{background:var(--hero);color:#fff}
+.ux-tm{display:grid;grid-template-columns:1fr 1fr 70px;gap:6px;height:220px}.ux-col{overflow:auto;display:flex;flex-direction:column;gap:2px;scrollbar-width:none;padding:2px}.ux-col::-webkit-scrollbar{display:none}
+.ux-col button{all:unset;text-align:center;padding:9px 0;border-radius:10px;font-size:16px;cursor:pointer}.ux-col button:hover{background:var(--soft)}.ux-col button.on{background:var(--hero);color:#fff;font-weight:800}
+.ux-ap{justify-content:center}
+.pwr{text-align:center;font-size:12px;color:var(--mute);opacity:.75;margin:18px 0 96px;letter-spacing:.2px}.pwr b{font-weight:700;color:var(--ink);opacity:.85}.pwr .pl{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin:0 6px;vertical-align:middle}
+#boot .bpw{position:absolute;bottom:28px;left:0;right:0;text-align:center;font-size:12px;color:#e9f6f2;opacity:.55;letter-spacing:.3px}
 </style>
 </head>
 <body>
@@ -294,8 +323,8 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <button type="button" id="gEmT" class="glink">موبايلك مفيهوش خدمات جوجل؟ ادخل بالإيميل</button>
 <form id="gEm" hidden autocomplete="on"><input id="gEmail" type="email" inputmode="email" autocomplete="email" placeholder="الإيميل" dir="ltr"><input id="gPass" type="password" autocomplete="current-password" placeholder="كلمة سر (٦ حروف أو أرقام على الأقل)" dir="ltr"><button id="gEmB" type="submit">ادخل</button><button type="button" id="gForgot" class="glink">نسيت كلمة السر؟</button></form>
 <div id="gMsg" class="gmsg"></div>
-<small>بنحتفظ باسمك وإيميلك (وصورتك لو دخلت بجوجل)، وإمتى بتستخدم التطبيق. حساباتك وفلوسك بتفضل على جهازك وعلى Google Drive بتاعك، ومحدش يقدر يشوفها. <a href="https://mahmoudbassiuoni.github.io/privacy.html" target="_blank" rel="noopener">سياسة الخصوصية</a></small></div></div>
-<div id="boot" aria-hidden="true"><div class="bwrap"><div class="blogo"><svg viewBox="0 0 512 512" width="112" height="112" aria-hidden="true"><rect x="128" y="110" width="256" height="305" rx="30" fill="#e8f4f0"/><rect x="185" y="187" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="250" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="313" width="87" height="26" rx="13" fill="#0c3b3a"/><circle cx="368" cy="368" r="74" fill="#0c3b3a"/><circle cx="368" cy="368" r="57" fill="#ffcf5a"/></svg></div><div class="bname">دفتري</div><div class="bsub">حساباتك ومصاريفك في مكان واحد</div><div class="bbar"><i></i></div></div></div>
+<small>بنحتفظ باسمك وإيميلك (وصورتك لو دخلت بجوجل)، وإمتى بتستخدم التطبيق. حساباتك وفلوسك بتفضل على جهازك وعلى Google Drive بتاعك، ومحدش يقدر يشوفها. <a href="https://mahmoudbassiuoni.github.io/privacy.html" target="_blank" rel="noopener">سياسة الخصوصية</a></small><small style="display:block;margin-top:18px;opacity:.5;letter-spacing:.3px">Powered by محمود نصار</small></div></div>
+<div id="boot" aria-hidden="true"><div class="bwrap"><div class="blogo"><svg viewBox="0 0 512 512" width="112" height="112" aria-hidden="true"><rect x="128" y="110" width="256" height="305" rx="30" fill="#e8f4f0"/><rect x="185" y="187" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="250" width="145" height="26" rx="13" fill="#0c3b3a"/><rect x="185" y="313" width="87" height="26" rx="13" fill="#0c3b3a"/><circle cx="368" cy="368" r="74" fill="#0c3b3a"/><circle cx="368" cy="368" r="57" fill="#ffcf5a"/></svg></div><div class="bname">دفتري</div><div class="bsub">حساباتك ومصاريفك في مكان واحد</div><div class="bbar"><i></i></div></div><div class="bpw">Powered by محمود نصار</div></div>
 <script>document.body.classList.add('booting');setTimeout(function(){var b=document.getElementById('boot');if(b)b.classList.add('long')},1900);setTimeout(function(){var b=document.getElementById('boot');if(b&&!/access_token=/.test(location.hash)){b.classList.add('gone');document.body.classList.replace('booting','booted');setTimeout(function(){b.remove()},460)}},6000)</script>
 <div id="root">
 <div class="app">
@@ -328,7 +357,7 @@ details ol{margin:8px 0 2px;padding-inline-start:20px;color:var(--mute)}
 <script id="app">
 {
 try{if(!document.getElementById('dfonts')){const l=document.createElement('link');l.id='dfonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap';document.head.appendChild(l)}}catch(e){}
-const VER='٢٦ نوفمبر - ١٦';
+const VER='٢٦ نوفمبر - ١٨';
 window.addEventListener('error',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.message||e.error)+' — صوّر الرسالة دي';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),12000)}catch(x){}});
 window.addEventListener('unhandledrejection',e=>{try{const el=document.getElementById('toast');el.textContent='حصلت مشكلة: '+(e.reason&&e.reason.message||e.reason)+' — صوّر الرسالة دي';el.classList.add('on')}catch(x){}});
 const $=s=>document.getElementById(s);
@@ -465,10 +494,10 @@ function feeBind(amtId){const up=()=>{const a=pn($(amtId).value)||0,rv=$('trRecv
 const isBankW=id=>{const w=(S.wallets||[]).find(x=>x.id===id);return !!w&&(w.t==='bank'||w.t==='ew'||w.id==='visa'||w.parent==='visa'||w.parent==='mob')};
 // balance of the wallet(s) right before and right after this transaction (saved when it is recorded)
 function balSnap(r){const W=[r.w,r.to].filter((w,i,a)=>w&&w!=='none'&&a.indexOf(w)===i&&S.wallets.some(x=>x.id===w));if(!W.length){delete r.bw;return}
- const after={};W.forEach(w=>after[w]=wbal(w));const e0=S.exp,m0=S.mv,t0=S.tx;
- try{S.exp=e0.filter(x=>x!==r&&x.of!==r.id);S.mv=m0.filter(x=>x!==r);S.tx=t0.filter(x=>x!==r);const bw={};W.forEach(w=>{const b=wbal(w);if(Math.abs(b-after[w])>0.004)bw[w]=[b,after[w]]});if(Object.keys(bw).length)r.bw=bw;else delete r.bw}
+ const after={};W.forEach(w=>after[w]=wbal(w));const tA=wsum(()=>true),e0=S.exp,m0=S.mv,t0=S.tx;
+ try{S.exp=e0.filter(x=>x!==r&&x.of!==r.id);S.mv=m0.filter(x=>x!==r);S.tx=t0.filter(x=>x!==r);const bw={};W.forEach(w=>{const b=wbal(w);if(Math.abs(b-after[w])>0.004)bw[w]=[b,after[w]]});if(Object.keys(bw).length)r.bw=bw;else delete r.bw;const tB=wsum(()=>true);if(Math.abs(tB-tA)>0.004)r.bt=[Math.round(tB*100)/100,Math.round(tA*100)/100];else delete r.bt}
  finally{S.exp=e0;S.mv=m0;S.tx=t0}}
-const balLine=r=>{if(!r.bw||typeof r.bw!=='object')return '';const f=(w,v)=>'<span style="white-space:nowrap">'+(isUSD(w)?ufmt(v):(v<0?'− ':'')+fmt(Math.abs(v)))+'</span>';const E=Object.entries(r.bw).filter(([w])=>S.wallets.some(x=>x.id===w));return E.map(([w,[b,a]])=>`<small class="balx">${E.length>1?esc(wn(w))+': ':'الرصيد: '}كان ${f(w,b)} ← بقى ${f(w,a)}</small>`).join('')};
+const balLine=r=>{if(!r.bw||typeof r.bw!=='object')return '';const f=(w,v)=>'<span style="white-space:nowrap">'+(isUSD(w)?ufmt(v):(v<0?'− ':'')+fmt(Math.abs(v)))+'</span>';const E=Object.entries(r.bw).filter(([w])=>S.wallets.some(x=>x.id===w));return E.map(([w,[b,a]])=>`<small class="balx">${E.length>1?esc(wn(w))+': ':'الرصيد: '}كان ${f(w,b)} ← بقى ${f(w,a)}</small>`).join('')+(Array.isArray(r.bt)?`<small class="balx balt">كل فلوسك: كان ${f('',r.bt[0])} ← بقى ${f('',r.bt[1])}</small>`:'')};
 const tmStr=t=>{try{return new Date(+t).toLocaleTimeString('ar-EG',{hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
 const rmeta=r=>(r.tm?' · '+tmStr(r.tm):'')+(r.ref?' · مرجعي <bdi dir="ltr">'+esc(r.ref)+'</bdi>':'')+balLine(r);
 const refIn=(id,v)=>`<label>الرقم المرجعي <small class="muted">(اختياري)</small></label><input id="${id}" type="text" autocomplete="off" inputmode="text" dir="ltr" style="text-align:right" placeholder="من رسالة البنك أو إنستاباي" value="${esc(v||'')}">`;
@@ -629,11 +658,12 @@ function searchHTML(q){const qn=pn(q);
 function runSearch(){const i=$('hq');if(!i)return;const q=i.value.trim();$('hqx').hidden=!i.value;const r=$('sres'),v=$('view');
  if(!q){r.hidden=true;r.innerHTML='';v.hidden=false;return}v.hidden=true;r.hidden=false;r.innerHTML='<div class="box">'+searchHTML(q)+'</div>'}
 function clearSearch(){const i=$('hq');if(i&&i.value){i.value='';runSearch()}}
+const PWR='<div class="pwr">Powered by <b>محمود نصار</b><span class="pl"></span>دفتري</div>';
 function render(nodes){
  ensureW();{const n=reminders().filter(r=>r.u).length,bn=$('bellN');if(bn){bn.hidden=!n;bn.textContent=n.toLocaleString('ar-EG')}}const eb=$('eye');if(eb)eb.innerHTML=ic(HIDE?'eyeoff':'eye');
  document.querySelectorAll('nav [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
  const v=$('view');{const hs=$('hs');if(hs){hs.hidden=view!=='home';if(view!=='home')clearSearch()}}
- if(nodes)v.replaceChildren(...nodes);else v.innerHTML=view==='home'?vHome():view==='daily'?vDaily():view==='people'?vPeople():view==='funds'?vFunds():vContacts();
+ if(nodes)v.replaceChildren(...nodes);else v.innerHTML=view==='home'?vHome()+PWR:view==='daily'?vDaily():view==='people'?vPeople():view==='funds'?vFunds():vContacts();
  if(view==='people'){const i=$('qP');i.oninput=()=>{qP=i.value;$('plist').innerHTML=peopleRows()}}
  if(view==='contacts'&&$('qC')){const i=$('qC');i.oninput=()=>{qC=i.value;const pos=i.selectionStart;render();const j=$('qC');j.focus();try{j.setSelectionRange(pos,pos)}catch(e){}}}
  if($('hq')&&$('hq').value.trim())runSearch();
@@ -996,7 +1026,7 @@ table.rtx tfoot td{border-top:2px solid #0c3b3a;font-weight:700;padding-top:10px
 async function makePdf(R,owner){
  toast('بيجهّز الـ PDF…');try{await loadJs(LIBS.h2c);await loadJs(LIBS.pdf)}catch(e){return toast('محتاج نت أول مرة عشان يعمل PDF')}
  const pages=repHTML(R,owner),host=document.createElement('div');host.style.cssText='position:fixed;left:-12000px;top:0;width:794px;z-index:-1;pointer-events:none';
- host.innerHTML=`<style>${REPCSS}</style>`+pages.map((h,i)=>`<div class="pg">${h}<div class="ft"><span>دفتري — تقرير اتعمل من التطبيق</span><span>صفحة ${(i+1).toLocaleString('ar-EG')} من ${pages.length.toLocaleString('ar-EG')}</span></div></div>`).join('');document.body.appendChild(host);
+ host.innerHTML=`<style>${REPCSS}</style>`+pages.map((h,i)=>`<div class="pg">${h}<div class="ft"><span>دفتري — Powered by محمود نصار</span><span>صفحة ${(i+1).toLocaleString('ar-EG')} من ${pages.length.toLocaleString('ar-EG')}</span></div></div>`).join('');document.body.appendChild(host);
  try{await document.fonts.ready}catch(e){}
  try{const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'pt',format:'a4',compress:true});const els=host.querySelectorAll('.pg');
   for(let i=0;i<els.length;i++){const cv=await html2canvas(els[i],{scale:2,backgroundColor:'#ffffff',logging:false});if(i)doc.addPage();doc.addImage(cv.toDataURL('image/jpeg',0.9),'JPEG',0,0,595.28,841.89)}
@@ -1605,7 +1635,7 @@ function renderSheet(){
   <div class="box" style="padding:14px;margin-bottom:12px"><b>سجّل من رسالة البنك</b><p class="muted" style="margin:4px 0 10px">${isNative?'من تطبيق الرسايل: دوس مطوّل على رسالة البنك ← مشاركة ← <b>دفتري</b>. أو انسخها والصقها هنا:':'انسخ رسالة البنك أو إنستاباي والصقها هنا:'}</p>
    <textarea id="bkPaste" rows="3" style="width:100%;box-sizing:border-box" placeholder="مثلًا: تم خصم مبلغ 250 جنيه من بطاقتكم 1234 لدى ..."></textarea><div class="btns" style="margin-top:8px"><button class="btn" data-act="bkPaste">اقرأها وسجّلها</button></div></div>
   <div class="box" style="padding:14px;margin-bottom:12px"><b>المحافظ</b><p class="muted" style="margin:4px 0 10px">${S.wallets.map(w=>esc(w.name)).join('، ')}</p><button class="btn ghost" data-act="wallets">${ic('wallet')}إدارة المحافظ</button></div>
-  <p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}${isNative?` · <a href="#" data-act="updPrev" style="color:inherit">شكل رسالة التحديث</a>`:''}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
+  <p class="muted" style="margin:0 0 4px;font-size:13px">Powered by <b>محمود نصار</b></p><p class="muted" style="margin:0 0 10px">إصدار البرنامج: ${VER}${isNative?` · <a href="#" data-act="updPrev" style="color:inherit">شكل رسالة التحديث</a>`:''}</p><div class="form"><label>العملة</label><input id="cur" value="${esc(S.cur)}"></div>
   ${STORE?'':`<div class="box" style="padding:14px;margin-bottom:12px"><b>نزّل البرنامج على جهازك</b><p class="muted" style="margin:4px 0 10px">ملف واحد بيفتح في أي متصفح من غير نت. بياناته بتتحفظ على الجهاز نفسه، ولنقل البيانات بين النسختين استخدم النسخة الاحتياطية.</p>
   <button class="btn" data-act="dlApp">${ic('down')}تنزيل البرنامج</button></div>`}
   <div class="box" style="padding:14px;margin-top:12px"><b>التقارير</b><p class="muted" style="margin:4px 0 10px">طلّع كشف بحساباتك ومصاريفك.</p><button class="btn ghost" data-act="export">${ic('sheet')}تصدير PDF / Excel</button></div>`;
@@ -2141,6 +2171,110 @@ render();status('على الجهاز','off');
   ensureW();if(runRec())save();cloud=true;status('محفوظ');render();notifyOpen();
  }catch(err){clearTimeout(timer);ref=refC=null;status('على الجهاز ده بس','off')}
 })();
+// ===== Daftari custom pickers: suggestions, date, time and select — app-styled, open downward =====
+(()=>{
+const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+const norm=s=>String(s||'').toLowerCase().replace(/[ًٌٍَُِّْـ]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').trim();
+const esc2=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fire=el=>{el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))};
+const IN=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value'),SE=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value'),SI=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'selectedIndex');
+const hook=(el,D,cb)=>{try{Object.defineProperty(el,'value',{configurable:true,get(){return D.get.call(el)},set(v){D.set.call(el,v);cb()}})}catch(e){}};
+let pop=null,anchor=null,onClose=null;
+let padEl=null,padOld='';
+function room(){if(!pop||!anchor)return;const r=anchor.getBoundingClientRect(),vv=window.visualViewport,vh=vv?vv.height+vv.offsetTop:innerHeight,need=Math.min(pop.scrollHeight,420)+18;if(vh-r.bottom>=need)return;
+ let sc=anchor.parentElement;while(sc&&sc!==document.body){const o=getComputedStyle(sc).overflowY;if((o==='auto'||o==='scroll')&&sc.scrollHeight>sc.clientHeight-1)break;sc=sc.parentElement}
+ if(!sc||sc===document.body)sc=document.scrollingElement;if(!padEl){padEl=sc;padOld=sc.style.paddingBottom}sc.style.paddingBottom=(need+40)+'px';sc.scrollTop+=need-(vh-r.bottom)+8;place()}
+function close(){if(padEl){padEl.style.paddingBottom=padOld;padEl=null}if(pop){pop.remove();pop=null}if(anchor){anchor.classList.remove('ux-open');anchor=null}const f=onClose;onClose=null;f&&f()}
+function place(){if(!pop||!anchor)return;if(!document.body.contains(anchor))return close();const r=anchor.getBoundingClientRect(),vv=window.visualViewport,vh=vv?vv.height+vv.offsetTop:innerHeight,vw=innerWidth;
+ const w=Math.min(vw-16,Math.max(r.width,+pop.dataset.minw||0));let left=Math.min(Math.max(8,r.right-w),vw-w-8);
+ pop.style.width=w+'px';pop.style.left=left+'px';pop.style.top=(r.bottom+6)+'px';pop.style.maxHeight=Math.max(160,vh-r.bottom-14)+'px'}
+function open(el,html,minw,closeCb){close();anchor=el;el.classList.add('ux-open');pop=document.createElement('div');pop.className='ux-pop';pop.dataset.minw=minw||0;pop.innerHTML=html;document.body.appendChild(pop);onClose=closeCb||null;
+
+ place();requestAnimationFrame(()=>{place();room()});return pop}
+addEventListener('resize',place);window.visualViewport&&visualViewport.addEventListener('resize',place);
+document.addEventListener('scroll',e=>{if(pop&&!(pop.contains(e.target)))place()},true);
+document.addEventListener('pointerdown',e=>{if(pop&&!pop.contains(e.target)&&!(anchor&&anchor.contains(e.target)))close()},true);
+addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+
+// ---------- suggestions (replaces <datalist>) ----------
+function sugInit(el){const id=el.getAttribute('list');if(!id)return;el.dataset.sug=id;el.removeAttribute('list');el.setAttribute('autocomplete','off');
+ const show=()=>{const dl=document.getElementById(el.dataset.sug);if(!dl)return close();const q=norm(el.value),all=[...dl.options].map(o=>o.value).filter(Boolean);
+  let L=q?all.filter(v=>norm(v).includes(q)&&norm(v)!==q):all;L.sort((a,b)=>(norm(b).startsWith(q)?1:0)-(norm(a).startsWith(q)?1:0));L=L.slice(0,8);
+  if(!L.length){if(anchor===el)close();return}
+  const hl=v=>{if(!q)return esc2(v);const n=norm(v),i=n.indexOf(q);return i<0?esc2(v):esc2(v.slice(0,i))+'<b>'+esc2(v.slice(i,i+q.length))+'</b>'+esc2(v.slice(i+q.length))};
+  const p=open(el,`<div class="ux-list">${L.map(v=>`<button type="button" class="ux-it" data-v="${esc2(v)}"><span>${hl(v)}</span></button>`).join('')}</div>`);
+  p.onpointerdown=e=>e.preventDefault();
+  p.onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;IN.set.call(el,b.dataset.v);close();fire(el)}};
+ el.addEventListener('input',e=>{if(e.isTrusted!==false)show()});el.addEventListener('focus',show);el.addEventListener('blur',()=>setTimeout(()=>{if(anchor===el)close()},150))}
+
+// ---------- shared field wrapper ----------
+function wrap(el,cls){const w=document.createElement('span');w.className='ux-w '+cls;el.parentNode.insertBefore(w,el);w.appendChild(el);const f=document.createElement('span');f.className='ux-face';w.appendChild(f);return f}
+const CHEV='<svg class="ux-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const CAL='<svg class="ux-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+const CLK='<svg class="ux-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+
+// ---------- date ----------
+const MN=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],WD=['سبت','أحد','اتنين','تلات','أربع','خميس','جمعة'],WDL=['الأحد','الاتنين','التلات','الأربع','الخميس','الجمعة','السبت'];
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const pd=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?new Date(+m[1],+m[2]-1,+m[3]):null};
+function dateInit(el){el.type='text';el.readOnly=true;el.inputMode='none';el.classList.add('ux-native');const face=wrap(el,'ux-date');
+ const upd=()=>{const d=pd(IN.get.call(el)),td=iso(new Date()),y=iso(new Date(Date.now()-864e5));face.innerHTML=CAL+'<span class="ux-t">'+(d?((IN.get.call(el)===td?'النهارده، ':IN.get.call(el)===y?'امبارح، ':WDL[d.getDay()]+' ')+AR(d.getDate())+' '+MN[d.getMonth()]+(d.getFullYear()!==new Date().getFullYear()?' '+AR(d.getFullYear()):'')):'<i>'+(el.placeholder||'اختار اليوم')+'</i>')+'</span>'};
+ hook(el,IN,upd);el.addEventListener('change',upd);upd();
+ const go=e=>{e&&e.preventDefault();if(anchor===el.parentNode)return close();let cur=pd(IN.get.call(el))||new Date(),vm=new Date(cur.getFullYear(),cur.getMonth(),1);const mn=pd(el.min),mx=pd(el.max);
+  const draw=()=>{const first=(vm.getDay()+1)%7,days=new Date(vm.getFullYear(),vm.getMonth()+1,0).getDate(),sel=IN.get.call(el),td=iso(new Date());let cells='';
+   for(let i=0;i<first;i++)cells+='<span></span>';for(let d=1;d<=days;d++){const dt=new Date(vm.getFullYear(),vm.getMonth(),d),v=iso(dt),off=(mn&&dt<mn)||(mx&&dt>mx);cells+=`<button type="button" class="ux-d${v===sel?' on':''}${v===td?' td':''}" data-d="${v}"${off?' disabled':''}>${AR(d)}</button>`}
+   p.innerHTML=`<div class="ux-cal"><div class="ux-ch"><button type="button" class="ux-nav" data-m="-1" aria-label="الشهر اللي فات">›</button><b>${MN[vm.getMonth()]} ${AR(vm.getFullYear())}</b><button type="button" class="ux-nav" data-m="1" aria-label="الشهر الجاي">‹</button></div>
+    <div class="ux-wd">${WD.map(x=>`<span>${x}</span>`).join('')}</div><div class="ux-grid">${cells}</div>
+    <div class="ux-ft"><button type="button" data-q="0">النهارده</button><button type="button" data-q="1">امبارح</button>${el.required?'':'<button type="button" data-q="x" class="ux-clr">مسح</button>'}</div></div>`};
+  const p=open(el.parentNode,'',300);draw();
+  p.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(b.dataset.m){vm=new Date(vm.getFullYear(),vm.getMonth()+ +b.dataset.m,1);return draw()}
+   let v=b.dataset.d;if(b.dataset.q==='0')v=iso(new Date());if(b.dataset.q==='1')v=iso(new Date(Date.now()-864e5));if(b.dataset.q==='x')v='';if(v==null)return;IN.set.call(el,v);upd();close();fire(el)}};
+ el.parentNode.addEventListener('click',go)}
+
+// ---------- time ----------
+function timeInit(el){el.type='text';el.readOnly=true;el.inputMode='none';el.classList.add('ux-native');const face=wrap(el,'ux-date');
+ const lab=v=>{const m=/^(\d{1,2}):(\d{2})/.exec(v||'');if(!m)return '';let h=+m[1];const pm=h>=12;h=h%12||12;return AR(h)+':'+AR(m[2])+' '+(pm?'م':'ص')};
+ const upd=()=>{const v=IN.get.call(el);face.innerHTML=CLK+'<span class="ux-t">'+(v?lab(v):'<i>'+(el.placeholder||'اختار الساعة')+'</i>')+'</span>'};
+ hook(el,IN,upd);el.addEventListener('change',upd);upd();
+ const go=e=>{e&&e.preventDefault();if(anchor===el.parentNode)return close();const m=/^(\d{1,2}):(\d{2})/.exec(IN.get.call(el)||''),now=new Date();let H=m?+m[1]:now.getHours(),M=m?+m[2]:now.getMinutes();
+  const set=()=>{IN.set.call(el,String(H).padStart(2,'0')+':'+String(M).padStart(2,'0'));upd()};
+  const draw=()=>{const h12=H%12||12,pm=H>=12;p.innerHTML=`<div class="ux-tm"><div class="ux-col" data-c="h">${[12,1,2,3,4,5,6,7,8,9,10,11].map(h=>`<button type="button" data-h="${h}" class="${h===h12?'on':''}">${AR(h)}</button>`).join('')}</div>
+   <div class="ux-col" data-c="m">${Array.from({length:60},(_,i)=>`<button type="button" data-mi="${i}" class="${i===M?'on':''}">${AR(String(i).padStart(2,'0'))}</button>`).join('')}</div>
+   <div class="ux-col ux-ap"><button type="button" data-ap="0" class="${pm?'':'on'}">ص</button><button type="button" data-ap="1" class="${pm?'on':''}">م</button></div></div>
+   <div class="ux-ft"><button type="button" data-q="now">دلوقتي</button><button type="button" data-q="ok" class="ux-ok">تمام</button>${el.required?'':'<button type="button" data-q="x" class="ux-clr">مسح</button>'}</div>`;
+   p.querySelectorAll('.ux-col .on').forEach(b=>b.scrollIntoView({block:'center',behavior:'instant'}))};
+  const p=open(el.parentNode,'',260);draw();
+  p.onclick=e=>{const b=e.target.closest('button');if(!b)return;const pm=H>=12;
+   if(b.dataset.h){const h=+b.dataset.h%12;H=h+(pm?12:0)}else if(b.dataset.mi)M=+b.dataset.mi;else if(b.dataset.ap!=null)H=H%12+(b.dataset.ap==='1'?12:0);
+   else if(b.dataset.q==='now'){const n=new Date();H=n.getHours();M=n.getMinutes()}else if(b.dataset.q==='x'){IN.set.call(el,'');upd();close();return fire(el)}else if(b.dataset.q==='ok'){set();close();return fire(el)}
+   set();const sc=[...p.querySelectorAll('.ux-col')].map(c=>c.scrollTop);draw();p.querySelectorAll('.ux-col').forEach((c,i)=>c.scrollTop=sc[i])}};
+ el.parentNode.addEventListener('click',go)}
+
+// ---------- select ----------
+function selInit(el){if(el.multiple)return;el.classList.add('ux-native');el.tabIndex=-1;const face=wrap(el,'ux-sel');
+ const upd=()=>{const o=el.options[el.selectedIndex];face.innerHTML='<span class="ux-t">'+(o?esc2(o.text):'<i>اختار</i>')+'</span>'+CHEV};
+ hook(el,SE,upd);try{Object.defineProperty(el,'selectedIndex',{configurable:true,get(){return SI.get.call(el)},set(v){SI.set.call(el,v);upd()}})}catch(e){}
+ el.addEventListener('change',upd);new MutationObserver(upd).observe(el,{childList:true,subtree:true,attributes:true,attributeFilter:['selected']});upd();
+ const go=e=>{e&&e.preventDefault();if(anchor===el.parentNode)return close();if(el.disabled)return;
+  const items=[];[...el.children].forEach(n=>{if(n.tagName==='OPTGROUP'){items.push({g:n.label});[...n.children].forEach(o=>items.push({o}))}else items.push({o:n})});
+  const many=el.options.length>12,cur=el.value;
+  const html=q=>items.filter(x=>x.g||!q||norm(x.o.text).includes(q)).map(x=>x.g?`<div class="ux-gh">${esc2(x.g)}</div>`:`<button type="button" class="ux-it${x.o.value===cur?' on':''}" data-i="${x.o.index}"${x.o.disabled?' disabled':''}><span>${esc2(x.o.text)}</span></button>`).join('').replace(/<div class="ux-gh">[^<]*<\/div>(?=<div class="ux-gh">|$)/g,'');
+  const p=open(el.parentNode,`${many?'<div class="ux-sr"><input type="search" placeholder="دوّر…" autocomplete="off"></div>':''}<div class="ux-list">${html('')}</div>`,240);
+  const on=p.querySelector('.ux-it.on');on&&on.scrollIntoView({block:'center',behavior:'instant'});
+  const sr=p.querySelector('.ux-sr input');if(sr)sr.oninput=()=>{p.querySelector('.ux-list').innerHTML=html(norm(sr.value))};
+  p.onclick=e=>{const b=e.target.closest('[data-i]');if(!b||b.disabled)return;SI.set.call(el,+b.dataset.i);upd();close();fire(el)}};
+ el.parentNode.addEventListener('click',go)}
+
+function scan(root){if(!root.querySelectorAll)return;
+ root.querySelectorAll('input[list]:not([data-sug])').forEach(sugInit);
+ root.querySelectorAll('input[type=date]').forEach(dateInit);
+ root.querySelectorAll('input[type=time]').forEach(timeInit);
+ root.querySelectorAll('select:not(.ux-native)').forEach(selInit)}
+new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1){if(n.matches&&(n.matches('select:not(.ux-native)')||n.matches('input[type=date],input[type=time],input[list]')))scan(n.parentNode||n);else scan(n)}
+ if(pop&&anchor&&!document.body.contains(anchor))close()}).observe(document.body,{childList:true,subtree:true});
+scan(document.body);window.__uxClose=close;
+})();
+
 }
 </script>
 </body>
