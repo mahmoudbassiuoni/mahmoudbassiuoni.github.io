@@ -29,7 +29,7 @@ jobs:
               old = json.loads(subprocess.check_output(['git', 'show', 'HEAD~1:version.json']).decode())
           except Exception:
               old = {}
-          test = subprocess.run(['git','diff','--quiet','HEAD~1','HEAD','--','push-test.txt']).returncode != 0
+          test = os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch' or subprocess.run(['git','diff','--quiet','HEAD~1','HEAD','--','push-test.txt']).returncode != 0
           if old.get('code') == v.get('code') and not test:
               print('version code unchanged — no notification'); raise SystemExit(0)
           sa = json.loads(os.environ['FCM_SA'])
