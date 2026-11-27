@@ -164,7 +164,7 @@ main{padding:8px 0 120px}
 .seg button{height:40px;padding:0 16px;border-radius:9px;font-weight:600;color:var(--mute)}
 .seg button{white-space:nowrap}
 .step.col{flex-direction:column;align-items:stretch;gap:8px;padding:10px 0}
-.seg.full{width:100%}.seg.full button{flex:1;min-width:0;padding:0 6px}
+.seg.full{width:100%;justify-content:space-between}.seg.full button{flex:1 1 auto;min-width:max-content;padding:0 14px}
 .seg button.on{background:var(--card);color:var(--acc);box-shadow:0 1px 4px #0002}
 /* dialog */
 .veil{position:fixed;inset:0;background:#0b1020a0;z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
@@ -241,10 +241,10 @@ label{display:block;font-size:14px;color:var(--mute);margin:14px 0 4px}
 @keyframes bpop{from{transform:scale(.8);opacity:0}}
 .bname{font:800 38px/1.1 Outfit,"IBM Plex Sans Arabic",sans-serif;color:var(--ink);margin-top:6px}
 .bsub{color:var(--mute);font-size:15px}
-.bbar{width:120px;height:4px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:14px}
-.bbar i{display:block;height:100%;width:40%;border-radius:4px;background:var(--acc);animation:bload 1s ease-in-out infinite}
-@keyframes bload{from{transform:translateX(-120%)}to{transform:translateX(320%)}}
-[dir=rtl] .bbar i{animation-name:bloadr}@keyframes bloadr{from{transform:translateX(120%)}to{transform:translateX(-320%)}}
+.bbar{width:132px;height:5px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:16px;position:relative;contain:strict;transform:translateZ(0)}
+.bbar i{position:absolute;inset:0 auto 0 0;width:45%;border-radius:5px;background:linear-gradient(90deg,transparent,var(--acc) 30%,var(--acc) 70%,transparent);will-change:transform;animation:bload 1.15s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes bload{from{transform:translate3d(-110%,0,0)}to{transform:translate3d(230%,0,0)}}
+[dir=rtl] .bbar i{inset:0 0 0 auto;animation-name:bloadr}@keyframes bloadr{from{transform:translate3d(110%,0,0)}to{transform:translate3d(-230%,0,0)}}
 @media(prefers-reduced-motion:reduce){.blogo,.bbar i{animation:none}}
 .bpw,.pwr{font:500 13px Outfit,sans-serif;color:var(--mute);letter-spacing:.3px}
 .bpw{padding:0 0 calc(28px + env(safe-area-inset-bottom))}
@@ -285,8 +285,6 @@ label{display:block;font-size:14px;color:var(--mute);margin:14px 0 4px}
 <input type="file" id="restoreIn" accept=".json,application/json" class="hide">
 <div id="fileReader" class="hide"></div>
 
-<script src="lib/zxing-reader.js"></script>
-<script src="lib/xlsx.full.min.js"></script>
 <script>
 {
 const KEY='rasd_v2';
@@ -332,7 +330,10 @@ D=D||{files:[],last:null,set:{}};D.set={...DEF,...D.set};
 const L=()=>D.set.lang==='en'?'en':'ar';
 const t=(k,v={})=>(T[L()][k]??k).replace(/\{(\w+)\}/g,(_,x)=>v[x]??'');
 const loc=()=>L()==='en'?'en-GB':'ar-EG';
-let pT;const save=(quiet)=>{try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast(t('storeErr'),'bad')}if(window.RasdNative&&RasdNative.persist){clearTimeout(pT);pT=setTimeout(()=>{try{RasdNative.persist(JSON.stringify(D))}catch(e){}},300)}if(!quiet&&typeof gTouch==='function')gTouch()};
+let pT;const libs={};function loadLib(src){if(!libs[src])libs[src]=new Promise((ok,no)=>{const e=document.createElement('script');e.src=src;e.onload=ok;e.onerror=()=>{delete libs[src];no()};document.body.appendChild(e)});return libs[src]}
+const needX=()=>window.XLSX?Promise.resolve():loadLib('lib/xlsx.full.min.js');
+const needZ=()=>window.ZXingWASM?Promise.resolve():loadLib('lib/zxing-reader.js');
+const save=(quiet)=>{try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast(t('storeErr'),'bad')}if(window.RasdNative&&RasdNative.persist){clearTimeout(pT);pT=setTimeout(()=>{try{RasdNative.persist(JSON.stringify(D))}catch(e){}},300)}if(!quiet&&typeof gTouch==='function')gTouch()};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -485,7 +486,7 @@ function mergeFiles(ids){const fs=D.files.filter(f=>ids.has(f.id)).sort((a,b)=>a
     for(const f of fs)for(const r of [...f.records].sort((a,b)=>a.t-b.t)){const k=r.code+(r.serial?'|'+r.serial:'');const o=map.get(k);
       if(!o)map.set(k,{...r,id:uid()});else if(how==='sum'){o.qty=(o.qty||0)+(r.qty||0);if(r.t>o.t){o.t=r.t;if(r.price!=null)o.price=r.price}}else if(r.t>=o.t)map.set(k,{...r,id:o.id})}
     const nf={id:uid(),name:n,created:Date.now(),updated:Date.now(),records:[...map.values()]};D.files.push(nf);D.last=cur=nf.id;selMode=false;sel.clear();save();closeSheet();view='preview';render();toast(t('merged',{n:fmt(nf.records.length)}),'ok')}}
-async function importFile(file){if(!window.XLSX)return toast(t('needNet'),'bad');
+async function importFile(file){try{await needX()}catch(e){}if(!window.XLSX)return toast(t('needNet'),'bad');
   try{const wb=XLSX.read(await file.arrayBuffer(),{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false}).filter(r=>r.some(c=>String(c).trim()!==''));
     if(!rows.length)throw 0;
     const head=rows[0].map(c=>String(c).trim().toLowerCase());const find=re=>head.findIndex(h=>re.test(h));
@@ -576,6 +577,7 @@ function sendBox(){
   $('#sheet').onclick=async e=>{const k=e.target.closest('[data-s]')?.dataset.s;if(!k)return;const f=D.files.find(x=>x.id===$('#sf').value);
     if(!f.records.length)return toast(t('fileEmpty'),'bad');
     if(k==='copy'){try{const txt=f.records.map(r=>r.code).join('\n');if(window.RasdNative){RasdNative.copy(txt);return toast(t('copied'),'ok')}await navigator.clipboard.writeText(f.records.map(r=>r.code).join('\n'));toast(t('copied'),'ok')}catch(err){toast(t('copyNA'),'bad')}return}
+    try{await needX()}catch(err){}
     let b;try{b=build(f)}catch(err){return toast(err.message,'bad')}
     closeSheet();k==='save'?saveFile(...b):shareFile(...b)};
 }
@@ -585,7 +587,7 @@ const BD={QR_CODE:'qr_code',DATA_MATRIX:'data_matrix',EAN_13:'ean_13',EAN_8:'ean
 const ZX={QR_CODE:'QRCode',DATA_MATRIX:'DataMatrix',EAN_13:'EAN13',EAN_8:'EAN8',UPC_A:'UPCA',UPC_E:'UPCE',CODE_128:'Code128',CODE_39:'Code39',CODE_93:'Code93',ITF:'ITF',CODABAR:'Codabar',PDF_417:'PDF417'};
 let det=null,decInit=false,zxReady=false,stream=null,track=null,caps={},scanning=false,paused=false,lastC='',lastT=0,torchOn=false,rt,loopT,busy=false,frameN=0,zoomI=0,zooms=[1];
 const vid=$('#vid'),cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
-async function initDec(){if(decInit)return;decInit=true;det=null;
+async function initDec(){if(decInit)return;decInit=true;det=null;try{await needZ()}catch(e){}
   if(window.ZXingWASM&&!zxReady){try{ZXingWASM.prepareZXingModule({overrides:{locateFile:(p,pre)=>p.endsWith('.wasm')?'lib/'+p:pre+p},fireImmediately:true});zxReady=true}catch(e){}}
   if('BarcodeDetector' in window){try{const sup=await BarcodeDetector.getSupportedFormats();const f=D.set.formats.map(k=>BD[k]).filter(x=>sup.includes(x));if(f.length)det=new BarcodeDetector({formats:f})}catch(e){det=null}}}
 const zxOpts=()=>({formats:D.set.formats.map(k=>ZX[k]).filter(Boolean),tryHarder:true,tryRotate:true,maxNumberOfSymbols:1});
@@ -636,7 +638,7 @@ async function toggleTorch(){if(!track)return;try{torchOn=!torchOn;await track.a
 async function cycleZoom(){if(!track||zooms.length<2)return;zoomI=(zoomI+1)%zooms.length;try{await track.applyConstraints({advanced:[{zoom:zooms[zoomI]}]});$('#zoomBtn').textContent=fmtZ(zooms[zoomI])}catch(e){}}
 function manualBox(){pause();sheet(`<h2>${t('manualTitle')}</h2><div class="sb"><div class="meta" style="margin-top:10px">${t('manualSub')}</div><label for="mc">${t('code')}</label><input class="f mono" id="mc" autofocus><div class="acts"><button class="btn pri" id="mOk">${t('ok')}</button><button class="btn" data-act="close">${t('cancel')}</button></div></div>`);
   const go=()=>{const v=$('#mc').value.trim();if(!v)return;$('#veil').classList.remove('on');handleCode(v,false)};$('#mOk').onclick=go;$('#mc').onkeydown=e=>{if(e.key==='Enter')go()}}
-$('#photoIn').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;await initDec();
+$('#photoIn').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;decInit=false;await initDec();
   let x=null;try{x=await zxRead(file)}catch(err){}
   if(!x&&det){try{const bmp=await createImageBitmap(file);const r=await det.detect(bmp);if(r[0])x=r[0].rawValue}catch(err){}}
   if(x)handleCode(x,true);else{beep(true);toast(t('noBc'),'bad');resumeSoon()}};
@@ -791,7 +793,7 @@ window.__updFail=()=>{const b=$('#uBox');if(!b)return;b.innerHTML=`<div class="m
 window.__back=()=>{if(updOpen&&$('#veil').classList.contains('on'))return false;if($('#veil').classList.contains('on')){closeSheet();return true}if($('#scan').classList.contains('on')){stopScan();return true}if(selMode){selMode=false;sel.clear();render();return true}if(view!=='home'){go('home');return true}return false};
 try{history.pushState(null,'')}catch(e){}
 render();bkIcon();setTimeout(gStartup,1500);
-{const bt=$('#boot');$('#bootName').textContent=t('app');$('#bootSub').textContent=t('bootSub');setTimeout(()=>{bt.classList.add('gone');setTimeout(()=>bt.remove(),450)},700)}
+{const bt=$('#boot');$('#bootName').textContent=t('app');$('#bootSub').textContent=t('bootSub');setTimeout(()=>{bt.classList.add('gone');setTimeout(()=>{bt.remove();setTimeout(()=>{needZ().catch(()=>{});setTimeout(()=>needX().catch(()=>{}),800)},400)},450)},900)}
 }
 </script>
 </body>
