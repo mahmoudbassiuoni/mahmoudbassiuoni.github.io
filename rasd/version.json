@@ -1,7 +1,7 @@
 {
- "code": 5,
- "name": "1.0.4",
+ "code": 6,
+ "name": "1.0.5",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "notes": "• اسطمبة لاسم الملف: CW/HW ورقم، KNU/KFS، Late، Section والأرقام",
- "notes_en": "• File-name template: CW/HW + number, KNU/KFS, Late, Section + numbers"
+ "notes": "• التطبيق بيفتح باللغة اللي مختارها من أول لحظة",
+ "notes_en": "• The app opens in your chosen language right away"
 }
