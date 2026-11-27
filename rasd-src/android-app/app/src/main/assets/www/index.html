@@ -170,6 +170,9 @@ main{padding:8px 0 120px}
 /* dialog */
 .veil{position:fixed;inset:0;background:#0b1020a0;z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
 .veil.on{display:flex}
+.veil.top{align-items:flex-start;padding-top:calc(env(safe-area-inset-top) + 64px)}
+.veil.top .sheet{animation:popd .16s ease-out}
+@keyframes popd{from{transform:translateY(-10px);opacity:0}}
 .sheet{background:var(--card);width:100%;max-width:440px;border-radius:22px;padding:0 0 16px;max-height:90vh;overflow:auto;animation:pop .18s ease-out;box-shadow:0 30px 60px -20px #000a}
 @keyframes pop{from{transform:scale(.94);opacity:0}}
 @media(prefers-reduced-motion:reduce){.sheet,.tile{animation:none;transition:none}}
@@ -189,7 +192,7 @@ label{display:block;font-size:14px;color:var(--mute);margin:14px 0 4px}
 .kv dt{color:var(--mute)}.kv dd{margin:0;font-weight:600}
 .big{font:700 32px/1.1 Outfit,sans-serif;color:#c27800}
 /* scanner */
-#scan{position:fixed;inset:0;background:#000;z-index:40;display:none;color:#fff;overflow:hidden}
+#scan{position:fixed;top:0;left:0;right:0;height:var(--scanH,100%);background:#000;z-index:40;display:none;color:#fff;overflow:hidden}
 #scan.on{display:block}
 #vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;opacity:0;transition:opacity .25s}
 #vid.live{opacity:1}
@@ -364,7 +367,7 @@ let ac;function beep(dup){if(D.set.sound)try{ac=ac||new (window.AudioContext||wi
 
 /* dialog */
 let onClose=null,updOpen=false;
-function sheet(html){const s=$('#sheet');s.onclick=null;s.onkeydown=null;s.innerHTML=html;$('#veil').classList.add('on');onClose=null;const a=s.querySelector('[autofocus]');if(a)setTimeout(()=>{a.focus();a.select&&a.select()},120)}
+function sheet(html){$('#veil').classList.remove('top');const s=$('#sheet');s.onclick=null;s.onkeydown=null;s.innerHTML=html;$('#veil').classList.add('on');onClose=null;const a=s.querySelector('[autofocus]');if(a)setTimeout(()=>{a.focus();a.select&&a.select()},120)}
 function closeSheet(){$('#veil').classList.remove('on');const c=onClose;onClose=null;c&&c();resumeSoon()}
 $('#veil').addEventListener('click',e=>{if(e.target.id==='veil'&&!updOpen)closeSheet()});
 function confirmBox(msg,ok,fn){sheet(`<h2>${t('sure')}</h2><div class="sb"><p>${msg}</p><div class="acts"><button class="btn" data-act="close">${t('no')}</button><button class="btn bad" id="cOk">${ok}</button></div></div>`);$('#cOk').onclick=()=>{$('#veil').classList.remove('on');fn();resumeSoon()}}
@@ -463,14 +466,14 @@ function wireName(){const st={mode:$('#nmTpl').classList.contains('hide')?'man':
     b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));upd()});
   return ()=>{if(st.mode==='tpl'){upd();D.set.tpl={...st.p};D.set.nameMode='tpl';return tplName(st.p)}D.set.nameMode='man';return $('#fn').value.trim()}}
 function newFile(){
-  sheet(`<h2>${t('newTitle')}</h2><div class="sb">${nameBox(defName(),D.set.nameMode==='man'?'man':'tpl')}<div class="meta" style="margin-top:8px">${t('modeNote',{m:t('m_'+D.set.mode)})}</div><div class="acts"><button class="btn pri" id="ok">${t('confirm')}</button><button class="btn" data-act="close">${t('cancel')}</button></div></div>`);
+  sheet(`<h2>${t('newTitle')}</h2><div class="sb">${nameBox(defName(),D.set.nameMode==='man'?'man':'tpl')}<div class="meta" style="margin-top:8px">${t('modeNote',{m:t('m_'+D.set.mode)})}</div><div class="acts"><button class="btn pri" id="ok">${t('confirm')}</button><button class="btn" data-act="close">${t('cancel')}</button></div></div>`);$('#veil').classList.add('top');
   const getName=wireName();
   const go=()=>{const n=getName();if(!n)return toast(t('nameEmpty'),'bad');if(D.files.some(f=>f.name===n))return toast(t('nameExists'),'bad');
     const f={id:uid(),name:n,created:Date.now(),updated:Date.now(),records:[]};D.files.push(f);D.last=cur=f.id;save();$('#veil').classList.remove('on');view='preview';render();startScan()};
   $('#ok').onclick=go;$('#fn').onkeydown=e=>{if(e.key==='Enter')go()};
 }
 function renameFile(f){
-  sheet(`<h2>${t('rename')}</h2><div class="sb">${nameBox(f.name,'man')}<div class="acts"><button class="btn pri" id="ok">${t('save')}</button><button class="btn" data-act="close">${t('cancel')}</button></div></div>`);
+  sheet(`<h2>${t('rename')}</h2><div class="sb">${nameBox(f.name,'man')}<div class="acts"><button class="btn pri" id="ok">${t('save')}</button><button class="btn" data-act="close">${t('cancel')}</button></div></div>`);$('#veil').classList.add('top');
   const getName=wireName();
   const go=()=>{const n=getName();if(!n)return toast(t('nameEmpty'),'bad');if(D.files.some(x=>x!==f&&x.name===n))return toast(t('nameExists'),'bad');f.name=n;f.updated=Date.now();save();closeSheet();render();toast(t('renamed'),'ok')};
   $('#ok').onclick=go;$('#fn').onkeydown=e=>{if(e.key==='Enter')go()};
@@ -522,6 +525,7 @@ function entryForm(code,rec){
   sheet(`<h2>${editing?t('editRec'):t('scanCode')}</h2><div class="sb"><label for="ec">${t('code')}</label><input class="f mono" id="ec" value="${esc(code)}" ${editing?'':'readonly'}>
   ${fl.map((k,i)=>`<label for="e_${k}">${t(k)}</label><input class="f ${k==='serial'?'mono':''}" id="e_${k}" ${k==='qty'||k==='price'?'inputmode="decimal"':''} value="${esc(rec?rec[k]??'':k==='qty'?'1':'')}" ${i===0?'autofocus':''}>`).join('')}
   <div class="acts"><button class="btn pri" id="eSave">${t('save')}</button>${editing?`<button class="btn bad" id="eDel">${t('del')}</button>`:`<button class="btn" data-act="close">${t('cancel')}</button>`}</div></div>`);
+  $('#veil').classList.add('top');
   const go=()=>{
     const o={code:$('#ec').value.trim()};if(!o.code)return toast(t('emptyCode'),'bad');
     for(const k of fl){const v=$('#e_'+k).value;if(k==='qty'||k==='price'){const n=num(v);if(v.trim()!==''&&(n==null||isNaN(n)))return toast(t('mustNum',{f:t(k)}),'bad');o[k]=n}else o[k]=v.trim()}
@@ -597,13 +601,20 @@ async function zxRead(src){if(!zxReady)return null;const r=await ZXingWASM.readB
 function grab(full){const vw=vid.videoWidth,vh=vid.videoHeight;if(!vw)return null;
   let sx=0,sy=0,sw=vw,sh=vh;if(!full){sw=Math.round(vw*.9);sh=Math.round(Math.min(vh,vw*.6));sx=Math.round((vw-sw)/2);sy=Math.round((vh-sh)*.42)}
   const k=Math.min(1,1400/Math.max(sw,sh));cv.width=Math.round(sw*k);cv.height=Math.round(sh*k);cx.drawImage(vid,sx,sy,sw,sh,0,0,cv.width,cv.height);return cx.getImageData(0,0,cv.width,cv.height)}
+let wk=null,wkBusy=false,wkId=0,wkCb={};
+function worker(){if(wk!==null)return wk;try{if(!window.Worker||!window.createImageBitmap||!window.OffscreenCanvas)throw 0;wk=new Worker('lib/scan-worker.js');wk.onmessage=e=>{const f=wkCb[e.data.id];delete wkCb[e.data.id];f&&f(e.data.text)};wk.onerror=()=>{wk=false}}catch(e){wk=false}return wk}
+async function wkRead(full){const w=worker();if(!w)return undefined;const vw=vid.videoWidth,vh=vid.videoHeight;if(!vw)return null;
+  let sx=0,sy=0,sw=vw,sh=vh;if(!full){sw=Math.round(vw*.9);sh=Math.round(Math.min(vh,vw*.6));sx=Math.round((vw-sw)/2);sy=Math.round((vh-sh)*.42)}
+  const k=Math.min(1,1100/Math.max(sw,sh));const bmp=await createImageBitmap(vid,sx,sy,sw,sh,{resizeWidth:Math.round(sw*k),resizeHeight:Math.round(sh*k),resizeQuality:'low'});
+  const id=++wkId;return new Promise(ok=>{wkCb[id]=ok;w.postMessage({id,bmp,opts:zxOpts()},[bmp]);setTimeout(()=>{if(wkCb[id]){delete wkCb[id];ok(null)}},1500)})}
 async function decode(){frameN++;
   if(det){try{const r=await det.detect(vid);if(r.length){const best=r.sort((a,b)=>Math.abs(a.boundingBox.y+a.boundingBox.height/2-vid.videoHeight*.42)-Math.abs(b.boundingBox.y+b.boundingBox.height/2-vid.videoHeight*.42))[0];if(best.rawValue)return best.rawValue}}catch(e){det=null}
     if(frameN%4)return null}
+  try{const r=await wkRead(frameN%3===0);if(r!==undefined)return r}catch(e){}
   const img=grab(frameN%3===0);return img?zxRead(img):null}
 async function tick(){if(!scanning)return;
   if(!paused&&!busy&&vid.readyState>=2){busy=true;try{const c=await decode();if(c&&scanning&&!paused)onScan(c)}catch(e){}busy=false}
-  loopT=setTimeout(tick,det?70:90)}
+  loopT=setTimeout(tick,det?80:60)}
 function setLast(c,qv,state){const el=$('#lastScan');
   el.innerHTML=c?`<span class="ok ${state==='dup'?'':'' }" style="${state==='dup'?'background:#f5a524':''}"><svg class="i" viewBox="0 0 24 24" style="width:20px;height:20px;stroke-width:3">${state==='dup'?'<path d="M12 7v6M12 17h.01"/>':'<path d="M5 12l5 5 9-10"/>'}</svg></span><div class="g"><small>${t('lastCode')}</small><b class="mono">${esc(c)}</b></div>${qv!=null?`<span class="pill">${fmt(qv)}</span>`:''}`
    :`<span class="ok idle"><svg class="i" viewBox="0 0 24 24" style="width:20px;height:20px">${P.scan}</svg></span><div class="g"><small>${t('lastCode')}</small><b style="opacity:.6;font-weight:500">—</b></div>`}
@@ -614,11 +625,11 @@ async function startScan(find){
   findMode=!!find;
   if(!findMode){cur=cur||D.last;if(!F())return toast(t('openFirst'),'bad')}
   applyLang();if(findMode){$('#scanName').textContent=t('findT');$('#scanCount').textContent=''}else updScan();setLast(null);
-  $('#scan').classList.add('on');$('#nocam').classList.remove('on');scanning=true;paused=false;torchOn=false;$('#torchBtn').classList.add('hide');$('#zoomBtn').classList.add('hide');
+  document.documentElement.style.setProperty('--scanH',window.innerHeight+'px');$('#scan').classList.add('on');$('#nocam').classList.remove('on');scanning=true;paused=false;torchOn=false;$('#torchBtn').classList.add('hide');$('#zoomBtn').classList.add('hide');
   initDec();
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return noCam(t('camPhoto'));
   try{
-    stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}});
+    stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30}}});
     if(!scanning){stream.getTracks().forEach(x=>x.stop());return}
     track=stream.getVideoTracks()[0];caps={};try{caps=track.getCapabilities?track.getCapabilities():{}}catch(e){}
     try{const adv=[];if(caps.focusMode&&caps.focusMode.includes('continuous'))adv.push({focusMode:'continuous'});if(caps.exposureMode&&caps.exposureMode.includes('continuous'))adv.push({exposureMode:'continuous'});if(adv.length)await track.applyConstraints({advanced:adv})}catch(e){}
@@ -640,7 +651,7 @@ async function stopScan(keepView){clearTimeout(rt);clearTimeout(loopT);scanning=
   const wasFind=findMode;findMode=false;$('#scan').classList.remove('on');if(keepView===true)return;if(wasFind){view='browse';return render()}view='preview';render()}
 async function toggleTorch(){if(!track)return;try{torchOn=!torchOn;await track.applyConstraints({advanced:[{torch:torchOn}]});$('#torchBtn').classList.toggle('on',torchOn)}catch(e){torchOn=false;toast(t('torchNA'),'bad')}}
 async function cycleZoom(){if(!track||zooms.length<2)return;zoomI=(zoomI+1)%zooms.length;try{await track.applyConstraints({advanced:[{zoom:zooms[zoomI]}]});$('#zoomBtn').textContent=fmtZ(zooms[zoomI])}catch(e){}}
-function manualBox(){pause();sheet(`<h2>${t('manualTitle')}</h2><div class="sb"><div class="meta" style="margin-top:10px">${t('manualSub')}</div><label for="mc">${t('code')}</label><input class="f mono" id="mc" autofocus><div class="acts"><button class="btn pri" id="mOk">${t('ok')}</button><button class="btn" data-act="close">${t('cancel')}</button></div></div>`);
+function manualBox(){pause();sheet(`<h2>${t('manualTitle')}</h2><div class="sb"><div class="meta" style="margin-top:10px">${t('manualSub')}</div><label for="mc">${t('code')}</label><input class="f mono" id="mc" autofocus><div class="acts"><button class="btn pri" id="mOk">${t('ok')}</button><button class="btn" data-act="close">${t('cancel')}</button></div></div>`);$('#veil').classList.add('top');
   const go=()=>{const v=$('#mc').value.trim();if(!v)return;$('#veil').classList.remove('on');handleCode(v,false)};$('#mOk').onclick=go;$('#mc').onkeydown=e=>{if(e.key==='Enter')go()}}
 $('#photoIn').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;decInit=false;await initDec();
   let x=null;try{x=await zxRead(file)}catch(err){}
