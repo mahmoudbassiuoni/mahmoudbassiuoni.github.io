@@ -40,6 +40,13 @@ if(s0.look&&s0.look!=='classic')h0.dataset.c=s0.look;if(s0.md==='light'||s0.md==
 .npick{min-width:64px;height:48px;padding:0 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);font:700 19px Outfit,sans-serif;color:var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 6px #13235b12;transition:border-color .15s,box-shadow .15s}
 .npick::after{content:"";width:7px;height:7px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg) translateY(-2px);margin-inline-start:2px}
 .npick.open{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc2)}
+.npw{position:relative;display:inline-block}
+.ndrop{position:absolute;top:calc(100% + 6px);inset-inline-start:0;z-index:6;width:max(100%,78px);max-height:216px;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px -8px #13235b55;padding:5px;display:flex;flex-direction:column;gap:2px;animation:drop .14s ease-out;scrollbar-width:thin}
+@keyframes drop{from{opacity:0;transform:translateY(-6px)}}
+.ndrop.up{top:auto;bottom:calc(100% + 6px)}
+.ndrop button{height:40px;flex:none;border-radius:10px;font:700 17px Outfit,sans-serif;color:var(--ink);text-align:center}
+.ndrop button:active{background:var(--acc2)}
+.ndrop button.on{background:var(--acc);color:#fff}
 .ngrid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin-top:12px;padding:10px;background:var(--bg);border-radius:16px;max-height:190px;overflow:auto;animation:pop .15s ease-out}
 .ngrid button{height:38px;border-radius:10px;font:700 15px Outfit,sans-serif;color:var(--ink);background:var(--card);border:1px solid var(--line)}
 .ngrid button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
@@ -414,24 +421,25 @@ const opts=(n,sel)=>Array.from({length:n},(_,i)=>`<option value="${i+1}" ${sel==
 function nameBox(cur,mode){const p={...DEF.tpl,...(D.set.tpl||{})};
   return `<div class="seg nmw" style="width:100%"><button style="flex:1" data-nm="tpl" class="${mode==='tpl'?'on':''}">${t('nmTpl')}</button><button style="flex:1" data-nm="man" class="${mode==='man'?'on':''}">${t('nmMan')}</button></div>
   <div id="nmTpl" class="${mode==='tpl'?'':'hide'}" dir="ltr"><div class="tpl">
-   <div class="tr"><span class="lb">1</span><div class="chipg">${['CW','HW'].map(k=>`<button data-tk="${k}" class="${p.k===k?'on':''}">${k}</button>`).join('')}</div><button type="button" class="npick" data-np="n" data-max="30" id="tN">${p.n}</button></div>
+   <div class="tr"><span class="lb">1</span><div class="chipg">${['CW','HW'].map(k=>`<button data-tk="${k}" class="${p.k===k?'on':''}">${k}</button>`).join('')}</div><span class="npw"><button type="button" class="npick" data-np="n" data-max="30" id="tN">${p.n}</button></span></div>
    <div class="tr"><span class="lb">2</span><div class="chipg">${['KNU','KFS'].map(k=>`<button data-tu="${k}" class="${p.u===k?'on':''}">${k}</button>`).join('')}</div></div>
    <div class="tr"><span class="lb">3</span><div class="chipg"><button data-tl="0" class="${!p.late?'on':''}">${t('nmLate')}</button><button data-tl="1" class="${p.late?'on':''}">Late</button></div></div>
    <div class="tr"><span class="lb">4</span><span class="fixed">Sec</span></div>
-   <div class="tr"><span class="lb">5</span><button type="button" class="npick" data-np="a" data-max="40" id="tA">${p.a}</button><b style="font-size:22px;color:var(--mute)">,</b><button type="button" class="npick" data-np="b" data-max="40" id="tB">${p.b}</button></div>
-  </div><div class="ngrid hide" id="ngrid"></div><div class="nprev"><small>${t('nmPrev')}</small><b id="tPrev">${esc(tplName(p))}</b></div></div>
+   <div class="tr"><span class="lb">5</span><span class="npw"><button type="button" class="npick" data-np="a" data-max="40" id="tA">${p.a}</button></span><b style="font-size:22px;color:var(--mute)">,</b><span class="npw"><button type="button" class="npick" data-np="b" data-max="40" id="tB">${p.b}</button></span></div>
+  </div><div class="nprev"><small>${t('nmPrev')}</small><b id="tPrev">${esc(tplName(p))}</b></div></div>
   <div id="nmMan" class="${mode==='man'?'':'hide'}"><label for="fn">${t('fileName')}</label><input class="f" dir="auto" id="fn" value="${esc(cur)}" maxlength="80"></div>`}
 function wireName(){const st={mode:$('#nmTpl').classList.contains('hide')?'man':'tpl',p:{...DEF.tpl,...(D.set.tpl||{})}};
   const upd=()=>{['n','a','b'].forEach(k=>{const el=$('#t'+k.toUpperCase());if(el)el.textContent=st.p[k]});$('#tPrev').textContent=tplName(st.p)};
-  let npk=null;const grid=$('#ngrid');
-  const openGrid=(k,max,btn)=>{if(npk===k){grid.classList.add('hide');npk=null;btn.classList.remove('open');return}
-    document.querySelectorAll('.npick').forEach(x=>x.classList.toggle('open',x===btn));npk=k;
-    grid.innerHTML=Array.from({length:max},(_,i)=>`<button type="button" data-nv="${i+1}" class="${st.p[k]===i+1?'on':''}">${i+1}</button>`).join('');grid.classList.remove('hide');
-    const on=grid.querySelector('.on');if(on)on.scrollIntoView({block:'nearest'})};
-  $('#sheet').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  let npk=null;
+  const closeDrop=()=>{document.querySelectorAll('.ndrop').forEach(x=>x.remove());document.querySelectorAll('.npick').forEach(x=>x.classList.remove('open'));npk=null};
+  const openGrid=(k,max,btn)=>{const was=npk===k;closeDrop();if(was)return;npk=k;btn.classList.add('open');
+    const dd=document.createElement('div');dd.className='ndrop';dd.innerHTML=Array.from({length:max},(_,i)=>`<button type="button" data-nv="${i+1}" class="${st.p[k]===i+1?'on':''}">${i+1}</button>`).join('');
+    btn.parentNode.appendChild(dd);const on=dd.querySelector('.on');if(on)dd.scrollTop=on.offsetTop-dd.clientHeight/2+on.offsetHeight/2;
+    const br=btn.getBoundingClientRect(),sh=$('#sheet').getBoundingClientRect();if(sh.bottom-br.bottom<dd.offsetHeight+14&&br.top-sh.top>sh.bottom-br.bottom)dd.classList.add('up')};
+  $('#sheet').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!b.dataset.np&&!b.dataset.nv)if(npk&&!e.target.closest('.ndrop'))closeDrop();if(!b)return;const d=b.dataset;
     if(d.nm){st.mode=d.nm;$('#nmTpl').classList.toggle('hide',d.nm!=='tpl');$('#nmMan').classList.toggle('hide',d.nm!=='man');b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));if(d.nm==='man')setTimeout(()=>$('#fn').focus(),50);return}
     if(d.np)return openGrid(d.np,+d.max,b);
-    if(d.nv){st.p[npk]=+d.nv;grid.classList.add('hide');document.querySelectorAll('.npick').forEach(x=>x.classList.remove('open'));npk=null;return upd()}
+    if(d.nv){st.p[npk]=+d.nv;closeDrop();return upd()}
     if(d.tk)st.p.k=d.tk;else if(d.tu)st.p.u=d.tu;else if(d.tl)st.p.late=d.tl==='1';else return;
     b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));upd()});
   return ()=>{if(st.mode==='tpl'){upd();D.set.tpl={...st.p};D.set.nameMode='tpl';return tplName(st.p)}D.set.nameMode='man';return $('#fn').value.trim()}}
