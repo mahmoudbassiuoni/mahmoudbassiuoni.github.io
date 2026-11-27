@@ -1,7 +1,7 @@
 {
- "code": 2,
- "name": "1.0.1",
+ "code": 3,
+ "name": "1.0.2",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "notes": "• قراية الباركود بقت أسرع بكتير\n• شكل جديد لصفحة المسح\n• الموبايل بيهز لما الكود يتقري\n• ستايلات وألوان جديدة من الإعدادات\n• أيقونة جديدة",
- "notes_en": "• Much faster barcode reading\n• New scan screen\n• Vibrates on every scan\n• New looks and colours in Settings\n• New icon"
+ "notes": "• شاشة فتح جديدة\n• شارك التطبيق مع أي حد\n• إشعار لما ينزل تحديث جديد\n• الكاميرا بتفتح على طول من غير علامة الفيديو\n• بياناتك بقت محفوظة جوه التطبيق كمان",
+ "notes_en": "• New start screen\n• Share the app with anyone\n• Notification when a new update is out\n• Camera opens straight away, no video icon\n• Your data is also kept inside the app"
 }
