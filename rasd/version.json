@@ -1,8 +1,8 @@
 {
- "code": 13,
- "name": "1.0.12",
+ "code": 14,
+ "name": "1.0.13",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4298270,
- "notes": "• شكل جديد لإشعار التحديث",
- "notes_en": "• New look for the update notification"
+ "size": 4298674,
+ "notes": "• ملف Excel فيه عمودين بس: الكود والكمية\n• إرسال الملف: حفظ، إيميل، أو إرسال لأي حد",
+ "notes_en": "• Excel file has only two columns: Barcode and Quantity\n• Send file: save, e-mail, or send to anyone"
 }
