@@ -75,6 +75,20 @@ if(s0.look&&s0.look!=='classic')h0.dataset.c=s0.look;if(s0.md==='light'||s0.md==
 .cnew{display:flex;gap:8px;margin-top:10px}.cnew.hide{display:none}
 .ctag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--cc);background:color-mix(in srgb,var(--cc) 12%,transparent);border-radius:99px;padding:0 8px;margin-inline-end:6px}
 .crow{display:flex;align-items:center;gap:10px;margin-top:10px}.crow i{width:14px;height:14px;border-radius:50%;flex:none}.crow .f{height:46px}
+.dd{position:relative;width:100%}
+.dd.sm{width:auto;min-width:112px}
+.ddb{width:100%;height:52px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:17px;font-weight:600;color:var(--ink);text-align:start;box-shadow:0 2px 6px #13235b10}
+.dd.sm .ddb{height:48px;font:700 17px "IBM Plex Mono",monospace}
+.ddb span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;unicode-bidi:plaintext}
+.ddb::after{content:"";flex:none;width:8px;height:8px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg) translateY(-3px);transition:transform .15s}
+.dd.open .ddb{border-color:var(--acc);border-radius:14px 14px 0 0;box-shadow:none}.dd.open .ddb::after{transform:rotate(225deg) translate(-2px,-1px);border-color:var(--acc)}
+.dd.open.up .ddb{border-radius:0 0 14px 14px}
+.ddl{position:absolute;top:100%;left:0;right:0;margin-top:-1.5px;z-index:8;max-height:260px;overflow-y:auto;background:var(--card);border:1.5px solid var(--acc);border-top:0;border-radius:0 0 14px 14px;box-shadow:0 16px 30px -12px #13235b66;padding:5px;display:flex;flex-direction:column;gap:2px;animation:drop .14s ease-out;scrollbar-width:none}
+.ddl::-webkit-scrollbar{display:none}
+.dd.up .ddl{top:auto;bottom:100%;margin:0 0 -1.5px;border-top:1.5px solid var(--acc);border-bottom:0;border-radius:14px 14px 0 0;box-shadow:0 -16px 30px -12px #13235b66}
+.ddo{min-height:46px;flex:none;border-radius:10px;padding:0 12px;text-align:start;font-size:16px;font-weight:500;color:var(--txt);unicode-bidi:plaintext}
+.dd.sm .ddo{font:700 16px "IBM Plex Mono",monospace;text-align:center}
+.ddo:active{background:var(--acc2)}.ddo.on{background:var(--acc);color:#fff;font-weight:700}
 .sumg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
 .sumg div{background:var(--acc2);border-radius:14px;padding:10px 8px;text-align:center}
 .sumg b{display:block;font:700 20px/1.2 Outfit,"IBM Plex Sans Arabic",sans-serif;color:var(--ink)}
@@ -405,6 +419,15 @@ const fmeta=f=>`${catTag(f)}${fmt(f.records.length)} ${t('codes')} · ${t('qty')
 function cont(){const all=byDate(),fs=inCat(all,curCat);return bar(t('contFile'))+`<main class="wrap">${all.length?catBar(all)+`<div class="meta" style="padding:8px 16px">${t('pickCont')}</div>`+fs.map(f=>`<button class="rowi" data-cont="${esc(f.id)}">${xlIcon}<div class="g"><h3>${esc(f.name)}</h3><div class="meta">${fmeta(f)}</div></div>${ic('chev','style="width:28px;height:28px;stroke-width:2.6"')}</button>`).join(''):noFiles}</main>`}
 let selMode=false,sel=new Set(),gq='',curCat='all';
 const CATC=['#2f6bff','#0f9488','#e8590c','#6a3df0','#d6336c','#16a34a','#b7791f','#334155'];
+function dd(id,opts,val,cls=''){const cur=opts.find(o=>o[0]===val)||opts[0]||['',''];
+  return `<div class="dd ${cls}" id="${id}" data-val="${esc(cur[0])}"><button type="button" class="ddb"><span>${esc(cur[1])}</span></button><div class="ddl hide">${opts.map(([v,l])=>`<button type="button" class="ddo ${v===cur[0]?'on':''}" data-v="${esc(v)}">${esc(l)}</button>`).join('')}</div></div>`}
+function ddClose(ex){document.querySelectorAll('.dd.open').forEach(d=>{if(d!==ex){d.classList.remove('open','up');d.querySelector('.ddl').classList.add('hide')}})}
+document.addEventListener('click',e=>{const b=e.target.closest('.ddb'),o=e.target.closest('.ddo');
+  if(b){const d=b.parentNode,l=d.querySelector('.ddl'),open=!d.classList.contains('open');ddClose(d);d.classList.toggle('open',open);l.classList.toggle('hide',!open);d.classList.remove('up');
+    if(open){const sh=d.closest('.sheet,main')||document.body,br=b.getBoundingClientRect(),cr=sh.getBoundingClientRect(),below=Math.min(cr.bottom,innerHeight)-br.bottom;if(below<Math.min(l.scrollHeight,260)+12&&br.top-cr.top>below)d.classList.add('up');const on=l.querySelector('.on');if(on)l.scrollTop=on.offsetTop-l.clientHeight/2+on.offsetHeight/2}
+    e.stopPropagation();return}
+  if(o){const d=o.closest('.dd');d.dataset.val=o.dataset.v;d.querySelector('.ddb span').textContent=o.textContent;d.querySelectorAll('.ddo').forEach(x=>x.classList.toggle('on',x===o));ddClose();d.dispatchEvent(new CustomEvent('ddchange'));e.stopPropagation();return}
+  if(!e.target.closest('.dd'))ddClose()},true);
 const catOf=f=>f&&f.cat&&D.cats.find(c=>c.id===f.cat)||null;
 const inCat=(fs,c)=>c==='all'?fs:c==='none'?fs.filter(f=>!catOf(f)):fs.filter(f=>f.cat===c);
 function addCat(name){name=String(name||'').trim();if(!name){toast(t('nameEmpty'),'bad');return null}if(D.cats.some(c=>c.name===name)){toast(t('catExists'),'bad');return null}
@@ -471,7 +494,7 @@ function settings(){
   <h2 class="sh">${t('scanOnly')}</h2><div class="grp"><div class="fmts">${FMTS.map(([k,lb])=>`<label class="ck" style="color:var(--txt);margin:0"><input type="checkbox" data-fmt="${k}" ${s.formats.includes(k)?'checked':''}><span class="mono">${lb}</span></label>`).join('')}</div></div>
   <h2 class="sh">${t('delay')}</h2><div class="grp"><div class="step"><span class="meta">${t('secs')}</span><div class="ctl"><button data-dl="-0.5" aria-label="-">−</button><output id="dlv">${fmt(s.delay)}</output><button data-dl="0.5" aria-label="+">+</button></div></div>
   <label class="ck" style="color:var(--txt);margin:0"><input type="checkbox" id="sSound" ${s.sound?'checked':''}> ${t('sound')}</label><label class="ck" style="color:var(--txt);margin:0"><input type="checkbox" id="sVib" ${s.vib?'checked':''}> ${t('vib')}</label></div>
-  <h2 class="sh">${t('ext')} · ${t('language')}</h2><div class="grp"><div class="step"><b>${t('ext')}</b><select class="sel mono" id="sExt">${['xls','xlsx','csv'].map(x=>`<option value="${x}" ${s.ext===x?'selected':''}>.${x}</option>`).join('')}</select></div>
+  <h2 class="sh">${t('ext')} · ${t('language')}</h2><div class="grp"><div class="step"><b>${t('ext')}</b>${dd('sExt',['xls','xlsx','csv'].map(x=>[x,'.'+x]),s.ext,'sm mono')}</div>
   <div class="step"><b>${t('language')}</b><div class="seg"><button data-lg="ar" class="${s.lang==='ar'?'on':''}">عربي</button><button data-lg="en" class="${s.lang==='en'?'on':''}">English</button></div></div></div>
   <h2 class="sh">${t('backup')}</h2><div class="grp" style="padding:0"><button class="rowi" data-act="bk" style="border:0">${bkBadge()}<div class="g"><h3>${t('bk')}</h3><div class="meta" id="bkLine">${bkStatus().t} · ${bkStatus().s}</div></div>${ic('chev','style="width:26px;height:26px"')}</button></div>
   </main><div class="dock"><div class="in"><button class="btn pri" data-act="saveSet">${t('confirm')}</button></div></div>`;
@@ -633,15 +656,15 @@ function sendBox(){
   const fs=byDate();if(!fs.length)return toast(t('noFiles'),'bad');
   const sel=(cur&&F())?cur:D.last||fs[0].id;
   const big=(k,g)=>`<svg viewBox="0 0 72 72"><rect x="6" y="6" width="60" height="60" rx="18" fill="url(#${g})"/><svg x="20" y="20" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${P[k]}</svg></svg>`;
-  sheet(`<h2>${t('send')}</h2><div class="sb"><label for="sf">${t('file')}</label><select class="f" id="sf">${fs.map(f=>`<option value="${esc(f.id)}" ${f.id===sel?'selected':''}>${esc(f.name)} (${fmt(f.records.length)})</option>`).join('')}</select>
+  sheet(`<h2>${t('send')}</h2><div class="sb"><label for="sf">${t('file')}</label>${dd('sf',fs.map(f=>[f.id,`${f.name} (${fmt(f.records.length)})`]),sel)}
   <div class="sumg" id="sumBox"></div>
   <div class="meta" style="margin-top:6px">${t('extLbl')}: <span class="mono">.${D.set.ext}</span></div>
   <div class="sendg"><button data-s="save">${big('dl','gGreen')}${t('saveIn')}</button><button data-s="share">${big('mail','gBlue')}${t('sendMail')}</button><button data-s="cloud">${big('send','gViolet')}${t('cloud')}</button></div>
   <button class="btn full" style="margin-top:10px" data-s="copy">${ic('copy')} ${t('copyCodes')}</button></div>`);
-  const sum=()=>{const f=D.files.find(x=>x.id===$('#sf').value);if(!f)return;const hasP=f.records.some(r=>r.price!=null),tv=f.records.reduce((a,r)=>a+(r.qty||0)*(r.price||0),0),lt=f.records.reduce((a,r)=>Math.max(a,r.t),0);
+  const sum=()=>{const f=D.files.find(x=>x.id===$('#sf').dataset.val);if(!f)return;const hasP=f.records.some(r=>r.price!=null),tv=f.records.reduce((a,r)=>a+(r.qty||0)*(r.price||0),0),lt=f.records.reduce((a,r)=>Math.max(a,r.t),0);
     $('#sumBox').innerHTML=`<div><b>${fmt(f.records.length)}</b><span>${t('codes')}</span></div><div><b>${fmt(total(f))}</b><span>${t('qtyTot')}</span></div>`+(hasP?`<div><b>${fmt(tv)}</b><span>${t('sumVal')}</span></div>`:`<div><b style="font-size:14px">${lt?when(lt):'—'}</b><span>${t('sumLast')}</span></div>`)};
-  sum();$('#sf').onchange=sum;
-  $('#sheet').onclick=async e=>{const k=e.target.closest('[data-s]')?.dataset.s;if(!k)return;const f=D.files.find(x=>x.id===$('#sf').value);
+  sum();$('#sf').addEventListener('ddchange',sum);
+  $('#sheet').onclick=async e=>{const k=e.target.closest('[data-s]')?.dataset.s;if(!k)return;const f=D.files.find(x=>x.id===$('#sf').dataset.val);
     if(!f.records.length)return toast(t('fileEmpty'),'bad');
     if(k==='copy'){try{const txt=f.records.map(r=>r.code).join('\n');if(window.RasdNative){RasdNative.copy(txt);return toast(t('copied'),'ok')}await navigator.clipboard.writeText(f.records.map(r=>r.code).join('\n'));toast(t('copied'),'ok')}catch(err){toast(t('copyNA'),'bad')}return}
     try{await needX()}catch(err){}
@@ -802,7 +825,7 @@ function gStartup(){if(!gAuto()||!LS.get('rasd_gdirty'))return;if(gtok())return 
   const now=Date.now();if(navigator.onLine!==false&&now-(+LS.get('rasd_gsilfail')||0)>6*36e5&&now-(+LS.get('rasd_gsil')||0)>12*36e5){LS.set('rasd_gsil',now);gAuth(true)}}
 
 /* events */
-function syncDraft(){if(!draft||!$('#sNote'))return;draft.note=$('#sNote').checked;draft.sound=$('#sSound').checked;draft.vib=$('#sVib').checked;draft.ext=$('#sExt').value;draft.formats=[...document.querySelectorAll('[data-fmt]')].filter(c=>c.checked).map(c=>c.dataset.fmt)}
+function syncDraft(){if(!draft||!$('#sNote'))return;draft.note=$('#sNote').checked;draft.sound=$('#sSound').checked;draft.vib=$('#sVib').checked;draft.ext=$('#sExt').dataset.val;draft.formats=[...document.querySelectorAll('[data-fmt]')].filter(c=>c.checked).map(c=>c.dataset.fmt)}
 function go(v){view=v;q='';gq='';selMode=false;sel.clear();if(v==='preview')cur=D.last;if(v!=='settings')draft=null;render();scrollTo(0,0)}
 document.addEventListener('click',e=>{
   const b=e.target.closest('button,[data-open]');if(!b)return;const d=b.dataset;
