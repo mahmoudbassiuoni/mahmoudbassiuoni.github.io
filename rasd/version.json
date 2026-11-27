@@ -1,8 +1,8 @@
 {
- "code": 15,
- "name": "1.0.14",
+ "code": 16,
+ "name": "1.0.15",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4299006,
- "notes": "• البحث بقى بالإسكان: امسح أي كود وشوف هو موجود في أنهي ملف",
- "notes_en": "• Search by scanning: scan any code to see which file it’s in"
+ "size": 4300113,
+ "notes": "• الكاميرا بقت أنعم من غير تقطيع\n• الكيبورد مبقاش بيزق الشاشة وانت بتكتب الكمية",
+ "notes_en": "• Smoother camera, no stutter\n• The keyboard no longer pushes the screen when typing the quantity"
 }
