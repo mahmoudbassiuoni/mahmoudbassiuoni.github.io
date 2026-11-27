@@ -1,7 +1,7 @@
 {
- "code": 3,
- "name": "1.0.2",
+ "code": 4,
+ "name": "1.0.3",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "notes": "• شاشة فتح جديدة\n• شارك التطبيق مع أي حد\n• إشعار لما ينزل تحديث جديد\n• الكاميرا بتفتح على طول من غير علامة الفيديو\n• بياناتك بقت محفوظة جوه التطبيق كمان",
- "notes_en": "• New start screen\n• Share the app with anyone\n• Notification when a new update is out\n• Camera opens straight away, no video icon\n• Your data is also kept inside the app"
+ "notes": "• إشعار فوري أول ما ينزل تحديث جديد",
+ "notes_en": "• Instant notification when a new update is out"
 }
