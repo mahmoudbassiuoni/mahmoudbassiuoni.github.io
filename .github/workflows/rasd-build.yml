@@ -91,24 +91,27 @@ jobs:
           from google.oauth2 import service_account
           from google.auth.transport.requests import Request
           v = json.load(open('rasd/version.json'))
-          for i in range(80):
+          t0 = time.time()
+          for i in range(120):
               try:
                   live = requests.get('https://mahmoudbassiuoni.github.io/rasd/version.json?t=%d' % time.time(), timeout=15).json()
                   h = requests.head('https://mahmoudbassiuoni.github.io/rasd/rasd.apk?t=%d' % time.time(), timeout=15, allow_redirects=True)
                   if live.get('code') == v['code'] and int(h.headers.get('Content-Length', 0)) == v['size']:
-                      print('live after', i * 15, 's'); break
+                      print('live after %.0f s' % (time.time() - t0)); break
               except Exception as e:
                   print('wait:', e)
-              time.sleep(15)
+              time.sleep(4)
           else:
               raise SystemExit('site did not update in time — no push sent')
-          time.sleep(20)
           sa = json.loads(os.environ['FCM_SA'])
           cred = service_account.Credentials.from_service_account_info(sa, scopes=['https://www.googleapis.com/auth/firebase.messaging'])
           cred.refresh(Request())
+          notes = v['notes'].replace('• ', '').strip() or 'افتح رصد ونزّل التحديث'
+          # notification payload: Android shows it right away even if the app is closed (like Daftari)
           msg = {'message': {'topic': 'rasd-updates',
-                 'data': {'code': str(v['code']), 'name': v['name'], 'notes': v['notes'], 'notes_en': v['notes_en'], 'test': ''},
-                 'android': {'priority': 'high'}}}
+                 'notification': {'title': 'تحديث جديد لرصد %s' % v['name'], 'body': notes},
+                 'data': {'code': str(v['code']), 'name': v['name'], 'notes': v['notes'], 'notes_en': v['notes_en'], 'test': '', 'upd': '1'},
+                 'android': {'priority': 'high', 'notification': {'channel_id': 'rasd_updates', 'color': '#2F6BFF', 'icon': 'ic_stat'}}}}
           r = requests.post('https://fcm.googleapis.com/v1/projects/%s/messages:send' % sa['project_id'],
                             headers={'Authorization': 'Bearer ' + cred.token}, json=msg, timeout=30)
           print(r.status_code, r.text[:200]); r.raise_for_status()
