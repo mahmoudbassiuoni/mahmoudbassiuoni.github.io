@@ -578,6 +578,31 @@ public class MainActivity extends Activity {
         }
     }
 
+    /* e-mail apps only (Gmail, Outlook…) with the file attached */
+    void emailFile(String name, String b64, String mime) {
+        try {
+            byte[] data = Base64.decode(b64, Base64.DEFAULT);
+            File dir = new File(getCacheDir(), "share");
+            dir.mkdirs();
+            File f = new File(dir, safe(name));
+            try (FileOutputStream os = new FileOutputStream(f)) { os.write(data); }
+            Uri u = FileProvider.getUriForFile(this, getPackageName() + ".files", f);
+            Intent it = new Intent(Intent.ACTION_SEND);
+            it.setType(mime);
+            it.putExtra(Intent.EXTRA_STREAM, u);
+            it.putExtra(Intent.EXTRA_SUBJECT, f.getName());
+            it.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            it.setSelector(new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")));
+            final Intent ch = Intent.createChooser(it, f.getName());
+            ch.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            runOnUiThread(() -> {
+                try { startActivity(ch); } catch (Exception e) { shareFile(name, b64, mime); }
+            });
+        } catch (Exception e) {
+            shareFile(name, b64, mime);
+        }
+    }
+
     void shareFile(String name, String b64, String mime) {
         try {
             byte[] data = Base64.decode(b64, Base64.DEFAULT);
@@ -613,6 +638,11 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void shareFile(String name, String b64, String mime) {
             MainActivity.this.shareFile(name, b64, mime);
+        }
+
+        @JavascriptInterface
+        public void emailFile(String name, String b64, String mime) {
+            MainActivity.this.emailFile(name, b64, mime);
         }
 
         @JavascriptInterface
