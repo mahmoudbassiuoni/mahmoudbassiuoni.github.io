@@ -1,8 +1,8 @@
 {
- "code": 10,
- "name": "1.0.9",
+ "code": 11,
+ "name": "1.0.10",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4295826,
- "notes": "• التطبيق بيفتح بشاشة «رصد» بس من غير أيقونة زيادة\n• ظبط شكل اختيار الوضع في الإعدادات",
- "notes_en": "• The app opens with just the Rasd screen, no extra icon\n• Fixed the Mode buttons in Settings"
+ "size": 4298006,
+ "notes": "• ملخص الملف قبل الإرسال (عدد الأكواد والكميات)\n• دمج ملفين أو أكتر في ملف واحد\n• بحث عن أي كود في كل الملفات\n• استيراد ملفات Excel و CSV",
+ "notes_en": "• File summary before sending\n• Merge two or more files\n• Search a code across all files\n• Import Excel and CSV files"
 }
