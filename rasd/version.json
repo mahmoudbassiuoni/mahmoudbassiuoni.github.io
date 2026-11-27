@@ -1,8 +1,8 @@
 {
- "code": 22,
- "name": "1.0.21",
+ "code": 23,
+ "name": "1.0.22",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4306909,
- "notes": "• شكل جديد ومرتب لصفحة النسخ الاحتياطي",
- "notes_en": "• New, tidy Backup screen"
+ "size": 4312425,
+ "notes": "• الدخول بحساب جوجل — مش هيدخل غير الإيميلات المسموح لها\n• صفحة أدمن لإضافة وشيل المستخدمين",
+ "notes_en": "• Google sign-in — only allowed e-mails can open the app\n• Admin page to add and remove users"
 }
