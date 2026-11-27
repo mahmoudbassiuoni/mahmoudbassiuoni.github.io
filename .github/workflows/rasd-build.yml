@@ -109,9 +109,12 @@ jobs:
           notes = v['notes'].replace('• ', '').strip() or 'افتح رصد ونزّل التحديث'
           # notification payload: Android shows it right away even if the app is closed (like Daftari)
           msg = {'message': {'topic': 'rasd-updates',
-                 'notification': {'title': 'تحديث جديد لرصد %s' % v['name'], 'body': notes},
+                 'notification': {'title': 'تحديث جديد لرصد %s' % v['name'], 'body': notes,
+                                  'image': 'https://mahmoudbassiuoni.github.io/rasd/update-banner.png'},
                  'data': {'code': str(v['code']), 'name': v['name'], 'notes': v['notes'], 'notes_en': v['notes_en'], 'test': '', 'upd': '1'},
-                 'android': {'priority': 'high', 'notification': {'channel_id': 'rasd_updates', 'color': '#2F6BFF', 'icon': 'ic_stat'}}}}
+                 'android': {'priority': 'high', 'notification': {'channel_id': 'rasd_updates', 'color': '#2F6BFF', 'icon': 'ic_stat',
+                                                               'image': 'https://mahmoudbassiuoni.github.io/rasd/update-banner.png',
+                                                               'notification_priority': 'PRIORITY_HIGH'}}}}
           r = requests.post('https://fcm.googleapis.com/v1/projects/%s/messages:send' % sa['project_id'],
                             headers={'Authorization': 'Bearer ' + cred.token}, json=msg, timeout=30)
           print(r.status_code, r.text[:200]); r.raise_for_status()
