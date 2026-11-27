@@ -1,8 +1,8 @@
 {
- "code": 24,
- "name": "1.0.23",
+ "code": 25,
+ "name": "1.0.24",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4313057,
- "notes": "• الحساب الواحد يشتغل على موبايل واحد بس",
- "notes_en": "• One account works on one phone only"
+ "size": 4313457,
+ "notes": "• كل حساب بيتربط بأول موبايل يدخل عليه\n• الأدمن يقدر يسمح بموبايل جديد",
+ "notes_en": "• Each account is tied to the first phone it signs in on\n• Admin can allow a new phone"
 }

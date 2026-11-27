@@ -946,7 +946,8 @@ Object.assign(P,{user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 
 Object.assign(T.ar,{acc:'الحساب',accAdm:'صاحب التطبيق (أدمن)',accUser:'حساب مسموح له',accOut:'تسجيل خروج',accOutQ:'هتحتاج تسجل دخول تاني عشان تفتح التطبيق. ملفاتك مش هتتمسح.',
  gTitle:'أهلاً بيك في رصد',gSub:'سجّل دخول بحساب جوجل المسموح له يستخدم التطبيق',gBtn:'الدخول بحساب جوجل',gWait:'بنتأكد من حسابك…',
  gNo:'الحساب ده مش مسموح له',gNoSub:'ابعت إيميلك لصاحب التطبيق عشان يضيفك، وبعدين ادخل تاني.',gOther:'جرّب حساب تاني',gRetry:'حاول تاني',
- gKick:'حسابك اتفتح على موبايل تاني',gKickSub:'الحساب الواحد يشتغل على موبايل واحد بس، فاتقفل هنا. لو سجلت دخول هنا تاني هيتقفل على الموبايل التاني.',
+ gKick:'الحساب ده مربوط بموبايل تاني',gKickSub:'كل حساب بيتربط بأول موبايل يدخل عليه. لو عاوز تستخدمه على الموبايل ده، كلّم صاحب التطبيق يسمح لك بموبايل جديد.',
+ uReset:'سماح بموبايل جديد',uResetQ:'{e} هيقدر يدخل من موبايل جديد مرة واحدة، وبعدها يتربط بيه والموبايل القديم يتقفل.',uResetOk:'اتسمح له بموبايل جديد ✓',
  gNet:'محتاجين إنترنت عشان نتأكد من حسابك أول مرة',gErr:'معرفناش نجيب إيميل الحساب، حاول تاني',
  users:'المستخدمين المسموح لهم',usersSub:'ضيف أو شيل الإيميلات اللي تقدر تدخل',uAdd:'ضيف إيميل',uPh:'name@gmail.com',uBad:'اكتب إيميل صحيح',uHave:'الإيميل ده موجود بالفعل',
  uAdded:'اتضاف ✓',uDel:'اتشال ✓',uDelQ:'{e} مش هيقدر يفتح التطبيق تاني.',uNone:'لسه مفيش حد غيرك',uYou:'إنت (الأدمن)',uLoad:'بنحمّل القائمة…',uFail:'معرفناش نحفظ، اتأكد من التوكن والنت',
@@ -954,7 +955,8 @@ Object.assign(T.ar,{acc:'الحساب',accAdm:'صاحب التطبيق (أدمن
 Object.assign(T.en,{acc:'Account',accAdm:'App owner (admin)',accUser:'Allowed account',accOut:'Sign out',accOutQ:'You will need to sign in again to open the app. Your files stay.',
  gTitle:'Welcome to Rasd',gSub:'Sign in with a Google account that is allowed to use the app',gBtn:'Sign in with Google',gWait:'Checking your account…',
  gNo:'This account isn’t allowed',gNoSub:'Send your e-mail to the app owner to get added, then sign in again.',gOther:'Try another account',gRetry:'Try again',
- gKick:'Your account was opened on another phone',gKickSub:'One account works on one phone only, so it was closed here. Signing in here again will close it on the other phone.',
+ gKick:'This account is tied to another phone',gKickSub:'Each account is tied to the first phone that signs in. To use it on this phone, ask the app owner to allow a new phone.',
+ uReset:'Allow a new phone',uResetQ:'{e} will be able to sign in from one new phone; it then gets tied to it and the old phone is locked.',uResetOk:'New phone allowed ✓',
  gNet:'Internet is needed to check your account the first time',gErr:'Couldn’t get the account e-mail, try again',
  users:'Allowed users',usersSub:'Add or remove the e-mails that can sign in',uAdd:'Add e-mail',uPh:'name@gmail.com',uBad:'Enter a valid e-mail',uHave:'This e-mail is already there',
  uAdded:'Added ✓',uDel:'Removed ✓',uDelQ:'{e} won’t be able to open the app anymore.',uNone:'Nobody else yet',uYou:'You (admin)',uLoad:'Loading the list…',uFail:'Couldn’t save — check the token and internet',
@@ -967,7 +969,7 @@ async function accList(){
   for(const [u,h] of [[api,{Accept:'application/vnd.github.raw+json'}],[raw,{}]]){try{const r=await fetch(u,{cache:'no-store',headers:h});if(r.ok){const j=await r.json();if(j&&Array.isArray(j.u)){LS.set('rasd_acl',j);return j}}}catch(e){}}
   return null}
 let appOn=false;
-function appStart(){if(appOn)return;appOn=true;setTimeout(()=>{if(window.__fresh){window.__fresh=false;sClaim()}else sVerify(true)},2500);const g=$('#gate');if(g){g.classList.add('gone');setTimeout(()=>g.remove(),350)}render();bkIcon();setTimeout(gStartup,1500)}
+function appStart(fresh){if(appOn)return;appOn=true;if(!fresh)setTimeout(()=>sVerify(true),2500);const g=$('#gate');if(g){g.classList.add('gone');setTimeout(()=>g.remove(),350)}render();bkIcon();setTimeout(gStartup,1500)}
 function gateShow(st,email){let g=$('#gate');if(!g){g=document.createElement('div');g.id='gate';document.body.appendChild(g)}
   const logo=GLOGO,busy=st==='wait';
   const msg={wait:[t('gTitle'),t('gWait')],in:[t('gTitle'),t('gSub')],no:[t('gNo'),t('gNoSub')],kick:[t('gKick'),t('gKickSub')],net:[t('gTitle'),t('gNet')],err:[t('gTitle'),t('gErr')]}[st]||[t('gTitle'),t('gSub')];
@@ -989,10 +991,10 @@ async function gateLogin(interactive,other){
   gateShow('wait');let em=await userEmail();
   if(!em&&isNative&&interactive){if(await natToken(true))em=await userEmail()}
   if(!em){gateShow(navigator.onLine===false?'net':'err');return}
-  const h=await sha(em);LS.set('rasd_me',{e:em,h});window.__fresh=true;gateCheck()}
-async function gateCheck(){const me=accMe();if(!me){gateShow('in');return}
+  const h=await sha(em);LS.set('rasd_me',{e:em,h});gateCheck(true)}
+async function gateCheck(fresh){const me=accMe();if(!me){gateShow('in');return}
   gateShow('wait',me.e);const l=await accList();
-  if(aOK(me.h,l||LS.get('rasd_acl')))return appStart();
+  if(aOK(me.h,l||LS.get('rasd_acl'))){if(fresh===true){const r=await sCheck(true);if(r==='bound'){LS.set('rasd_me',null);LS.set('rasd_gtok',null);gateShow('kick',me.e);return}if(r==='err'){gateShow(navigator.onLine===false?'net':'err',me.e);return}}return appStart(!!fresh)}
   if(!l&&me.h!==ADM){gateShow('net',me.e);return}
   gateShow('no',me.e)}
 function gate(){GLOGO=(document.querySelector('#boot .blogo')||{}).innerHTML||'';
@@ -1001,15 +1003,18 @@ function gate(){GLOGO=(document.querySelector('#boot .blogo')||{}).innerHTML||''
   if(me)return gateCheck();
   if(gtok())return gateLogin(false,false);
   gateShow('in')}
-/* ----- one phone per account: the latest sign-in owns the session (kept in the user's own Drive app folder) ----- */
+/* ----- one phone per account: tied to the first phone that signs in, until the admin allows a new one (lock kept in the user's own Drive app folder) ----- */
 const DEV=(()=>{let d=LS.get('rasd_dev');if(!d){d=uid()+uid();LS.set('rasd_dev',d)}return d})(),SFN='session-lock.json';
 async function sTok(){if(gtok())return true;if(isNative)return natToken(false);return false}
 async function sGet(){const r=await gfetch(GAPI+'/drive/v3/files?spaces=appDataFolder&q='+encodeURIComponent("name='"+SFN+"'")+'&fields=files(id)');const f=((await r.json()).files||[])[0];if(!f)return {};let j={};try{j=await (await gfetch(GAPI+'/drive/v3/files/'+f.id+'?alt=media')).json()}catch(e){}return {id:f.id,j}}
-async function sClaim(){if(isAdm()||!accMe())return;try{if(!await sTok())return;const s=await sGet();await gPut(SFN,JSON.stringify({d:DEV,t:Date.now()}),s.id)}catch(e){}}
+const myR=()=>{const me=accMe(),l=LS.get('rasd_acl');const x=me&&l&&(l.u||[]).find(y=>y.h===me.h);return (x&&x.r)||0};
+async function sCheck(fresh){if(isAdm())return 'ok';try{if(!await sTok())return 'err';const s=await sGet(),r=myR(),lr=(s.j&&s.j.r)||0;
+  if(!s.id||!s.j||!s.j.d||(fresh&&lr!==r)){await gPut(SFN,JSON.stringify({d:DEV,r,t:Date.now()}),s.id);return 'ok'}
+  return s.j.d===DEV&&lr===r?'ok':'bound'}catch(e){return 'err'}}
 let sLast=0;
 async function sVerify(force){const me=accMe();if(isAdm()||!me||!appOn)return;if(!force&&Date.now()-sLast<60000)return;sLast=Date.now();
-  try{if(!await sTok())return;const s=await sGet();if(!s.id)return sClaim();if(s.j&&s.j.d&&s.j.d!==DEV&&accMe()&&accMe().h===me.h)sKick()}catch(e){}}
-function sKick(){LS.set('rasd_me',null);LS.set('rasd_gtok',null);appOn=false;try{stopScan()}catch(e){}closeSheet();$('#app').innerHTML='';view='home';gateShow('kick')}
+  await accList();if(await sCheck(false)==='bound'&&accMe()&&accMe().h===me.h)sKick()}
+function sKick(){const e=(accMe()||{}).e;LS.set('rasd_me',null);LS.set('rasd_gtok',null);appOn=false;try{stopScan()}catch(e){}closeSheet();$('#app').innerHTML='';view='home';gateShow('kick',e)}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)sVerify()});setInterval(()=>{if(!document.hidden)sVerify()},120000);
 function accOut(){sheet(`<h2>${t('accOut')}</h2><div class="sb"><p>${t('accOutQ')}</p><div class="acts"><button class="btn" data-act="close">${t('cancel')}</button><button class="btn bad" data-act="accOutY">${t('accOut')}</button></div></div>`)}
 function accOutY(){closeSheet();LS.set('rasd_me',null);LS.set('rasd_gtok',null);appOn=false;$('#app').innerHTML='';view='home';gateShow('in')}
@@ -1018,7 +1023,7 @@ let uList=null,uBusy=false;
 const mask=e=>{const [a,d]=String(e).split('@');return (a.length<=2?a[0]+'*':a.slice(0,2)+'***'+a.slice(-1))+'@'+(d||'')};
 function users(){if(!isAdm())return home();if(!uList&&!uBusy){uBusy=true;accList().then(l=>{uBusy=false;uList=l||{u:[]};if(view==='users')render()})}
   const names=LS.get('rasd_unames')||{},pat=LS.get('rasd_ghpat');
-  const rows=uList?(uList.u.length?uList.u.map(x=>`<div class="rowi"><span class="aic ua">${ic('user')}</span><div class="g"><h3 dir="ltr" style="text-align:start">${esc(names[x.h]||x.n||'')}</h3></div><button class="ib xb" data-udel="${x.h}" aria-label="${t('del')}">${ic('trash')}</button></div>`).join(''):`<div class="empty" style="padding:28px">${t('uNone')}</div>`):`<div class="empty" style="padding:28px">${t('uLoad')}</div>`;
+  const rows=uList?(uList.u.length?uList.u.map(x=>`<div class="rowi"><span class="aic ua">${ic('user')}</span><div class="g"><h3 dir="ltr" style="text-align:start">${esc(names[x.h]||x.n||'')}</h3></div><button class="ib eb" data-ures="${x.h}" aria-label="${t('uReset')}" title="${t('uReset')}">${ic('restore')}</button><button class="ib xb" data-udel="${x.h}" aria-label="${t('del')}">${ic('trash')}</button></div>`).join(''):`<div class="empty" style="padding:28px">${t('uNone')}</div>`):`<div class="empty" style="padding:28px">${t('uLoad')}</div>`;
   return bar(t('users')).replace('data-go="home"','data-go="settings"')+`<main class="wrap">
   <h2 class="sh">${t('acc')}</h2><div class="grp" style="padding:0"><div class="rowi" style="border:0"><span class="aic ua" style="background:linear-gradient(#a98bff,#6a3df0)">${ic('user')}</span><div class="g"><h3 dir="ltr" style="text-align:start">${esc(accMe().e)}</h3><div class="meta">${t('uYou')}</div></div></div></div>
   <h2 class="sh">${t('users')}</h2><div class="grp" style="padding:0">${rows}</div>
@@ -1044,6 +1049,9 @@ async function uAddY(){const e=($('#uIn').value||'').trim().toLowerCase();if(!/^
   await uWrite(c=>{if(c.u.some(x=>x.h===h))return c;c.u.push({h,n:mask(e)});return c},t('uAdded'))}
 function uDel(h){const nm=(LS.get('rasd_unames')||{})[h]||((uList&&uList.u.find(x=>x.h===h))||{}).n||'';
   sheet(`<h2>${t('sure')}</h2><div class="sb"><p>${t('uDelQ',{e:'<b dir="ltr">'+esc(nm)+'</b>'})}</p><div class="acts"><button class="btn" data-act="close">${t('cancel')}</button><button class="btn bad" data-udely="${h}">${t('del')}</button></div></div>`)}
+function uRes(h){const nm=(LS.get('rasd_unames')||{})[h]||((uList&&uList.u.find(x=>x.h===h))||{}).n||'';
+  sheet(`<h2>${t('uReset')}</h2><div class="sb"><p>${t('uResetQ',{e:'<b dir="ltr">'+esc(nm)+'</b>'})}</p><div class="acts"><button class="btn" data-act="close">${t('cancel')}</button><button class="btn pri" data-uresy="${h}">${t('confirm')}</button></div></div>`)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-ures],[data-uresy]');if(!b)return;e.stopPropagation();if(b.dataset.ures)return uRes(b.dataset.ures);closeSheet();const h=b.dataset.uresy;uWrite(c=>{const x=c.u.find(y=>y.h===h);if(x)x.r=(x.r||0)+1;return c},t('uResetOk'))},true);
 document.addEventListener('click',e=>{const b=e.target.closest('[data-udel],[data-udely]');if(!b)return;e.stopPropagation();if(b.dataset.udel)return uDel(b.dataset.udel);closeSheet();const h=b.dataset.udely;uWrite(c=>{c.u=c.u.filter(x=>x.h!==h);return c},t('uDel'))},true);
 gate();
 {const bt=$('#boot');$('#bootName').textContent=t('app');$('#bootSub').textContent=t('bootSub');setTimeout(()=>{bt.classList.add('gone');setTimeout(()=>{bt.remove();setTimeout(()=>{needZ().then(()=>{try{worker()}catch(e){}initDec()}).catch(()=>{});setTimeout(()=>needX().catch(()=>{}),900)},400)},450)},900)}
