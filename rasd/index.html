@@ -183,6 +183,8 @@ main{padding:8px 0 120px}
 /* dialog */
 .veil{position:fixed;inset:0;background:#0b1020a0;z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
 .veil.on{display:flex}
+.veil{padding-bottom:calc(var(--kb,0px) + 12px)}
+.veil .sheet{max-height:calc(100% - 8px)}
 .veil.top{align-items:flex-start;padding-top:calc(env(safe-area-inset-top) + 64px)}
 .veil.top .sheet{animation:popd .16s ease-out}
 @keyframes popd{from{transform:translateY(-10px);opacity:0}}
@@ -328,7 +330,7 @@ const P={
  send:'<path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4z"/>',dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
  warn:'<path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17.5h.01"/>',plus:'<path d="M12 5v14M5 12h14"/>',search:'<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',arrow:'<path d="M4 12h15M13 6l6 6-6 6"/>',
  share:'<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/>',cloud:'<path d="M7 18a4 4 0 0 1-.6-7.95A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/><path d="M12 11v6M9.5 13.5L12 11l2.5 2.5"/>',mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
- check:'<path d="M5 12l5 5 9-10"/>',file:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',tag:'<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>',merge:'<path d="M6 4v6a4 4 0 0 0 4 4h8M18 4v16M6 20v-2"/><path d="M15 11l3 3-3 3"/>',checks:'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8 12l3 3 5-6"/>',up:'<path d="M12 20V9M7 14l5-5 5 5M5 4h14"/>',restore:'<path d="M4 12a8 8 0 1 0 2.3-5.6L4 8.7"/><path d="M4 4v4.7h4.7M12 8v4l3 2"/>',
+ check:'<path d="M5 12l5 5 9-10"/>',imp:'<path d="M12 3v11M7.5 9.5 12 14l4.5-4.5"/><path d="M4 14v4.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V14"/>',file:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',tag:'<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>',merge:'<path d="M6 4v6a4 4 0 0 0 4 4h8M18 4v16M6 20v-2"/><path d="M15 11l3 3-3 3"/>',checks:'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8 12l3 3 5-6"/>',up:'<path d="M12 20V9M7 14l5-5 5 5M5 4h14"/>',restore:'<path d="M4 12a8 8 0 1 0 2.3-5.6L4 8.7"/><path d="M4 4v4.7h4.7M12 8v4l3 2"/>',
  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/>'
 };
 const ic=(k,a='')=>`<svg class="i ${/back|chev|arrow/.test(k)?'flip':''}" viewBox="0 0 24 24" ${a}>${P[k]}</svg>`;
@@ -447,7 +449,7 @@ function browse(){const all=byDate(),fs=inCat(all,curCat);
   else{const fm=[];const cm=[];all.forEach(f=>f.records.forEach(r=>{if([r.code,r.serial].some(x=>String(x||'').toLowerCase().includes(qq)))cm.push([f,r])}));cm.sort((a,b)=>(b[1].code.toLowerCase()===qq)-(a[1].code.toLowerCase()===qq)||b[1].t-a[1].t);
     body=(cm.length?`<h2 class="sh">${t('codesL')} · ${fmt(cm.length)}</h2>`+cm.slice(0,200).map(([f,r])=>`<button class="rowi" data-hit="${esc(f.id)}" data-hc="${esc(r.code)}"><span class="pill2" style="min-width:44px;text-align:center">${fmt(r.qty)}</span><div class="g"><h3 class="mono">${esc(r.code)}</h3><div class="meta">${esc(f.name)} · ${when(r.t)}</div></div>${ic('chev','style="width:24px;height:24px"')}</button>`).join(''):'')+
       (fm.length?`<h2 class="sh">${t('filesL')} · ${fmt(fm.length)}</h2>`+fm.map(fRow).join(''):'')+(!cm.length&&!fm.length?`<div class="empty">${t('noRes')}</div>`:'')}
-  return bar(t('browse'),`<button class="ib" data-act="imp" aria-label="${t('imp')}">${ic('up')}</button>`+(all.length?`<button class="btn" style="min-height:42px;padding:0 12px;margin-inline-end:6px" data-act="selOn">${ic('checks')} ${t('select')}</button>`:''))+`<main class="wrap">${all.length?`<button class="btn pri findb" data-act="findScan">${ic('scan')} ${t('findBtn')}</button><input class="search" id="gq" placeholder="${t('gsearch')}" value="${esc(gq)}" inputmode="search" dir="auto">`+(qq?'':catBar(all)):catBar(all)}${body}</main>`}
+  return bar(t('browse'),`<button class="ib" data-act="imp" aria-label="${t('imp')}">${ic('imp')}</button>`+(all.length?`<button class="btn" style="min-height:42px;padding:0 12px;margin-inline-end:6px" data-act="selOn">${ic('checks')} ${t('select')}</button>`:''))+`<main class="wrap">${all.length?`<button class="btn pri findb" data-act="findScan">${ic('scan')} ${t('findBtn')}</button><input class="search" id="gq" placeholder="${t('gsearch')}" value="${esc(gq)}" inputmode="search" dir="auto">`+(qq?'':catBar(all)):catBar(all)}${body}</main>`}
 
 function preview(){
   cur=cur||D.last;const f=F();
@@ -876,6 +878,8 @@ window.__upd=(o)=>{try{if(scanning)stopScan();updOpen=true;const notes=String(o.
   $('#uGo').onclick=()=>{try{RasdNative.startUpdate()}catch(e){}};return true}catch(e){return false}};
 window.__updProg=(pc)=>{const b=$('#uBox');if(!b)return;b.innerHTML=`<div class="ubar"><i style="width:${Math.max(3,pc)}%"></i></div><div class="meta" style="text-align:center;margin-top:8px">${pc>=100?t('updInst'):t('updDl')+' '+fmt(pc)+'%'}</div>`};
 window.__updFail=()=>{const b=$('#uBox');if(!b)return;b.innerHTML=`<div class="meta" style="text-align:center;color:var(--bad);margin-bottom:8px">${t('updFail')}</div><button class="btn pri full" id="uGo">${t('retry')}</button>`;$('#uGo').onclick=()=>{try{RasdNative.startUpdate()}catch(e){}}};
+window.__kb=(h)=>{document.documentElement.style.setProperty('--kb',(h>0?h:0)+'px');if(h>0){const a=document.activeElement;if(a&&a.closest&&a.closest('#sheet'))setTimeout(()=>a.scrollIntoView({block:'center',behavior:'smooth'}),60)}};
+document.addEventListener('focusin',e=>{const a=e.target;if(a&&a.closest&&a.closest('#sheet')&&parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--kb'))>0)setTimeout(()=>a.scrollIntoView({block:'center',behavior:'smooth'}),60)});
 window.__back=()=>{if(updOpen&&$('#veil').classList.contains('on'))return false;if($('#veil').classList.contains('on')){closeSheet();return true}if($('#scan').classList.contains('on')){stopScan();return true}if(selMode){selMode=false;sel.clear();render();return true}if(view!=='home'){go('home');return true}return false};
 try{history.pushState(null,'')}catch(e){}
 render();bkIcon();setTimeout(gStartup,1500);
