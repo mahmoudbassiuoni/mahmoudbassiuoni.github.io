@@ -374,7 +374,7 @@ let ac;function beep(dup){if(D.set.sound)try{ac=ac||new (window.AudioContext||wi
 /* dialog */
 let onClose=null,updOpen=false;
 function sheet(html){$('#veil').classList.remove('top');const s=$('#sheet');s.onclick=null;s.onkeydown=null;s.innerHTML=html;$('#veil').classList.add('on');onClose=null;const a=s.querySelector('[autofocus]');if(a)setTimeout(()=>{a.focus();a.select&&a.select()},120)}
-function closeSheet(){$('#veil').classList.remove('on');const c=onClose;onClose=null;c&&c();resumeSoon()}
+function closeSheet(){try{document.activeElement&&document.activeElement.blur()}catch(e){}$('#veil').classList.remove('on');const c=onClose;onClose=null;c&&c();resumeSoon()}
 $('#veil').addEventListener('click',e=>{if(e.target.id==='veil'&&!updOpen)closeSheet()});
 function confirmBox(msg,ok,fn){sheet(`<h2>${t('sure')}</h2><div class="sb"><p>${msg}</p><div class="acts"><button class="btn" data-act="close">${t('no')}</button><button class="btn bad" id="cOk">${ok}</button></div></div>`);$('#cOk').onclick=()=>{$('#veil').classList.remove('on');fn();resumeSoon()}}
 
@@ -488,7 +488,7 @@ function mergeFiles(ids){const fs=D.files.filter(f=>ids.has(f.id)).sort((a,b)=>a
   let how='sum';
   sheet(`<h2>${t('mergeT')}</h2><div class="sb"><div class="meta" style="margin-top:10px">${fs.map(f=>esc(f.name)).join(' + ')}</div>${nameBox(t('mergedFrom')+' '+fs.map(f=>f.name).join(' + ').slice(0,60),'man')}
   <label style="margin-top:16px">${t('dupMode')}</label><button class="opt sm on" data-how="sum"><i></i>${t('dupSum')}</button><button class="opt sm" data-how="new"><i></i>${t('dupNew')}</button>
-  <div class="acts"><button class="btn pri" id="ok">${t('confirm')}</button><button class="btn" data-act="close">${t('cancel')}</button></div></div>`);
+  <div class="acts"><button class="btn pri" id="ok">${t('confirm')}</button><button class="btn" data-act="close">${t('cancel')}</button></div></div>`);$('#veil').classList.add('top');
   const getName=wireName();
   $('#sheet').addEventListener('click',e=>{const b=e.target.closest('[data-how]');if(!b)return;how=b.dataset.how;$('#sheet').querySelectorAll('[data-how]').forEach(x=>x.classList.toggle('on',x===b))});
   $('#ok').onclick=()=>{const n=getName();if(!n)return toast(t('nameEmpty'),'bad');if(D.files.some(f=>f.name===n))return toast(t('nameExists'),'bad');
