@@ -1,11 +1,11 @@
-const C='daftar-v81';
+const C='daftar-v82';
 const FILES=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/maskable-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>Promise.all(FILES.map(f=>fetch(f,{cache:'no-store'}).then(r=>r.ok&&c.put(f,r)).catch(()=>{})))).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C&&k!=='daftar-data').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 const timeout=(p,ms)=>new Promise((ok,no)=>{const t=setTimeout(()=>no(new Error('timeout')),ms);p.then(v=>{clearTimeout(t);ok(v)},er=>{clearTimeout(t);no(er)})});
 self.addEventListener('fetch',e=>{const req=e.request;if(req.method!=='GET')return;
  const url=new URL(req.url);if(url.origin!==location.origin)return; /* never touch fonts/cdn: the browser handles them */
- if(req.mode==='navigate'&&!/\/(index\.html)?$/.test(url.pathname))return; /* other pages (privacy, download…) go to the network as usual */
+ if(req.mode==='navigate'&&!/^\/(index\.html)?$/.test(url.pathname))return; /* other pages (privacy, download…) go to the network as usual */
  if(req.mode==='navigate'){ /* page: open instantly from the saved copy, refresh it in the background (new version shows next time) */
   const upd=fetch(req,{cache:'no-store'}).then(r=>{if(r&&r.ok){const cp=r.clone();caches.open(C).then(c=>c.put('index.html',cp))}return r});
   e.waitUntil(upd.catch(()=>{}));
