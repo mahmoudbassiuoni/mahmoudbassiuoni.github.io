@@ -1,8 +1,8 @@
 {
- "code": 11,
- "name": "1.0.10",
+ "code": 12,
+ "name": "1.0.11",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4298006,
- "notes": "• ملخص الملف قبل الإرسال (عدد الأكواد والكميات)\n• دمج ملفين أو أكتر في ملف واحد\n• بحث عن أي كود في كل الملفات\n• استيراد ملفات Excel و CSV",
- "notes_en": "• File summary before sending\n• Merge two or more files\n• Search a code across all files\n• Import Excel and CSV files"
+ "size": 4298266,
+ "notes": "• فتح التطبيق بقى أسرع وشريط التحميل ناعم\n• أزرار الوضع في الإعدادات على قد الكلام",
+ "notes_en": "• Faster start with a smooth loading bar\n• Mode buttons in Settings fit their words"
 }
