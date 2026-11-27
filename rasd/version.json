@@ -1,8 +1,8 @@
 {
- "code": 9,
- "name": "1.0.8",
+ "code": 10,
+ "name": "1.0.9",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4298258,
- "notes": "• قايمة الأرقام بقت بنفس عرض الخانة ولازقة فيها",
- "notes_en": "• The number list is now the same width as its box and attached to it"
+ "size": 4295826,
+ "notes": "• التطبيق بيفتح بشاشة «رصد» بس من غير أيقونة زيادة\n• ظبط شكل اختيار الوضع في الإعدادات",
+ "notes_en": "• The app opens with just the Rasd screen, no extra icon\n• Fixed the Mode buttons in Settings"
 }
