@@ -14,6 +14,9 @@ import java.net.URL;
 import java.util.Locale;
 import android.app.PendingIntent;
 import android.content.ClipData;
+import android.database.Cursor;
+import android.provider.DocumentsContract;
+import org.json.JSONArray;
 import android.content.ClipboardManager;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -68,7 +71,7 @@ import java.util.Collections;
  * copy, vibration. The hardware back button is passed to window.__back().
  */
 public class MainActivity extends Activity {
-    static final int RC_AUTH = 11, RC_FILE = 12, RC_CAM_PERM = 13, RC_NOTIF = 14;
+    static final int RC_AUTH = 11, RC_FILE = 12, RC_CAM_PERM = 13, RC_NOTIF = 14, RC_DIR = 15;
     static final String HOST = "appassets.androidplatform.net";
     static final String SCOPE = "https://www.googleapis.com/auth/drive.appdata";
     /* in-app updates: bump versionCode in app/build.gradle + "code" in this file on GitHub */
@@ -493,11 +496,23 @@ public class MainActivity extends Activity {
             Uri[] r = null;
             if (res == RESULT_OK) {
                 if (camUri != null) r = new Uri[]{camUri};
-                else r = WebChromeClient.FileChooserParams.parseResult(res, data);
+                else if (data != null && data.getClipData() != null) {
+                    ClipData cd = data.getClipData();
+                    r = new Uri[cd.getItemCount()];
+                    for (int i = 0; i < r.length; i++) r[i] = cd.getItemAt(i).getUri();
+                } else r = WebChromeClient.FileChooserParams.parseResult(res, data);
             }
             if (fileCb != null) fileCb.onReceiveValue(r);
             fileCb = null;
             camUri = null;
+        } else if (rc == RC_DIR) {
+            if (res != RESULT_OK || data == null || data.getData() == null) { js("window.__folderFiles&&window.__folderFiles(null)"); return; }
+            final Uri tree = data.getData();
+            new Thread(() -> {
+                JSONArray arr = new JSONArray();
+                try { walk(tree, DocumentsContract.getTreeDocumentId(tree), arr, 0); } catch (Exception e) { /* ignore */ }
+                js("window.__folderFiles&&window.__folderFiles(" + arr.toString() + ")");
+            }).start();
         } else if (rc == RC_AUTH) {
             if (data == null || res != RESULT_OK) { sendErr("cancel"); return; }
             try {
@@ -544,6 +559,35 @@ public class MainActivity extends Activity {
 
     void sendErr(String m) {
         js("window.__nativeTokErr&&window.__nativeTokErr(" + JSONObject.quote(m == null ? "error" : m) + ")");
+    }
+
+    /* ---------- import a whole folder: every .xlsx / .xls / .csv in it (and its sub-folders) ---------- */
+    void walk(Uri tree, String docId, JSONArray arr, int depth) {
+        if (depth > 3 || arr.length() >= 200) return;
+        Uri ch = DocumentsContract.buildChildDocumentsUriUsingTree(tree, docId);
+        String[] cols = {DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.COLUMN_SIZE};
+        try (Cursor c = getContentResolver().query(ch, cols, null, null, null)) {
+            while (c != null && c.moveToNext() && arr.length() < 200) {
+                String id = c.getString(0), nm = c.getString(1), mt = c.getString(2);
+                long sz = c.isNull(3) ? 0 : c.getLong(3);
+                if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mt)) { walk(tree, id, arr, depth + 1); continue; }
+                String l = nm == null ? "" : nm.toLowerCase(Locale.ROOT);
+                if (!(l.endsWith(".xlsx") || l.endsWith(".xls") || l.endsWith(".csv")) || sz > 15L * 1024 * 1024) continue;
+                Uri du = DocumentsContract.buildDocumentUriUsingTree(tree, id);
+                try (InputStream in = getContentResolver().openInputStream(du)) {
+                    if (in == null) continue;
+                    ByteArrayOutputStream bo = new ByteArrayOutputStream();
+                    byte[] buf = new byte[16384];
+                    int n;
+                    while ((n = in.read(buf)) > 0) bo.write(buf, 0, n);
+                    JSONObject o = new JSONObject();
+                    o.put("name", nm);
+                    o.put("b64", Base64.encodeToString(bo.toByteArray(), Base64.NO_WRAP));
+                    arr.put(o);
+                } catch (Exception e) { /* skip this file */ }
+            }
+        } catch (Exception e) { /* ignore */ }
     }
 
     /* ---------- files ---------- */
@@ -670,6 +714,14 @@ public class MainActivity extends Activity {
                 it.setType("text/plain");
                 it.putExtra(Intent.EXTRA_TEXT, text);
                 try { startActivity(Intent.createChooser(it, getString(R.string.app_name))); } catch (Exception e) { /* none */ }
+            });
+        }
+
+        @JavascriptInterface
+        public void pickFolder() {
+            runOnUiThread(() -> {
+                try { startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), RC_DIR); }
+                catch (Exception e) { js("window.__folderFiles&&window.__folderFiles([])"); }
             });
         }
 
