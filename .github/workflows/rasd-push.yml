@@ -3,10 +3,7 @@
 # (both apps are in the same Firebase project). Without it, this step is skipped.
 name: Notify new Rasd version
 on:
-  push:
-    branches: [main]
-    paths: [rasd/version.json]
-  workflow_dispatch:
+  workflow_dispatch:   # the build workflow (rasd-build.yml) now sends the push itself
 jobs:
   notify:
     runs-on: ubuntu-latest
