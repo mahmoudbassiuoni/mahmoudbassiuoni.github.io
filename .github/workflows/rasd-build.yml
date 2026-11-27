@@ -40,8 +40,12 @@ jobs:
         working-directory: rasd-src/android-app
         env:
           RASD_KS_FILE: ${{ runner.temp }}/rasd.keystore
-          RASD_KS_PASS: ${{ secrets.RASD_KS_PASS }}
-        run: gradle --no-daemon assembleRelease
+          KS_PASS_RAW: ${{ secrets.RASD_KS_PASS }}
+        run: |
+          # ignore spaces / line breaks that sneak in when the secret is pasted
+          export RASD_KS_PASS="$(printf '%s' "$KS_PASS_RAW" | tr -d '\r\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+          echo "password length: ${#RASD_KS_PASS}"
+          gradle --no-daemon assembleRelease
       - name: Publish APK, web app and version.json
         if: steps.sec.outputs.ok == 'true'
         run: |
