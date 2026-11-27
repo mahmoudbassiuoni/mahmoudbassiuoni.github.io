@@ -277,6 +277,8 @@ public class MainActivity extends Activity {
     }
 
     String pendingApkUrl = "";
+    int lastKb = -1;
+    Runnable kbTask = () -> { };
 
     void checkUpdate() {
         lastCheck = System.currentTimeMillis();
@@ -428,6 +430,15 @@ public class MainActivity extends Activity {
                 // nothing has to move (resizing on every keyboard frame caused stutter/flicker)
                 android.graphics.Insets i = in.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
                 v.setPadding(i.left, i.top, i.right, i.bottom);
+                // tell the page how tall the keyboard is (once it settles), so open dialogs sit above it
+                int ime = Math.max(0, in.getInsets(WindowInsets.Type.ime()).bottom - i.bottom);
+                final int kb = Math.round(ime / getResources().getDisplayMetrics().density);
+                if (kb != lastKb) {
+                    lastKb = kb;
+                    root.removeCallbacks(kbTask);
+                    kbTask = () -> js("window.__kb&&window.__kb(" + kb + ")");
+                    root.postDelayed(kbTask, kb > 0 ? 40 : 0);
+                }
                 return WindowInsets.CONSUMED;
             });
         } else {
