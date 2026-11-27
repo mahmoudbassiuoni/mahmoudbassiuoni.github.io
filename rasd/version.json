@@ -1,8 +1,8 @@
 {
- "code": 21,
- "name": "1.0.20",
+ "code": 22,
+ "name": "1.0.21",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4306557,
- "notes": "• كل القوايم بقت بنفس الشكل الشيك: بتنزل لازقة تحت الخانة",
- "notes_en": "• Every list now opens the same neat way, right under its box"
+ "size": 4306909,
+ "notes": "• شكل جديد ومرتب لصفحة النسخ الاحتياطي",
+ "notes_en": "• New, tidy Backup screen"
 }
