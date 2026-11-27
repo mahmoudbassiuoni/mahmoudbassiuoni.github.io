@@ -8,6 +8,11 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>رصد — Rasd</title>
+<script>/* set language, direction and look before anything is drawn */
+try{var d0=JSON.parse(localStorage.getItem('rasd_v2')||'null');if(!d0&&window.RasdNative&&RasdNative.restore){var b0=RasdNative.restore();if(b0)d0=JSON.parse(b0)}
+var s0=(d0&&d0.set)||{},h0=document.documentElement;window.__en=s0.lang==='en';
+if(window.__en){h0.lang='en';h0.dir='ltr';document.title='Rasd — Barcode Scanner'}else{document.title='رصد — ماسح الباركود'}
+if(s0.look&&s0.look!=='classic')h0.dataset.c=s0.look;if(s0.md==='light'||s0.md==='dark')h0.dataset.theme=s0.md}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -228,6 +233,7 @@ label{display:block;font-size:14px;color:var(--mute);margin:14px 0 4px}
 <linearGradient id="gTeal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3fd6c3"/><stop offset="1" stop-color="#0f9488"/></linearGradient>
 </defs></svg>
 <div id="boot" aria-hidden="true"><div class="bw"><div class="blogo"><svg viewBox="0 0 108 108" width="104" height="104"><defs><linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b7bff"/><stop offset="1" stop-color="#13235b"/></linearGradient></defs><circle cx="54" cy="54" r="54" fill="url(#bg1)"/><g fill="#fff"><rect x="28" y="28" width="15" height="4" rx="2"/><rect x="28" y="28" width="4" height="15" rx="2"/><rect x="65" y="28" width="15" height="4" rx="2"/><rect x="76" y="28" width="4" height="15" rx="2"/><rect x="28" y="76" width="15" height="4" rx="2"/><rect x="28" y="65" width="4" height="15" rx="2"/><rect x="65" y="76" width="15" height="4" rx="2"/><rect x="76" y="65" width="4" height="15" rx="2"/><rect x="38" y="41" width="3" height="26"/><rect x="43" y="41" width="2" height="26"/><rect x="47" y="41" width="5" height="26"/><rect x="54" y="41" width="2" height="26"/><rect x="58" y="41" width="4" height="26"/><rect x="64" y="41" width="2" height="26"/><rect x="68" y="41" width="3" height="26"/></g><rect x="33" y="52.5" width="42" height="3" rx="1.5" fill="#ff3b4b"/></svg></div><div class="bname" id="bootName">رصد</div><div class="bsub" id="bootSub">ماسح الباركود والجرد</div><div class="bbar"><i></i></div></div><div class="bpw" dir="ltr">Powered by <b>Mahmoud Nassar</b></div></div>
+<script>if(window.__en){document.getElementById('bootName').textContent='Rasd';document.getElementById('bootSub').textContent='Barcode scanner & inventory'}</script>
 <div id="app"></div>
 
 <div id="scan">
