@@ -101,6 +101,18 @@ if(s0.look&&s0.look!=='classic')h0.dataset.c=s0.look;if(s0.md==='light'||s0.md==
 .arow:active{background:var(--acc2)}
 .arow .aic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;flex:none}.arow .aic svg.i{width:22px;height:22px}
 .arow .g{flex:1;min-width:0;display:flex;flex-direction:column}.arow b{font-size:16px}.arow .chev{display:grid;color:var(--mute)}.arow .chev svg{width:20px;height:20px}
+#gate{position:fixed;inset:0;z-index:95;background:var(--card);display:flex;flex-direction:column;align-items:center;transition:opacity .3s;padding:env(safe-area-inset-top) 24px env(safe-area-inset-bottom)}
+#gate.gone{opacity:0;pointer-events:none}
+#gate .gw{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;max-width:380px;width:100%}
+#gate .glogo{filter:drop-shadow(0 12px 24px #2459e855);margin-bottom:10px}
+#gate h1{font:800 26px/1.25 Outfit,"IBM Plex Sans Arabic",sans-serif;color:var(--ink);margin:6px 0 4px}
+#gate p{color:var(--mute);margin:0 0 18px;font-size:15px}
+#gate .gmail{background:var(--acc2);color:var(--ink);border-radius:12px;padding:8px 14px;font-weight:600;margin-bottom:16px;word-break:break-all}
+#gate .gbtn{width:100%;height:56px;border-radius:16px;background:var(--card);border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;gap:12px;font-weight:600;font-size:17px;color:var(--ink);box-shadow:0 6px 18px -8px #13235b44}
+#gate .gbtn:active{transform:scale(.98);background:var(--acc2)}
+#gate .glink{margin-top:14px;color:var(--acc);font-weight:600;padding:8px 14px}
+#gate .bpw{padding:18px 0;color:var(--mute);font-size:13px}
+.aic.ua{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(#6aa8ff,#2459e8);flex:none}
 .sumg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
 .sumg div{background:var(--acc2);border-radius:14px;padding:10px 8px;text-align:center}
 .sumg b{display:block;font:700 20px/1.2 Outfit,"IBM Plex Sans Arabic",sans-serif;color:var(--ink)}
@@ -417,7 +429,7 @@ function confirmBox(msg,ok,fn){sheet(`<h2>${t('sure')}</h2><div class="sb"><p>${
 /* views */
 const bar=(title,extra='')=>`<div class="bar"><div class="in wrap"><button class="ib" data-go="home" aria-label="back">${ic('back')}</button><h1>${title}</h1>${extra}</div></div>`;
 const TILES=[['add','addFile','newFile'],['cont','contFile','go:cont'],['prev','preview','go:preview'],['browse','browse','go:browse'],['send','send','send'],['set','settings','go:settings']];
-function render(){applyLang();$('#app').innerHTML=({home,cont,preview,browse,settings,help}[view]||home)()}
+function render(){applyLang();$('#app').innerHTML=({home,cont,preview,browse,settings,help,users}[view]||home)()}
 function home(){
   const lf=LF();
   return `<div class="banner"><div class="in wrap">${QR}<div class="wm"><b>${t('app')}</b><div class="ln"></div><span>${t('tag')}</span></div></div></div>
@@ -509,6 +521,9 @@ function settings(){
   <h2 class="sh">${t('ext')} · ${t('language')}</h2><div class="grp"><div class="step"><b>${t('ext')}</b>${dd('sExt',['xls','xlsx','csv'].map(x=>[x,'.'+x]),s.ext,'sm mono')}</div>
   <div class="step"><b>${t('language')}</b><div class="seg"><button data-lg="ar" class="${s.lang==='ar'?'on':''}">عربي</button><button data-lg="en" class="${s.lang==='en'?'on':''}">English</button></div></div></div>
   <h2 class="sh">${t('backup')}</h2><div class="grp" style="padding:0"><button class="rowi" data-act="bk" style="border:0">${bkBadge()}<div class="g"><h3>${t('bk')}</h3><div class="meta" id="bkLine">${bkStatus().t} · ${bkStatus().s}</div></div>${ic('chev','style="width:26px;height:26px"')}</button></div>
+  ${accMe()?`<h2 class="sh">${t('acc')}</h2><div class="grp" style="padding:0"><div class="rowi" style="border:0"><span class="aic" style="width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(#6aa8ff,#2459e8);flex:none">${ic('user')}</span><div class="g"><h3 dir="ltr" style="text-align:start">${esc(accMe().e)}</h3><div class="meta">${isAdm()?t('accAdm'):t('accUser')}</div></div></div>
+  ${isAdm()?`<button class="rowi" data-act="goUsers" style="border:0;border-top:1px solid var(--line)"><span class="aic" style="width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(#a98bff,#6a3df0);flex:none">${ic('users')}</span><div class="g"><h3>${t('users')}</h3><div class="meta">${t('usersSub')}</div></div>${ic('chev','style="width:26px;height:26px"')}</button>`:''}
+  <button class="rowi" data-act="accOut" style="border:0;border-top:1px solid var(--line)"><span class="aic" style="width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(#94a3b8,#475569);flex:none">${ic('logout')}</span><div class="g"><h3>${t('accOut')}</h3></div></button></div>`:''}
   </main><div class="dock"><div class="in"><button class="btn pri" data-act="saveSet">${t('confirm')}</button></div></div>`;
 }
 function help(){
@@ -770,7 +785,7 @@ const LS={get(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e)
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())};
 const NAT=window.RasdNative||null,isNative=!!NAT;
 const inArtifact=/claude|anthropic/i.test(location.hostname)||location.protocol==='file:';
-const GSC='https://www.googleapis.com/auth/drive.appdata',GAPI='https://www.googleapis.com';
+const GSC='https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.email',GAPI='https://www.googleapis.com';
 const GCID='539562884900-qaoe259426nuptoo34dfd17db8a9ebrl.apps.googleusercontent.com';
 const gOK=()=>isNative||(location.protocol==='https:'&&!inArtifact);
 const gtok=()=>{const x=LS.get('rasd_gtok');return x&&x.exp>Date.now()+60000?x.at:null};
@@ -873,6 +888,13 @@ document.addEventListener('click',e=>{
     case 'backup':return backup();
     case 'restore':return $('#restoreIn').click();
     case 'bk':return bkSheet();
+    case 'goUsers':uList=null;return go('users');
+    case 'accOut':return accOut();
+    case 'accOutY':return accOutY();
+    case 'ghSet':return ghSet();
+    case 'ghSave':return ghSave();
+    case 'uAdd':return uAdd();
+    case 'uAddY':return uAddY();
     case 'shareApp':{const url='https://mahmoudbassiuoni.github.io/rasd/download.html',txt=t('shareTxt');
       if(window.RasdNative&&RasdNative.shareText){RasdNative.shareText(txt+'\n'+url);return}
       if(navigator.share&&!inArtifact){navigator.share({title:t('app'),text:txt,url}).catch(()=>{});return}
@@ -915,7 +937,100 @@ window.__kb=(h)=>{document.documentElement.style.setProperty('--kb',(h>0?h:0)+'p
 document.addEventListener('focusin',e=>{const a=e.target;if(a&&a.closest&&a.closest('#sheet')&&parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--kb'))>0)setTimeout(()=>a.scrollIntoView({block:'center',behavior:'smooth'}),60)});
 window.__back=()=>{if(updOpen&&$('#veil').classList.contains('on'))return false;if($('#veil').classList.contains('on')){closeSheet();return true}if($('#scan').classList.contains('on')){stopScan();return true}if(selMode){selMode=false;sel.clear();render();return true}if(view!=='home'){go('home');return true}return false};
 try{history.pushState(null,'')}catch(e){}
-render();bkIcon();setTimeout(gStartup,1500);
+/* ---------- access: only allowed Google accounts can open Rasd ---------- */
+const ADM='53b44663b528d413d23614e2eeeb28460a6e87219770c31b15b382e5a2eb1cf6',AREPO='mahmoudbassiuoni/mahmoudbassiuoni.github.io',APATH='rasd-access.json';
+Object.assign(P,{user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.8 2.9-6 6.5-6s6.5 2.2 6.5 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2.3.6 3.5 2.6 3.5 6"/>',logout:'<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4M6 12h10"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/>'});
+Object.assign(T.ar,{acc:'الحساب',accAdm:'صاحب التطبيق (أدمن)',accUser:'حساب مسموح له',accOut:'تسجيل خروج',accOutQ:'هتحتاج تسجل دخول تاني عشان تفتح التطبيق. ملفاتك مش هتتمسح.',
+ gTitle:'أهلاً بيك في رصد',gSub:'سجّل دخول بحساب جوجل المسموح له يستخدم التطبيق',gBtn:'الدخول بحساب جوجل',gWait:'بنتأكد من حسابك…',
+ gNo:'الحساب ده مش مسموح له',gNoSub:'ابعت إيميلك لصاحب التطبيق عشان يضيفك، وبعدين ادخل تاني.',gOther:'جرّب حساب تاني',gRetry:'حاول تاني',
+ gNet:'محتاجين إنترنت عشان نتأكد من حسابك أول مرة',gErr:'معرفناش نجيب إيميل الحساب، حاول تاني',
+ users:'المستخدمين المسموح لهم',usersSub:'ضيف أو شيل الإيميلات اللي تقدر تدخل',uAdd:'ضيف إيميل',uPh:'name@gmail.com',uBad:'اكتب إيميل صحيح',uHave:'الإيميل ده موجود بالفعل',
+ uAdded:'اتضاف ✓',uDel:'اتشال ✓',uDelQ:'{e} مش هيقدر يفتح التطبيق تاني.',uNone:'لسه مفيش حد غيرك',uYou:'إنت (الأدمن)',uLoad:'بنحمّل القائمة…',uFail:'معرفناش نحفظ، اتأكد من التوكن والنت',
+ ghT:'توكن GitHub',ghSub:'بيتحفظ على موبايلك بس، ومحتاجه عشان تقدر تعدّل القائمة',ghSet:'حط التوكن',ghOk:'التوكن متظبط',ghChange:'غيّر التوكن',ghBad:'التوكن ده مش شغال'});
+Object.assign(T.en,{acc:'Account',accAdm:'App owner (admin)',accUser:'Allowed account',accOut:'Sign out',accOutQ:'You will need to sign in again to open the app. Your files stay.',
+ gTitle:'Welcome to Rasd',gSub:'Sign in with a Google account that is allowed to use the app',gBtn:'Sign in with Google',gWait:'Checking your account…',
+ gNo:'This account isn’t allowed',gNoSub:'Send your e-mail to the app owner to get added, then sign in again.',gOther:'Try another account',gRetry:'Try again',
+ gNet:'Internet is needed to check your account the first time',gErr:'Couldn’t get the account e-mail, try again',
+ users:'Allowed users',usersSub:'Add or remove the e-mails that can sign in',uAdd:'Add e-mail',uPh:'name@gmail.com',uBad:'Enter a valid e-mail',uHave:'This e-mail is already there',
+ uAdded:'Added ✓',uDel:'Removed ✓',uDelQ:'{e} won’t be able to open the app anymore.',uNone:'Nobody else yet',uYou:'You (admin)',uLoad:'Loading the list…',uFail:'Couldn’t save — check the token and internet',
+ ghT:'GitHub token',ghSub:'Kept on your phone only; needed to change the list',ghSet:'Set token',ghOk:'Token is set',ghChange:'Change token',ghBad:'That token doesn’t work'});
+async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(s).trim().toLowerCase()));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+const accMe=()=>LS.get('rasd_me'),isAdm=()=>(accMe()||{}).h===ADM;
+const aOK=(h,l)=>h===ADM||!!(l&&(l.u||[]).some(x=>x.h===h));
+async function accList(){
+  const api='https://api.github.com/repos/'+AREPO+'/contents/'+APATH+'?ref=main&t='+Date.now(),raw='https://raw.githubusercontent.com/'+AREPO+'/main/'+APATH+'?t='+Date.now();
+  for(const [u,h] of [[api,{Accept:'application/vnd.github.raw+json'}],[raw,{}]]){try{const r=await fetch(u,{cache:'no-store',headers:h});if(r.ok){const j=await r.json();if(j&&Array.isArray(j.u)){LS.set('rasd_acl',j);return j}}}catch(e){}}
+  return null}
+let appOn=false;
+function appStart(){if(appOn)return;appOn=true;const g=$('#gate');if(g){g.classList.add('gone');setTimeout(()=>g.remove(),350)}render();bkIcon();setTimeout(gStartup,1500)}
+function gateShow(st,email){let g=$('#gate');if(!g){g=document.createElement('div');g.id='gate';document.body.appendChild(g)}
+  const logo=GLOGO,busy=st==='wait';
+  const msg={wait:[t('gTitle'),t('gWait')],in:[t('gTitle'),t('gSub')],no:[t('gNo'),t('gNoSub')],net:[t('gTitle'),t('gNet')],err:[t('gTitle'),t('gErr')]}[st]||[t('gTitle'),t('gSub')];
+  g.innerHTML=`<div class="gw"><div class="glogo">${logo}</div><h1>${msg[0]}</h1><p>${msg[1]}</p>
+  ${email?`<div class="gmail" dir="ltr">${esc(email)}</div>`:''}
+  ${busy?'<div class="bbar"><i></i></div>':st==='no'?`<button class="gbtn" data-gate="other">${GG}${t('gOther')}</button>`:`<button class="gbtn" data-gate="in">${GG}${t('gBtn')}</button>`}
+  ${st==='no'?`<button class="glink" data-gate="retry">${t('gRetry')}</button>`:''}</div><div class="bpw" dir="ltr">Powered by <b>Mahmoud Nassar</b></div>`;
+  g.onclick=e=>{const b=e.target.closest('[data-gate]');if(!b)return;const a=b.dataset.gate;if(a==='in')gateLogin(true,false);else if(a==='other')gateLogin(true,true);else if(a==='retry')gateCheck()}}
+const GG='<svg viewBox="0 0 48 48" width="24" height="24"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.3l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.6 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>';
+let GLOGO='';
+async function userEmail(){const tk=gtok();if(!tk)return null;try{const r=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+tk}});if(r.status===401||r.status===403){LS.set('rasd_gtok',null);return null}if(!r.ok)return null;return ((await r.json()).email||'').toLowerCase()||null}catch(e){return null}}
+async function gateLogin(interactive,other){
+  if(!gOK()){gateShow('err');return}
+  if(other){LS.set('rasd_gtok',null)}
+  if(!gtok()){
+    if(isNative){gateShow('wait');let ok;if(other&&NAT.chooseAccount){ok=await new Promise(res=>{window.__tokWait=res;try{NAT.chooseAccount()}catch(e){window.__tokWait=null;res(false)}})}else ok=await natToken(interactive);if(!ok){gateShow('in');return}}
+    else{if(!interactive){gateShow('in');return}const st=uid();LS.set('rasd_gstate',{st,silent:false,view:'home'});
+      location.href='https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:GCID,redirect_uri:location.origin+location.pathname,response_type:'token',scope:GSC,include_granted_scopes:'true',state:st,prompt:other?'select_account consent':'consent'});return}}
+  gateShow('wait');let em=await userEmail();
+  if(!em&&isNative&&interactive){if(await natToken(true))em=await userEmail()}
+  if(!em){gateShow(navigator.onLine===false?'net':'err');return}
+  const h=await sha(em);LS.set('rasd_me',{e:em,h});gateCheck()}
+async function gateCheck(){const me=accMe();if(!me){gateShow('in');return}
+  gateShow('wait',me.e);const l=await accList();
+  if(aOK(me.h,l||LS.get('rasd_acl')))return appStart();
+  if(!l&&me.h!==ADM){gateShow('net',me.e);return}
+  gateShow('no',me.e)}
+function gate(){GLOGO=(document.querySelector('#boot .blogo')||{}).innerHTML||'';
+  const me=accMe();
+  if(me&&aOK(me.h,LS.get('rasd_acl'))){appStart();accList().then(l=>{if(l&&!aOK(me.h,l)){appOn=false;$('#app').innerHTML='';closeSheet&&closeSheet();gateShow('no',me.e)}});return}
+  if(me)return gateCheck();
+  if(gtok())return gateLogin(false,false);
+  gateShow('in')}
+function accOut(){sheet(`<h2>${t('accOut')}</h2><div class="sb"><p>${t('accOutQ')}</p><div class="acts"><button class="btn" data-act="close">${t('cancel')}</button><button class="btn bad" data-act="accOutY">${t('accOut')}</button></div></div>`)}
+function accOutY(){closeSheet();LS.set('rasd_me',null);LS.set('rasd_gtok',null);appOn=false;$('#app').innerHTML='';view='home';gateShow('in')}
+/* ----- admin: manage the list (writes rasd-access.json through the GitHub API) ----- */
+let uList=null,uBusy=false;
+const mask=e=>{const [a,d]=String(e).split('@');return (a.length<=2?a[0]+'*':a.slice(0,2)+'***'+a.slice(-1))+'@'+(d||'')};
+function users(){if(!isAdm())return home();if(!uList&&!uBusy){uBusy=true;accList().then(l=>{uBusy=false;uList=l||{u:[]};if(view==='users')render()})}
+  const names=LS.get('rasd_unames')||{},pat=LS.get('rasd_ghpat');
+  const rows=uList?(uList.u.length?uList.u.map(x=>`<div class="rowi"><span class="aic ua">${ic('user')}</span><div class="g"><h3 dir="ltr" style="text-align:start">${esc(names[x.h]||x.n||'')}</h3></div><button class="ib xb" data-udel="${x.h}" aria-label="${t('del')}">${ic('trash')}</button></div>`).join(''):`<div class="empty" style="padding:28px">${t('uNone')}</div>`):`<div class="empty" style="padding:28px">${t('uLoad')}</div>`;
+  return bar(t('users')).replace('data-go="home"','data-go="settings"')+`<main class="wrap">
+  <h2 class="sh">${t('acc')}</h2><div class="grp" style="padding:0"><div class="rowi" style="border:0"><span class="aic ua" style="background:linear-gradient(#a98bff,#6a3df0)">${ic('user')}</span><div class="g"><h3 dir="ltr" style="text-align:start">${esc(accMe().e)}</h3><div class="meta">${t('uYou')}</div></div></div></div>
+  <h2 class="sh">${t('users')}</h2><div class="grp" style="padding:0">${rows}</div>
+  <h2 class="sh">${t('ghT')}</h2><div class="grp" style="padding:0"><button class="rowi" data-act="ghSet" style="border:0"><span class="aic ua" style="background:linear-gradient(${pat?'#3ddc84,#139a4b':'#ffc145,#ef8a00'})">${ic('key')}</span><div class="g"><h3>${pat?t('ghOk'):t('ghSet')}</h3><div class="meta">${t('ghSub')}</div></div>${ic('chev','style="width:26px;height:26px"')}</button></div>
+  </main><div class="dock"><div class="in"><button class="btn pri" data-act="uAdd">${ic('plus')} ${t('uAdd')}</button></div></div>`}
+function ghSet(){const pat=LS.get('rasd_ghpat');$('#veil').classList.add('top');
+  sheet(`<h2>${t('ghT')}</h2><div class="sb"><p class="meta">${t('ghSub')}</p><input class="f" id="ghIn" dir="ltr" autocomplete="off" placeholder="github_pat_…" value=""><div class="acts"><button class="btn" data-act="close">${t('cancel')}</button><button class="btn pri" data-act="ghSave">${t('save')}</button></div></div>`);$('#veil').classList.add('top');setTimeout(()=>$('#ghIn').focus(),120)}
+async function ghSave(){const v=($('#ghIn').value||'').trim();if(!v)return;
+  try{const r=await fetch('https://api.github.com/repos/'+AREPO,{headers:{Authorization:'Bearer '+v}});const j=await r.json();if(!r.ok||!(j.permissions&&j.permissions.push))throw 0;LS.set('rasd_ghpat',v);closeSheet();toast(t('ghOk'),'ok');render()}catch(e){toast(t('ghBad'),'bad')}}
+function uAdd(){if(!LS.get('rasd_ghpat'))return ghSet();
+  sheet(`<h2>${t('uAdd')}</h2><div class="sb"><input class="f" id="uIn" type="email" dir="ltr" autocomplete="off" placeholder="${t('uPh')}"><div class="acts"><button class="btn" data-act="close">${t('cancel')}</button><button class="btn pri" data-act="uAddY">${t('confirm')}</button></div></div>`);$('#veil').classList.add('top');setTimeout(()=>$('#uIn').focus(),120)}
+async function uWrite(fn,okMsg){const pat=LS.get('rasd_ghpat');if(!pat)return ghSet();
+  const api='https://api.github.com/repos/'+AREPO+'/contents/'+APATH,H={Authorization:'Bearer '+pat,Accept:'application/vnd.github+json'};
+  try{let sha0,cur={u:[]};const r=await fetch(api+'?ref=main&t='+Date.now(),{headers:H,cache:'no-store'});
+    if(r.ok){const j=await r.json();sha0=j.sha;cur=JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))))}else if(r.status!==404)throw 0;
+    if(!Array.isArray(cur.u))cur.u=[];const nx=fn(cur);if(!nx)return false;
+    const body={message:'Rasd access list',content:btoa(unescape(encodeURIComponent(JSON.stringify(nx,null,1)))),branch:'main'};if(sha0)body.sha=sha0;
+    const w=await fetch(api,{method:'PUT',headers:H,body:JSON.stringify(body)});if(!w.ok)throw 0;
+    uList=nx;LS.set('rasd_acl',nx);toast(okMsg,'ok');render();return true}catch(e){toast(t('uFail'),'bad');return false}}
+async function uAddY(){const e=($('#uIn').value||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))return toast(t('uBad'),'bad');
+  const h=await sha(e);if(h===ADM||(uList&&uList.u.some(x=>x.h===h)))return toast(t('uHave'),'bad');
+  closeSheet();const nm=LS.get('rasd_unames')||{};nm[h]=e;LS.set('rasd_unames',nm);
+  await uWrite(c=>{if(c.u.some(x=>x.h===h))return c;c.u.push({h,n:mask(e)});return c},t('uAdded'))}
+function uDel(h){const nm=(LS.get('rasd_unames')||{})[h]||((uList&&uList.u.find(x=>x.h===h))||{}).n||'';
+  sheet(`<h2>${t('sure')}</h2><div class="sb"><p>${t('uDelQ',{e:'<b dir="ltr">'+esc(nm)+'</b>'})}</p><div class="acts"><button class="btn" data-act="close">${t('cancel')}</button><button class="btn bad" data-udely="${h}">${t('del')}</button></div></div>`)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-udel],[data-udely]');if(!b)return;e.stopPropagation();if(b.dataset.udel)return uDel(b.dataset.udel);closeSheet();const h=b.dataset.udely;uWrite(c=>{c.u=c.u.filter(x=>x.h!==h);return c},t('uDel'))},true);
+gate();
 {const bt=$('#boot');$('#bootName').textContent=t('app');$('#bootSub').textContent=t('bootSub');setTimeout(()=>{bt.classList.add('gone');setTimeout(()=>{bt.remove();setTimeout(()=>{needZ().then(()=>{try{worker()}catch(e){}initDec()}).catch(()=>{});setTimeout(()=>needX().catch(()=>{}),900)},400)},450)},900)}
 }
 </script>

@@ -63,6 +63,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.Arrays;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 
 /**
  * Rasd — the whole app (assets/www/index.html) runs inside a WebView.
@@ -71,9 +74,9 @@ import java.util.Collections;
  * copy, vibration. The hardware back button is passed to window.__back().
  */
 public class MainActivity extends Activity {
-    static final int RC_AUTH = 11, RC_FILE = 12, RC_CAM_PERM = 13, RC_NOTIF = 14, RC_DIR = 15;
+    static final int RC_AUTH = 11, RC_FILE = 12, RC_CAM_PERM = 13, RC_NOTIF = 14, RC_DIR = 15, RC_ACC = 16;
     static final String HOST = "appassets.androidplatform.net";
-    static final String SCOPE = "https://www.googleapis.com/auth/drive.appdata";
+    static final String SCOPE = "https://www.googleapis.com/auth/drive.appdata", SCOPE_EMAIL = "https://www.googleapis.com/auth/userinfo.email";
     /* in-app updates: bump versionCode in app/build.gradle + "code" in this file on GitHub */
     static final String UPD_URL = "https://mahmoudbassiuoni.github.io/rasd/version.json";
     long lastCheck = 0;
@@ -524,6 +527,10 @@ public class MainActivity extends Activity {
                 try { walk(tree, DocumentsContract.getTreeDocumentId(tree), arr, 0); } catch (Exception e) { /* ignore */ }
                 js("window.__folderFiles&&window.__folderFiles(" + arr.toString() + ")");
             }).start();
+        } else if (rc == RC_ACC) {
+            String nm = (res == RESULT_OK && data != null) ? data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME) : null;
+            if (nm == null) { sendErr("cancel"); return; }
+            authorize(true, new Account(nm, "com.google"));
         } else if (rc == RC_AUTH) {
             if (data == null || res != RESULT_OK) { sendErr("cancel"); return; }
             try {
@@ -537,10 +544,13 @@ public class MainActivity extends Activity {
     }
 
     /* ---------- Google Drive (drive.appdata) ---------- */
-    void authorize(final boolean interactive) {
-        AuthorizationRequest req = AuthorizationRequest.builder()
-                .setRequestedScopes(Collections.singletonList(new Scope(SCOPE)))
-                .build();
+    void authorize(final boolean interactive) { authorize(interactive, null); }
+
+    void authorize(final boolean interactive, Account acc) {
+        AuthorizationRequest.Builder rb = AuthorizationRequest.builder()
+                .setRequestedScopes(Arrays.asList(new Scope(SCOPE), new Scope(SCOPE_EMAIL)));
+        if (acc != null) rb.setAccount(acc);
+        AuthorizationRequest req = rb.build();
         Identity.getAuthorizationClient(this).authorize(req)
                 .addOnSuccessListener(this, r -> {
                     if (r.hasResolution()) {
@@ -686,6 +696,16 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void authorize(final boolean interactive) {
             runOnUiThread(() -> MainActivity.this.authorize(interactive));
+        }
+
+        @JavascriptInterface
+        public void chooseAccount() {
+            runOnUiThread(() -> {
+                try {
+                    Intent it = AccountManager.newChooseAccountIntent(null, null, new String[]{"com.google"}, null, null, null, null);
+                    startActivityForResult(it, RC_ACC);
+                } catch (Exception e) { authorize(true, null); }
+            });
         }
 
         @JavascriptInterface
