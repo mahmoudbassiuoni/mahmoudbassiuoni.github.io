@@ -1,8 +1,8 @@
 {
- "code": 16,
- "name": "1.0.15",
+ "code": 17,
+ "name": "1.0.16",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4300113,
- "notes": "• الكاميرا بقت أنعم من غير تقطيع\n• الكيبورد مبقاش بيزق الشاشة وانت بتكتب الكمية",
- "notes_en": "• Smoother camera, no stutter\n• The keyboard no longer pushes the screen when typing the quantity"
+ "size": 4300297,
+ "notes": "• الكاميرا بقت أخف وأنعم\n• لو قفلت الكاميرا وفتحتها تاني بتفتح على طول",
+ "notes_en": "• Lighter, smoother camera\n• Reopening the camera is instant"
 }
