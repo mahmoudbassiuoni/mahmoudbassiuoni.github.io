@@ -1,7 +1,8 @@
 {
- "code": 6,
- "name": "1.0.5",
+ "code": 7,
+ "name": "1.0.6",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "notes": "• التطبيق بيفتح باللغة اللي مختارها من أول لحظة",
- "notes_en": "• The app opens in your chosen language right away"
+ "size": 4407994,
+ "notes": "• اختيار الأرقام بقايمة تنزل تحت الزرار\n• Sec بدل Section في الاسطمبة\n• شكل جديد لرسالة التحديث",
+ "notes_en": "• Number picker drops down under the button\n• Sec instead of Section in the template\n• New update screen"
 }
