@@ -414,13 +414,16 @@ public class MainActivity extends Activity {
         getWindow().setNavigationBarColor(Color.WHITE);
         if (Build.VERSION.SDK_INT >= 30) {
             getWindow().setDecorFitsSystemWindows(false);
+            getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
             WindowInsetsController c = getWindow().getInsetsController();
             if (c != null) {
                 int a = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
                 c.setSystemBarsAppearance(a, a);
             }
             root.setOnApplyWindowInsetsListener((v, in) -> {
-                android.graphics.Insets i = in.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.ime() | WindowInsets.Type.displayCutout());
+                // the keyboard does NOT resize the page: dialogs with typing sit at the top, so
+                // nothing has to move (resizing on every keyboard frame caused stutter/flicker)
+                android.graphics.Insets i = in.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
                 v.setPadding(i.left, i.top, i.right, i.bottom);
                 return WindowInsets.CONSUMED;
             });
