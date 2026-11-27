@@ -1,8 +1,8 @@
 {
- "code": 8,
- "name": "1.0.7",
+ "code": 9,
+ "name": "1.0.8",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4298186,
- "notes": "• اختيار الأرقام بقايمة شيك تنزل تحت الزرار\n• التحديثات بقت بتتبني وتترفع أوتوماتيك",
- "notes_en": "• Number picker drops down under the button\n• Updates are now built and published automatically"
+ "size": 4298258,
+ "notes": "• قايمة الأرقام بقت بنفس عرض الخانة ولازقة فيها",
+ "notes_en": "• The number list is now the same width as its box and attached to it"
 }
