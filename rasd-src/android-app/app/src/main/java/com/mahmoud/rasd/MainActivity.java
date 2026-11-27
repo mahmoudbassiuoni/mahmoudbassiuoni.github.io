@@ -704,7 +704,7 @@ public class MainActivity extends Activity {
                 try {
                     Intent it = AccountManager.newChooseAccountIntent(null, null, new String[]{"com.google"}, null, null, null, null);
                     startActivityForResult(it, RC_ACC);
-                } catch (Exception e) { authorize(true, null); }
+                } catch (Exception e) { MainActivity.this.authorize(true, null); }
             });
         }
 
