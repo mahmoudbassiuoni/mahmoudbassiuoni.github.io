@@ -4,3 +4,4 @@ publishes rasd/rasd.apk + rasd/version.json + the web app, and sends the update 
 Release = bump versionCode/versionName in android-app/app/build.gradle and edit notes.json.
 
 
+
