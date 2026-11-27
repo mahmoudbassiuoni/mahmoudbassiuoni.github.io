@@ -1,7 +1,7 @@
 {
- "code": 1,
- "name": "1.0.0",
+ "code": 2,
+ "name": "1.0.1",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "notes": "",
- "notes_en": ""
+ "notes": "• قراية الباركود بقت أسرع بكتير\n• شكل جديد لصفحة المسح\n• الموبايل بيهز لما الكود يتقري\n• ستايلات وألوان جديدة من الإعدادات\n• أيقونة جديدة",
+ "notes_en": "• Much faster barcode reading\n• New scan screen\n• Vibrates on every scan\n• New looks and colours in Settings\n• New icon"
 }
