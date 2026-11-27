@@ -1,8 +1,8 @@
 {
- "code": 12,
- "name": "1.0.11",
+ "code": 13,
+ "name": "1.0.12",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4298266,
- "notes": "• فتح التطبيق بقى أسرع وشريط التحميل ناعم\n• أزرار الوضع في الإعدادات على قد الكلام",
- "notes_en": "• Faster start with a smooth loading bar\n• Mode buttons in Settings fit their words"
+ "size": 4298270,
+ "notes": "• شكل جديد لإشعار التحديث",
+ "notes_en": "• New look for the update notification"
 }
