@@ -1,8 +1,8 @@
 {
- "code": 7,
- "name": "1.0.6",
+ "code": 8,
+ "name": "1.0.7",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4407994,
- "notes": "• اختيار الأرقام بقايمة تنزل تحت الزرار\n• Sec بدل Section في الاسطمبة\n• شكل جديد لرسالة التحديث",
- "notes_en": "• Number picker drops down under the button\n• Sec instead of Section in the template\n• New update screen"
+ "size": 4298186,
+ "notes": "• اختيار الأرقام بقايمة شيك تنزل تحت الزرار\n• التحديثات بقت بتتبني وتترفع أوتوماتيك",
+ "notes_en": "• Number picker drops down under the button\n• Updates are now built and published automatically"
 }

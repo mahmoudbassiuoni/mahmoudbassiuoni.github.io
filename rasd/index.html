@@ -13,8 +13,7 @@ try{var d0=JSON.parse(localStorage.getItem('rasd_v2')||'null');if(!d0&&window.Ra
 var s0=(d0&&d0.set)||{},h0=document.documentElement;window.__en=s0.lang==='en';
 if(window.__en){h0.lang='en';h0.dir='ltr';document.title='Rasd — Barcode Scanner'}else{document.title='رصد — ماسح الباركود'}
 if(s0.look&&s0.look!=='classic')h0.dataset.c=s0.look;if(s0.md==='light'||s0.md==='dark')h0.dataset.theme=s0.md}catch(e){}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fonts/fonts.css">
 <style>
 /* VOICE: the LoMag layout people already know, redrawn clean and modern
    IDEA: a scanner handset's home screen — big paper-sheet tiles with coloured badges
@@ -278,7 +277,7 @@ label{display:block;font-size:14px;color:var(--mute);margin:14px 0 4px}
 <div id="fileReader" class="hide"></div>
 
 <script src="lib/zxing-reader.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="lib/xlsx.full.min.js"></script>
 <script>
 {
 const KEY='rasd_v2';
