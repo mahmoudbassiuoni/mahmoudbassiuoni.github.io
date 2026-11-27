@@ -1,8 +1,8 @@
 {
- "code": 20,
- "name": "1.0.19",
+ "code": 21,
+ "name": "1.0.20",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4305833,
- "notes": "• الكيبورد مبقاش بيغطي الكلام: الرسالة بتطلع فوقه\n• أيقونة الاستيراد بقت سهم لجوه",
- "notes_en": "• The keyboard no longer hides dialog fields\n• Import icon is now an arrow going in"
+ "size": 4306557,
+ "notes": "• كل القوايم بقت بنفس الشكل الشيك: بتنزل لازقة تحت الخانة",
+ "notes_en": "• Every list now opens the same neat way, right under its box"
 }
