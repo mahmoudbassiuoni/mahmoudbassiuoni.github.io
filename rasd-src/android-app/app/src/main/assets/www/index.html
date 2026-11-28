@@ -160,7 +160,8 @@ svg.i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .lastbar b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .minirow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));justify-items:center;gap:4px;border-top:1px solid var(--line);margin-top:16px;padding:16px 10px 40px}
 .mini{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;width:100%;padding:6px 2px;font-size:13px;text-align:center;line-height:1.3;border-radius:16px;color:var(--mute);font-weight:500}
-.bkdot{position:absolute;top:2px;inset-inline-end:2px;width:14px;height:14px;border-radius:50%;border:2px solid var(--bg);background:#9aa4b8}.bkdot.g{background:#16a34a}.bkdot.r{background:#e5484d}.bkdot.b{background:#f5a524}
+.bkdot{position:absolute;top:-5px;inset-inline-end:-5px;width:16px;height:16px;border-radius:50%;border:3px solid var(--card);background:#9aa4b8;box-sizing:content-box;box-shadow:0 1px 3px #0003}.mini .bkdot{top:-1px;inset-inline-end:-1px}
+.bkdot.g{background:#16a34a}.bkdot.r{background:#e5484d}.bkdot.b{background:#f5a524}
 .mini .c{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:#fff;font:700 18px Outfit,sans-serif}
 /* app bar */
 .bar{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;padding:env(safe-area-inset-top) 6px 0;box-shadow:0 4px 16px -12px #13235b55}
@@ -844,7 +845,7 @@ function ago(x){const s=(Date.now()-x)/1000,rtf=new Intl.RelativeTimeFormat(loc(
 function bkStatus(){const lb=LS.get('rasd_lastbk'),gb=LS.get('rasd_gbk'),dt=!!LS.get('rasd_gdirty');
   if(gAuto()){if(!gb)return{c:'r',t:t('bkOnDrive'),s:t('bkNever')};return{c:gBusy?'b':dt?'r':'g',t:t('bkOnDrive'),s:dt?t('bkDirty')+' · '+t('bkLast',{a:ago(gb)}):t('bkLast',{a:ago(gb)})}}
   return{c:lb?(Date.now()-lb<7*864e5?'g':'r'):'',t:t('bkOff'),s:lb?t('bkLast',{a:ago(lb)}):t('bkNever')}}
-const bkBadge=()=>`<span class="fic" style="width:46px;height:46px;border-radius:14px;background:linear-gradient(#a98bff,#6a3df0);color:#fff;display:grid;place-items:center;position:relative">${ic('cloud')}<i class="bkdot ${bkStatus().c}"></i></span>`;
+const bkBadge=()=>`<span class="fic" style="width:44px;height:44px;flex:none;border-radius:14px;background:linear-gradient(#a98bff,#6a3df0);color:#fff;display:grid;place-items:center;position:relative">${ic('cloud')}<i class="bkdot ${bkStatus().c}"></i></span>`;
 function bkIcon(){const d=$('#bkDot');if(d)d.className='bkdot '+(gBusy?'b':bkStatus().c);const l=$('#bkLine');if(l){const s=bkStatus();l.textContent=s.t+' · '+s.s}}
 function bkSheet(){const st=bkStatus(),can=gOK(),on=gAuto(),tk=!!gtok()||isNative,pre=!!LS.get('rasd_pre');
   const row=(a,k,g,b,sm)=>`<button class="arow" data-act="${a}"><span class="aic" style="background:linear-gradient(${g})">${ic(k)}</span><span class="g"><b>${b}</b><small>${sm}</small></span><span class="chev">${ic('chev')}</span></button>`;
