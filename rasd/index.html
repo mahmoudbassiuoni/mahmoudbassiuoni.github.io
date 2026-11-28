@@ -117,6 +117,10 @@ if(s0.look&&s0.look!=='classic')h0.dataset.c=s0.look;if(s0.md==='light'||s0.md==
 #gate .bpw{padding:18px 0;color:var(--mute);font-size:13px}
 .aic.ua{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(#6aa8ff,#2459e8);flex:none}
 .mseg button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:42px}.mseg svg.i{width:18px;height:18px}
+.upinfo{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--acc2);color:var(--ink)}.upinfo span{color:var(--mute);font-size:14px;white-space:nowrap}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g2>div{min-width:0}.g2 .f{width:100%}
+.uph{display:flex;align-items:center;justify-content:space-between;gap:8px}.uph .btn{min-height:38px;padding:0 12px;font-size:14px;margin-top:14px}
+.upr .meta{font-size:13px}
 .sumg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
 .sumg div{background:var(--acc2);border-radius:14px;padding:10px 8px;text-align:center}
 .sumg b{display:block;font:700 20px/1.2 Outfit,"IBM Plex Sans Arabic",sans-serif;color:var(--ink)}
@@ -433,7 +437,7 @@ function confirmBox(msg,ok,fn){sheet(`<h2>${t('sure')}</h2><div class="sb"><p>${
 /* views */
 const bar=(title,extra='')=>`<div class="bar"><div class="in wrap"><button class="ib" data-go="home" aria-label="back">${ic('back')}</button><h1>${title}</h1>${extra}</div></div>`;
 const TILES=[['add','addFile','newFile'],['cont','contFile','go:cont'],['prev','preview','go:preview'],['browse','browse','go:browse'],['send','send','send'],['set','settings','go:settings']];
-function render(){applyLang();$('#app').innerHTML=({home,cont,preview,browse,settings,help,users}[view]||home)()}
+function render(){applyLang();$('#app').innerHTML=({home,cont,preview,browse,settings,help,users,uploads}[view]||home)()}
 function home(){
   const lf=LF();
   return `<div class="banner"><div class="in wrap">${QR}<div class="wm"><b>${t('app')}</b><div class="ln"></div><span>${t('tag')}</span></div></div></div>
@@ -506,7 +510,7 @@ function preview(){
   const qq=q.trim().toLowerCase();
   const rs=f.records.filter(r=>!qq||[r.code,r.serial,r.note].some(x=>String(x||'').toLowerCase().includes(qq))).sort((a,b)=>b.t-a.t);
   const tb=(act,k,g,lb)=>`<button class="ib tint" ${act} aria-label="${lb}"><span style="background:linear-gradient(${g})">${ic(k)}</span></button>`;
-  return bar(esc(f.name),tb('data-act="scan"','scan','#3ddc84,#139a4b',t('contScan'))+tb(`data-ren="${esc(f.id)}"`,'edit','#ffc145,#ef8a00',t('rename'))+tb('data-act="send"','send','#a98bff,#6a3df0',t('send')))+
+  return bar(esc(f.name),tb('data-act="scan"','scan','#3ddc84,#139a4b',t('contScan'))+tb(`data-ren="${esc(f.id)}"`,'edit','#ffc145,#ef8a00',t('rename'))+tb('data-act="send"','send','#a98bff,#6a3df0',t('send'))+tb('data-act="upl"','up',f.up?'#3ddc84,#139a4b':'#6aa8ff,#2459e8',t('upBtn')))+
   `<div class="sum wrap"><span><b>${fmt(f.records.length)}</b> ${t('codes')}</span><span>${t('qtyTot')} <b>${fmt(total(f))}</b></span>${hasP?`<span>${t('valTot')} <b>${fmt(tv)}</b></span>`:''}</div>
   <main class="wrap">${f.records.length?`<input class="search" id="q" placeholder="${t('search')}" value="${esc(q)}" inputmode="search">`:''}
   ${rs.length?rs.map(r=>`<div class="rowi rec"><button class="g" data-rec="${esc(r.id)}"><div class="kv2">${r.nm?`<span>${t('nmName')}:</span><b dir="auto">${esc(r.code)}</b>`:`<span>${t('code')}:</span><b class="mono">${esc(r.code)}</b>`}<span>${t('qty')}:</span><b class="num">${fmt(r.qty)}</b>${r.price!=null?`<span>${t('price')}:</span><b class="num">${fmt(r.price)}</b>`:''}${r.serial?`<span>${t('serial')}:</span><b class="mono">${esc(r.serial)}</b>`:''}${r.note?`<span>${t('note')}:</span><b style="font-size:16px">${esc(r.note)}</b>`:''}</div><div class="meta" style="margin-top:2px">${when(r.t)}</div></button><button class="ib xb" data-delr="${esc(r.id)}" aria-label="${t('del')}">${ic('x','style="width:30px;height:30px"')}</button></div>`).join(''):f.records.length?`<div class="empty">${t('noRes')}</div>`:`<div class="empty">${ART.prev.replace('<svg','<svg style="width:110px"')}<h3>${t('emptyFile')}</h3><div>${t('emptyFileSub')}</div></div>`}</main>
@@ -526,6 +530,7 @@ function settings(){
   <div class="step"><b>${t('language')}</b><div class="seg"><button data-lg="ar" class="${s.lang==='ar'?'on':''}">عربي</button><button data-lg="en" class="${s.lang==='en'?'on':''}">English</button></div></div></div>
   <h2 class="sh">${t('backup')}</h2><div class="grp" style="padding:0"><button class="rowi" data-act="bk" style="border:0">${bkBadge()}<div class="g"><h3>${t('bk')}</h3><div class="meta" id="bkLine">${bkStatus().t} · ${bkStatus().s}</div></div>${ic('chev','style="width:26px;height:26px"')}</button></div>
   ${accMe()?`<h2 class="sh">${t('acc')}</h2><div class="grp" style="padding:0"><div class="rowi" style="border:0"><span class="aic" style="width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(#6aa8ff,#2459e8);flex:none">${ic('user')}</span><div class="g"><h3 dir="ltr" style="text-align:start">${esc(accMe().e)}</h3><div class="meta">${isAdm()?t('accAdm'):t('accUser')}</div></div></div>
+  ${isAdm()?`<button class="rowi" data-act="goUpl" style="border:0;border-top:1px solid var(--line)"><span class="aic" style="width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(#3fd6c3,#0f9488);flex:none">${ic('cloud')}</span><div class="g"><h3>${t('upls')}</h3><div class="meta">${t('uplsSub')}</div></div>${ic('chev','style="width:26px;height:26px"')}</button>`:''}
   ${isAdm()?`<button class="rowi" data-act="goUsers" style="border:0;border-top:1px solid var(--line)"><span class="aic" style="width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(#a98bff,#6a3df0);flex:none">${ic('users')}</span><div class="g"><h3>${t('users')}</h3><div class="meta">${t('usersSub')}</div></div>${ic('chev','style="width:26px;height:26px"')}</button>`:''}
   <button class="rowi" data-act="accOut" style="border:0;border-top:1px solid var(--line)"><span class="aic" style="width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(#94a3b8,#475569);flex:none">${ic('logout')}</span><div class="g"><h3>${t('accOut')}</h3></div></button></div>`:''}
   </main><div class="dock"><div class="in"><button class="btn pri" data-act="saveSet">${t('confirm')}</button></div></div>`;
@@ -908,6 +913,9 @@ document.addEventListener('click',e=>{
     case 'backup':return backup();
     case 'restore':return $('#restoreIn').click();
     case 'bk':return bkSheet();
+    case 'upl':return uplSheet();
+    case 'goUpl':upl=null;return go('uploads');
+    case 'uplRef':upl=null;return render();
     case 'goUsers':uList=null;return go('users');
     case 'accOut':return accOut();
     case 'accOutY':return accOutY();
@@ -1038,7 +1046,7 @@ function accOutY(){closeSheet();LS.set('rasd_me',null);LS.set('rasd_gtok',null);
 /* ----- admin: manage the list (writes rasd-access.json through the GitHub API) ----- */
 let uList=null,uBusy=false;
 const mask=e=>{const [a,d]=String(e).split('@');return (a.length<=2?a[0]+'*':a.slice(0,2)+'***'+a.slice(-1))+'@'+(d||'')};
-function users(){if(!isAdm())return home();if(!uList&&!uBusy){uBusy=true;accList().then(l=>{uBusy=false;uList=l||{u:[]};if(view==='users')render()})}
+function users(){if(!isAdm())return home();if(!uList&&!uBusy){uBusy=true;accList().then(l=>{uBusy=false;uList=l||{u:[]};if(view==='users')render();fsSyncAllow()})}
   const names=LS.get('rasd_unames')||{},pat=LS.get('rasd_ghpat');
   const rows=uList?(uList.u.length?uList.u.map(x=>`<div class="rowi"><span class="aic ua">${ic('user')}</span><div class="g"><h3 dir="ltr" style="text-align:start">${esc(names[x.h]||x.n||'')}</h3></div><button class="ib eb" data-ures="${x.h}" aria-label="${t('uReset')}" title="${t('uReset')}">${ic('restore')}</button><button class="ib xb" data-udel="${x.h}" aria-label="${t('del')}">${ic('trash')}</button></div>`).join(''):`<div class="empty" style="padding:28px">${t('uNone')}</div>`):`<div class="empty" style="padding:28px">${t('uLoad')}</div>`;
   return bar(t('users')).replace('data-go="home"','data-go="settings"')+`<main class="wrap">
@@ -1059,7 +1067,7 @@ async function uWrite(fn,okMsg){const pat=LS.get('rasd_ghpat');if(!pat)return gh
     if(!Array.isArray(cur.u))cur.u=[];const nx=fn(cur);if(!nx)return false;
     const body={message:'Rasd access list',content:btoa(unescape(encodeURIComponent(JSON.stringify(nx,null,1)))),branch:'main'};if(sha0)body.sha=sha0;
     const w=await fetch(api,{method:'PUT',headers:H,body:JSON.stringify(body)});if(!w.ok)throw 0;
-    uList=nx;LS.set('rasd_acl',nx);toast(okMsg,'ok');render();return true}catch(e){toast(t('uFail'),'bad');return false}}
+    uList=nx;LS.set('rasd_acl',nx);toast(okMsg,'ok');render();fsSyncAllow();return true}catch(e){toast(t('uFail'),'bad');return false}}
 async function uAddY(){const e=($('#uIn').value||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))return toast(t('uBad'),'bad');
   const h=await sha(e);if(h===ADM||(uList&&uList.u.some(x=>x.h===h)))return toast(t('uHave'),'bad');
   closeSheet();const nm=LS.get('rasd_unames')||{};nm[h]=e;LS.set('rasd_unames',nm);
@@ -1069,7 +1077,68 @@ function uDel(h){const nm=(LS.get('rasd_unames')||{})[h]||((uList&&uList.u.find(
 function uRes(h){const nm=(LS.get('rasd_unames')||{})[h]||((uList&&uList.u.find(x=>x.h===h))||{}).n||'';
   sheet(`<h2>${t('uReset')}</h2><div class="sb"><p>${t('uResetQ',{e:'<b dir="ltr">'+esc(nm)+'</b>'})}</p><div class="acts"><button class="btn" data-act="close">${t('cancel')}</button><button class="btn pri" data-uresy="${h}">${t('confirm')}</button></div></div>`)}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-ures],[data-uresy]');if(!b)return;e.stopPropagation();if(b.dataset.ures)return uRes(b.dataset.ures);closeSheet();const h=b.dataset.uresy;uWrite(c=>{const x=c.u.find(y=>y.h===h);if(x)x.r=(x.r||0)+1;return c},t('uResetOk'))},true);
-document.addEventListener('click',e=>{const b=e.target.closest('[data-udel],[data-udely]');if(!b)return;e.stopPropagation();if(b.dataset.udel)return uDel(b.dataset.udel);closeSheet();const h=b.dataset.udely;uWrite(c=>{c.u=c.u.filter(x=>x.h!==h);return c},t('uDel'))},true);
+document.addEventListener('click',e=>{const b=e.target.closest('[data-udel],[data-udely]');if(!b)return;e.stopPropagation();if(b.dataset.udel)return uDel(b.dataset.udel);closeSheet();const h=b.dataset.udely;{const em=(LS.get('rasd_unames')||{})[h];if(em)fsAllow(em,false)}uWrite(c=>{c.u=c.u.filter(x=>x.h!==h);return c},t('uDel'))},true);
+/* ---------- shared uploads (Firestore in the Firebase project, separate rasd_* collections) ---------- */
+const FBC={apiKey:'AIzaSyBbgXH2SAdILnf0mDpinMsY3nwBq0g_oV4',authDomain:'daftari-515600.firebaseapp.com',projectId:'daftari-515600',storageBucket:'daftari-515600.firebasestorage.app',messagingSenderId:'539562884900',appId:'1:539562884900:web:f06e4ff72ae49e17067db1'},FBV='11.0.2';
+Object.assign(T.ar,{upBtn:'ارفع',upT:'رفع الملف',upTa:'المعيد',upDate:'التاريخ',upHall:'الصالة رقم',upFrom:'من الساعة',upTo:'لحد الساعة',upNeed:'كمّل البيانات: {f}',upGo:'ارفع دلوقتي',upIng:'بنرفع…',upOk:'اترفع ✓',upAgain:'اترفع قبل كده {d} — لو رفعته تاني هيتحدّث',upFail:'الرفع ما نجحش، اتأكد من النت',upRules:'قاعدة البيانات لسه مش متظبطة',upSign:'سجّل دخول بجوجل الأول',
+ upls:'الملفات المرفوعة',uplsSub:'كل اللي اترفع من كل الموبايلات',uplNone:'لسه محدش رفع حاجة',uplLoad:'بنحمّل…',uplAll:'حمّل الكل Excel',uplXl:'حمّل Excel',uplDel:'امسحه',uplDelQ:'هيتمسح «{n}» من الملفات المرفوعة.',uplBy:'رفعه',uplAt:'اترفع',uplHall:'صالة',uplCnt:'{c} كود · {n} اسم',other:'ملفات تانية',uplRef:'تحديث'});
+Object.assign(T.en,{upBtn:'Upload',upT:'Upload file',upTa:'Teaching assistant',upDate:'Date',upHall:'Hall no.',upFrom:'From',upTo:'To',upNeed:'Fill in: {f}',upGo:'Upload now',upIng:'Uploading…',upOk:'Uploaded ✓',upAgain:'Uploaded before {d} — uploading again updates it',upFail:'Upload failed — check the internet',upRules:'The database isn’t set up yet',upSign:'Sign in with Google first',
+ upls:'Uploaded files',uplsSub:'Everything uploaded from all phones',uplNone:'Nothing uploaded yet',uplLoad:'Loading…',uplAll:'Download all (Excel)',uplXl:'Download Excel',uplDel:'Delete',uplDelQ:'“{n}” will be deleted from the uploaded files.',uplBy:'Uploaded by',uplAt:'Uploaded',uplHall:'Hall',uplCnt:'{c} codes · {n} names',other:'Other files',uplRef:'Refresh'});
+let fb=null;
+async function fbLoad(){if(fb)return fb;const u=n=>`https://www.gstatic.com/firebasejs/${FBV}/firebase-${n}.js`;const [a,au,fs]=await Promise.all([import(u('app')),import(u('auth')),import(u('firestore'))]);const app=a.initializeApp(FBC,'rasd');fb={au,fs,auth:au.getAuth(app),db:fs.getFirestore(app)};return fb}
+async function fbUser(){const f=await fbLoad(),me=accMe();if(!me)throw new Error('sign');
+  if(!f.auth.currentUser)await new Promise(r=>{const un=f.au.onAuthStateChanged(f.auth,()=>{un();r()});setTimeout(r,3000)});
+  const cu=f.auth.currentUser;if(cu&&(cu.email||'').toLowerCase()===me.e)return f;
+  if(cu)await f.au.signOut(f.auth);
+  for(let i=0;i<2;i++){if(!await sTok())throw new Error('sign');try{await f.au.signInWithCredential(f.auth,f.au.GoogleAuthProvider.credential(null,gtok()));return f}catch(e){LS.set('rasd_gtok',null);if(i)throw e}}}
+const fsErr=e=>String(e&&(e.code||e.message)||e).includes('permission')?t('upRules'):String(e&&e.message)==='sign'?t('upSign'):t('upFail');
+const pName=n=>{const m=String(n).match(/^(CW|HW)\s*(\d+)\s+(KNU|KFS)(?:\s+(Late))?\s+Sec\s+(\d+)\s*,\s*(\d+)/i);return m?{k:m[1].toUpperCase(),n:+m[2],u:m[3].toUpperCase(),late:!!m[4],sec:m[5]+','+m[6]}:null};
+const isoD=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const dayN=s=>{try{return new Date(s+'T12:00').toLocaleDateString(loc(),{weekday:'long',day:'numeric',month:'long',year:'numeric'})}catch(e){return s}};
+const tm=s=>{if(!s)return '';const [h,m]=s.split(':').map(Number);return new Date(2000,0,1,h,m).toLocaleTimeString(loc(),{hour:'numeric',minute:'2-digit'})};
+function uplSheet(){const f=F();if(!f)return toast(t('openFirst'),'bad');if(!f.records.length)return toast(t('fileEmpty'),'bad');
+  const m=f.meta||{},nc=f.records.filter(r=>!r.nm).length,nn=f.records.length-nc;
+  sheet(`<h2>${ic('up')} ${t('upT')}</h2><div class="sb"><div class="upinfo"><b dir="ltr">${esc(f.name)}</b><span>${t('uplCnt',{c:fmt(nc),n:fmt(nn)})}</span></div>
+  ${f.up?`<div class="meta" style="margin-top:8px">${t('upAgain',{d:when(f.up)})}</div>`:''}
+  <label for="uTa">${t('upTa')}</label><input class="f" id="uTa" dir="auto" value="${esc(m.ta||LS.get('rasd_ta')||'')}">
+  <div class="g2"><div><label for="uDate">${t('upDate')}</label><input class="f" type="date" id="uDate" value="${esc(m.date||isoD(Date.now()))}"></div><div><label for="uHall">${t('upHall')}</label><input class="f" id="uHall" inputmode="numeric" dir="auto" value="${esc(m.hall||'')}"></div></div>
+  <div class="g2"><div><label for="uFrom">${t('upFrom')}</label><input class="f" type="time" id="uFrom" value="${esc(m.from||'')}"></div><div><label for="uTo">${t('upTo')}</label><input class="f" type="time" id="uTo" value="${esc(m.to||'')}"></div></div>
+  <div class="acts"><button class="btn pri" id="uGo">${ic('up')} ${t('upGo')}</button><button class="btn" data-act="close">${t('cancel')}</button></div></div>`);$('#veil').classList.add('top');
+  $('#uGo').onclick=async()=>{const v={ta:$('#uTa').value.trim(),date:$('#uDate').value,hall:$('#uHall').value.trim(),from:$('#uFrom').value,to:$('#uTo').value};
+    const miss=[['ta','upTa'],['date','upDate'],['hall','upHall'],['from','upFrom'],['to','upTo']].filter(([k])=>!v[k]).map(([,l])=>t(l));if(miss.length)return toast(t('upNeed',{f:miss.join('، ')}),'bad');
+    f.meta=v;LS.set('rasd_ta',v.ta);save();const b=$('#uGo');b.disabled=true;b.innerHTML=t('upIng');
+    try{const fx=await fbUser(),p=pName(f.name)||{},me=accMe(),s=f.records.slice().sort((a,b)=>a.t-b.t);
+      await fx.fs.setDoc(fx.fs.doc(fx.db,'rasd_uploads',f.id),{fid:f.id,name:f.name,k:p.k||'',n:p.n||0,u:p.u||'',late:!!p.late,sec:p.sec||'',...v,by:me.e,at:fx.fs.serverTimestamp(),
+        codes:s.filter(r=>!r.nm).map(r=>({c:r.code,q:r.qty??null})),names:s.filter(r=>r.nm).map(r=>({n:r.code,q:r.qty??null}))});
+      f.up=Date.now();save();closeSheet();toast(t('upOk'),'ok');render()}
+    catch(e){console.error(e);b.disabled=false;b.innerHTML=ic('up')+' '+t('upGo');toast(fsErr(e),'bad')}}}
+/* admin: mirror the allow list so the database lets those e-mails upload */
+async function fsAllow(email,on){try{const fx=await fbUser(),r=fx.fs.doc(fx.db,'rasd_users',email.toLowerCase());if(on)await fx.fs.setDoc(r,{e:email.toLowerCase(),at:Date.now()},{merge:true});else await fx.fs.deleteDoc(r)}catch(e){console.warn('fsAllow',e)}}
+async function fsSyncAllow(){if(!isAdm()||!uList)return;const nm=LS.get('rasd_unames')||{};for(const x of uList.u){if(nm[x.h])await fsAllow(nm[x.h],true)}}
+let upl=null,uplBusy=false,uplErrMsg='';
+async function uplLoad(){uplBusy=true;uplErrMsg='';try{const fx=await fbUser(),q=await fx.fs.getDocs(fx.fs.collection(fx.db,'rasd_uploads'));upl=q.docs.map(d=>({id:d.id,...d.data()}))}catch(e){console.error(e);upl=[];uplErrMsg=fsErr(e)}uplBusy=false;if(view==='uploads')render()}
+const uplTs=x=>x.at&&x.at.toMillis?x.at.toMillis():0,secLbl=x=>x.k?['Sec '+x.sec,x.u,x.late?'Late':''].filter(Boolean).join(' · '):x.name;
+function uplGroups(){const g={};for(const x of upl||[]){const key=x.k?x.k+' '+x.n:'~';(g[key]=g[key]||[]).push(x)}
+  return Object.keys(g).sort((a,b)=>a==='~'?1:b==='~'?-1:a.slice(0,2).localeCompare(b.slice(0,2))||(+a.slice(3))-(+b.slice(3))).map(k=>[k,g[k].sort((a,b)=>String(a.sec).localeCompare(String(b.sec),undefined,{numeric:true})||(a.late-b.late)||a.u.localeCompare(b.u))])}
+function uploads(){if(!isAdm())return home();if(!upl&&!uplBusy)uplLoad();
+  const body=!upl?`<div class="empty" style="padding:28px">${t('uplLoad')}</div>`:uplErrMsg?`<div class="empty" style="padding:28px">${esc(uplErrMsg)}</div>`:!upl.length?`<div class="empty" style="padding:28px">${t('uplNone')}</div>`:
+   uplGroups().map(([k,xs])=>`<div class="uph"><h2 class="sh" dir="ltr">${k==='~'?t('other'):esc(k)} · ${fmt(xs.length)}</h2><button class="btn" data-upg="${esc(k)}">${ic('dl')} ${t('uplAll')}</button></div><div class="grp" style="padding:0">${xs.map(x=>`<button class="rowi upr" data-upo="${esc(x.id)}"><span class="aic ua" style="background:linear-gradient(${x.k==='HW'?'#a98bff,#6a3df0':'#3fd6c3,#0f9488'})">${ic('file')}</span><div class="g"><h3 dir="ltr" style="text-align:start">${esc(secLbl(x))}</h3>
+     <div class="meta">${esc(x.ta||'')} · ${esc(dayN(x.date||''))}</div><div class="meta">${t('uplHall')} ${esc(x.hall||'')} · ${esc(tm(x.from))} – ${esc(tm(x.to))} · ${t('uplCnt',{c:fmt((x.codes||[]).length),n:fmt((x.names||[]).length)})}</div></div>${ic('chev','style="width:22px;height:22px"')}</button>`).join('')}</div>`).join('');
+  return bar(t('upls'),`<button class="ib" data-act="uplRef" aria-label="${t('uplRef')}">${ic('restore')}</button>`).replace('data-go="home"','data-go="settings"')+`<main class="wrap">${body}</main>`}
+const aoaOf=x=>{const c=x.codes||[],n=x.names||[],h=[t('code'),t('qty')];if(n.length)h.push(t('nmName'),t('qty'));const a=[h];for(let i=0;i<Math.max(c.length,n.length);i++){const r=[c[i]?c[i].c:'',c[i]?c[i].q??'':''];if(n.length)r.push(n[i]?n[i].n:'',n[i]?n[i].q??'':'');a.push(r)}return a};
+const infoAoa=x=>[[t('upTa'),x.ta||''],[t('upDate'),dayN(x.date||'')],[t('upHall'),x.hall||''],[t('upFrom'),tm(x.from)],[t('upTo'),tm(x.to)],[t('uplBy'),x.by||''],[]];
+async function uplXlsx(xs,fname){try{await needX()}catch(e){return toast(t('needNet'),'bad')}const wb=XLSX.utils.book_new();if(L()==='ar')wb.Workbook={Views:[{RTL:true}]};const used=new Set();
+  for(const x of xs){const ws=XLSX.utils.aoa_to_sheet([...infoAoa(x),...aoaOf(x)]);ws['!cols']=[{wch:24},{wch:14},{wch:24},{wch:12}];let sn=(x.k?secLbl(x).replace(/ · /g,' '):x.name).replace(/[\\\/?*\[\]:]/g,' ').slice(0,31)||'Sheet';let i=2;while(used.has(sn))sn=sn.slice(0,28)+' '+i++;used.add(sn);XLSX.utils.book_append_sheet(wb,ws,sn)}
+  saveFile(new Blob([XLSX.write(wb,{type:'array',bookType:'xlsx'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),fname.replace(/[\\/:*?"<>|]/g,'_')+'.xlsx')}
+function uplOpen(id){const x=(upl||[]).find(y=>y.id===id);if(!x)return;
+  sheet(`<h2 dir="ltr" style="text-align:start">${esc(x.name)}</h2><div class="sb"><dl class="kv"><dt>${t('upTa')}</dt><dd>${esc(x.ta||'')}</dd><dt>${t('upDate')}</dt><dd>${esc(dayN(x.date||''))}</dd><dt>${t('upHall')}</dt><dd>${esc(x.hall||'')}</dd><dt>${t('upFrom')}</dt><dd>${esc(tm(x.from))}</dd><dt>${t('upTo')}</dt><dd>${esc(tm(x.to))}</dd><dt>${t('uplBy')}</dt><dd dir="ltr" style="text-align:start">${esc(x.by||'')}</dd><dt>${t('uplAt')}</dt><dd>${uplTs(x)?when(uplTs(x)):''}</dd><dt>${t('codes')}</dt><dd>${t('uplCnt',{c:fmt((x.codes||[]).length),n:fmt((x.names||[]).length)})}</dd></dl>
+  <button class="btn pri full" style="margin-top:14px" data-upx="${esc(id)}">${ic('dl')} ${t('uplXl')}</button><div class="acts"><button class="btn bad" data-upd="${esc(id)}">${ic('trash')} ${t('uplDel')}</button><button class="btn" data-act="close">${t('ok')}</button></div></div>`)}
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-upo],[data-upx],[data-upd],[data-updy],[data-upg]');if(!b)return;e.stopPropagation();const d=b.dataset;
+  if(d.upo)return uplOpen(d.upo);
+  if(d.upx){const x=upl.find(y=>y.id===d.upx);return uplXlsx([x],x.name)}
+  if(d.upg){const g=uplGroups().find(([k])=>k===d.upg);return g&&uplXlsx(g[1],(d.upg==='~'?'Rasd':d.upg)+' - '+isoD(Date.now()))}
+  if(d.upd){const x=upl.find(y=>y.id===d.upd);return sheet(`<h2>${t('sure')}</h2><div class="sb"><p>${t('uplDelQ',{n:'<b dir="ltr">'+esc(x.name)+'</b>'})}</p><div class="acts"><button class="btn" data-act="close">${t('cancel')}</button><button class="btn bad" data-updy="${esc(x.id)}">${t('del')}</button></div></div>`)}
+  if(d.updy){closeSheet();try{const fx=await fbUser();await fx.fs.deleteDoc(fx.fs.doc(fx.db,'rasd_uploads',d.updy));upl=upl.filter(y=>y.id!==d.updy);toast(t('deleted'),'ok');render()}catch(err){toast(fsErr(err),'bad')}}},true);
 gate();
 {const bt=$('#boot');$('#bootName').textContent=t('app');$('#bootSub').textContent=t('bootSub');setTimeout(()=>{bt.classList.add('gone');setTimeout(()=>{bt.remove();setTimeout(()=>{needZ().then(()=>{try{worker()}catch(e){}initDec()}).catch(()=>{});setTimeout(()=>needX().catch(()=>{}),900)},400)},450)},900)}
 }
