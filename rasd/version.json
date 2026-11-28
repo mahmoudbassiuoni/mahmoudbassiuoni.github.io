@@ -1,8 +1,8 @@
 {
- "code": 29,
- "name": "1.0.28",
+ "code": 30,
+ "name": "1.0.29",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4321789,
- "notes": "• رفع وإرسال من «كمّل على ملف» و«تصفح الملفات»، ودوسة طويلة لتحديد أكتر من ملف\n• «بياناتي للرفع»: سجّل الأسماء والصالات والمواعيد واختار منها\n• السيكشن ما يتكررش في ملفين لنفس الكلاس ورك أو الهوم ورك\n• شيت الملفات المرفوعة رجع لشكله القديم",
- "notes_en": "• Upload and send from Continue file and Browse files; long-press to select several\n• My upload details: save names, halls and times, then pick them\n• A section can’t repeat in two files of the same CW/HW\n• Uploaded files sheet back to the plain layout"
+ "size": 4325109,
+ "notes": "• بياناتك مرة واحدة: اسمك والصالات ومواعيدها، وبعدها تختار الصالة بدوسة\n• الصالة بتتختار لوحدها حسب السكاشن\n• طلبات الدخول: أي حد يقدر يبعت طلب وإنت توافق\n• لينك صفحة الملفات المرفوعة للناس اللي تختارهم\n• شكل جديد لأيقونة الرفع",
+ "notes_en": "• Enter your details once — name, halls and times — then pick a hall with one tap\n• The hall is picked automatically by sections\n• Access requests: anyone can ask and you approve\n• A files page link for the people you choose\n• New upload icon"
 }
