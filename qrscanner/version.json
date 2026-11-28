@@ -1,1 +1,1 @@
-{"versionCode": 20, "versionName": "3.8", "apkUrl": "https://mahmoudbassiuoni.github.io/qrscanner/app.apk", "releaseNotes": "Update InstallStatusReceiver.kt"}
+{"versionCode": 21, "versionName": "3.9", "apkUrl": "https://mahmoudbassiuoni.github.io/qrscanner/app.apk", "releaseNotes": "New browser UI: rounded tab cards, smooth animations, page-colored bars + smoother vault media paging (#1)"}
