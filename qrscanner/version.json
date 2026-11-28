@@ -1,1 +1,1 @@
-{"versionCode": 21, "versionName": "3.9", "apkUrl": "https://mahmoudbassiuoni.github.io/qrscanner/app.apk", "releaseNotes": "New browser UI: rounded tab cards, smooth animations, page-colored bars + smoother vault media paging (#1)"}
+{"versionCode": 22, "versionName": "3.9.1", "apkUrl": "https://mahmoudbassiuoni.github.io/qrscanner/app.apk", "releaseNotes": "Browser: keep tabs alive (no reload), smooth GPU tab switching (#2)"}
