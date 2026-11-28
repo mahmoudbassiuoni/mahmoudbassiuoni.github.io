@@ -1,8 +1,8 @@
 {
- "code": 27,
- "name": "1.0.26",
+ "code": 28,
+ "name": "1.0.27",
  "apk": "https://mahmoudbassiuoni.github.io/rasd/rasd.apk",
- "size": 4318617,
- "notes": "• زرار «ارفع» للملف: المعيد والتاريخ والصالة والميعاد\n• صفحة «الملفات المرفوعة» للأدمن متقسمة CW و HW وتحميل Excel",
- "notes_en": "• Upload button: TA, date, hall and time\n• Admin «Uploaded files» page grouped by CW/HW with Excel download"
+ "size": 4318661,
+ "notes": "• ظبطنا مكان علامة النسخ الاحتياطي",
+ "notes_en": "• Fixed the backup status dot position"
 }
